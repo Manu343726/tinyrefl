@@ -1,0 +1,9 @@
+[submodule "cppast"]
+	path = cppast
+	url = https://github.com/foonathan/cppast
+[submodule "fmt"]
+	path = fmt
+	url = https://github.com/fmtlib/fmt.git
+[submodule "ctti"]
+	path = ctti
+	url = https://github.com/Manu343726/ctti

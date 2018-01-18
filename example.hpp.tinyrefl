@@ -1,0 +1,13 @@
+#ifndef TINYREFL_GENERATED_FILE_15880166986583019765_INCLUDED
+#define TINYREFL_GENERATED_FILE_15880166986583019765_INCLUDED
+
+#include <tinyrefl/backend.hpp>
+
+TINYREFL_REFLECT_MEMBER(&example::A::a)
+TINYREFL_REFLECT_CLASS(example::A, tinyrefl::meta::list<>, tinyrefl::meta::list<tinyrefl::backend::member<CTTI_STATIC_VALUE(&example::A::a)>>)
+TINYREFL_REFLECT_MEMBER(&example::B::b)
+TINYREFL_REFLECT_CLASS(example::B, tinyrefl::meta::list<>, tinyrefl::meta::list<tinyrefl::backend::member<CTTI_STATIC_VALUE(&example::B::b)>>)
+TINYREFL_REFLECT_MEMBER(&example::C::_private)
+TINYREFL_REFLECT_CLASS(example::C, tinyrefl::meta::list<example::C::A, example::C::B>, tinyrefl::meta::list<tinyrefl::backend::member<CTTI_STATIC_VALUE(&example::C::_private)>>)
+
+#endif // TINYREFL_GENERATED_FILE_15880166986583019765_INCLUDED
