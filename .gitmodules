@@ -7,3 +7,6 @@
 [submodule "ctti"]
 	path = ctti
 	url = https://github.com/Manu343726/ctti
+[submodule "masquerade"]
+	path = masquerade
+	url = https://gitlab.com/Manu343726/masquerade.git
