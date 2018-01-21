@@ -14,9 +14,50 @@
 #include <iostream>
 #include <string>
 #include <functional>
-
+#include <regex>
 
 static const std::string ATTRIBUTES_IGNORE = "tinyrefl::ignore";
+
+template<typename Seq>
+std::string sequence(const Seq& elems, const std::string& separator,
+        const std::string& prefix = "", const std::string& suffix = "")
+{
+    std::ostringstream os;
+
+    for(std::size_t i = 0; i < elems.size(); ++i)
+    {
+        os << prefix << elems[i] << suffix;
+
+        if(i < elems.size() - 1)
+        {
+            os << separator;
+        }
+    }
+
+    return os.str();
+}
+
+namespace cppast
+{
+
+std::ostream& operator<<(std::ostream& os, const cppast::cpp_attribute& attribute)
+{
+    if(attribute.scope().has_value())
+    {
+        os << attribute.scope().value() << "::";
+    }
+
+    if(attribute.arguments().has_value())
+    {
+        return os << attribute.name() << "(" << attribute.arguments().value().as_string() << ")";
+    }
+    else
+    {
+        return os << attribute.name();
+    }
+}
+
+}
 
 
 namespace tinyrefl
@@ -36,25 +77,6 @@ void generate_symbol_declaration(std::ostream& os, const std::string& symbol)
     "CTTI_DEFINE_SYMBOL({0});\n"
 "}} // symbols\n"
 "#endif // TINYREFL_SYMBOL_{0}_DEFINED\n", symbol);
-}
-
-template<typename Seq>
-std::string sequence(const Seq& elems, const std::string& separator,
-        const std::string& prefix = "", const std::string& suffix = "")
-{
-    std::ostringstream os;
-
-    for(std::size_t i = 0; i < elems.size(); ++i)
-    {
-        os << prefix << elems[i] << suffix;
-
-        if(i < elems.size() - 1)
-        {
-            os << separator;
-        }
-    }
-
-    return os.str();
 }
 
 std::string full_qualified_name(const cppast::cpp_entity& entity)
@@ -112,14 +134,18 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
     std::vector<std::string> members;
     std::vector<std::string> base_classes;
 
-    std::cout << " # " << full_qualified_name(class_) << "\n";
+
+    std::cout << " # " << full_qualified_name(class_) << " [attributes: "
+                << sequence(class_.attributes(), ", ", "\"", "\"") << "]\n";
+
 
     for(const auto& child : class_)
     {
         if(child.kind() == cppast::cpp_entity_kind::member_variable_t &&
            !cppast::has_attribute(child, ATTRIBUTES_IGNORE))
         {
-            std::cout << "    - (member) " << child.name() << "\n";
+            std::cout << "    - (member) " << child.name() << " [attributes: "
+                << sequence(child.attributes(), ", ", "\"", "\"") << "]\n";
 
             const auto& member = static_cast<const cppast::cpp_member_variable&>(child);
             members.push_back(member_instance(member));
@@ -197,6 +223,7 @@ bool reflect_file(const std::string& filepath)
     config.add_include_dir(TINYREFL_INCLUDE_DIR);
     config.add_include_dir(CTTI_INCLUDE_DIR);
     config.add_include_dir(FMT_INCLUDE_DIR);
+    config.add_include_dir(MASQUERADE_INCLUDE_DIR);
     config.set_flags(cppast::cpp_standard::cpp_14);
 
     try

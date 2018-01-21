@@ -43,6 +43,32 @@ struct member : public Pointer
     using pointer_static_value = Pointer;
     static constexpr entity_kind kind = entity_kind::MEMBER;
     static constexpr ctti::name_t name = ctti::detailed_nameof<Pointer>();
+
+    constexpr member() = default;
+
+    template<typename Class>
+    constexpr auto get(const Class& object) -> decltype(object.*Pointer::value) const
+    {
+        return object.*Pointer::value;
+    }
+
+    template<typename Class>
+    constexpr auto get(Class& object) -> decltype(object.*Pointer::value) const
+    {
+        return object.*Pointer::value;
+    }
+
+    template<typename Class, typename... Args>
+    constexpr auto get(const Class& object, Args&&... args) -> decltype((object.*Pointer::value)(std::forward<Args>(args)...)) const
+    {
+        return (object.*Pointer::value)(std::forward<Args>(args)...);
+    }
+
+    template<typename Class, typename... Args>
+    constexpr auto get(Class& object, Args&&... args) -> decltype((object.*Pointer::value)(std::forward<Args>(args)...)) const
+    {
+        return (object.*Pointer::value)(std::forward<Args>(args)...);
+    }
 };
 
 template<
