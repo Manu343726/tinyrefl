@@ -46,28 +46,33 @@ struct member : public Pointer
 
     constexpr member() = default;
 
-    template<typename Class>
-    constexpr auto get(const Class& object) -> decltype(object.*Pointer::value) const
+    constexpr pointer_type get() const
     {
-        return object.*Pointer::value;
+        return Pointer::value;
     }
 
     template<typename Class>
-    constexpr auto get(Class& object) -> decltype(object.*Pointer::value) const
+    constexpr auto get(const Class& object) const -> decltype(object.*Pointer::value)
     {
-        return object.*Pointer::value;
+        return object.*get();
+    }
+
+    template<typename Class>
+    constexpr auto get(Class& object) const -> decltype(object.*Pointer::value)
+    {
+        return object.*get();
     }
 
     template<typename Class, typename... Args>
-    constexpr auto get(const Class& object, Args&&... args) -> decltype((object.*Pointer::value)(std::forward<Args>(args)...)) const
+    constexpr auto get(const Class& object, Args&&... args) const -> decltype((object.*Pointer::value)(std::forward<Args>(args)...))
     {
-        return (object.*Pointer::value)(std::forward<Args>(args)...);
+        return (object.*get())(std::forward<Args>(args)...);
     }
 
     template<typename Class, typename... Args>
-    constexpr auto get(Class& object, Args&&... args) -> decltype((object.*Pointer::value)(std::forward<Args>(args)...)) const
+    constexpr auto get(Class& object, Args&&... args) const -> decltype((object.*Pointer::value)(std::forward<Args>(args)...))
     {
-        return (object.*Pointer::value)(std::forward<Args>(args)...);
+        return (object.*get())(std::forward<Args>(args)...);
     }
 };
 

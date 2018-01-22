@@ -78,6 +78,12 @@ struct overloaded_function<tinyrefl::meta::list<Head, Second, Tail...>> : public
     {}
 };
 
+template<typename Function, typename Args, typename = void>
+struct is_invokable : public std::false_type {};
+
+template<typename Function, typename... Args>
+struct is_invokable<Function, tinyrefl::meta::list<Args...>, tinyrefl::meta::void_t<typename std::result_of<Function(Args...)>::type>> : std::true_type {};
+
 template<typename Head>
 struct overloaded_function<tinyrefl::meta::list<Head>> : public Head
 {
@@ -85,38 +91,43 @@ struct overloaded_function<tinyrefl::meta::list<Head>> : public Head
         Head{head}
     {}
 
-    template<typename Args, typename = void>
-    struct is_invokable : public std::false_type {};
 
     template<typename... Args>
-    struct is_invokable<tinyrefl::meta::list<Args...>, tinyrefl::meta::void_t<typename std::result_of<Head(Args...)>::type>> : std::true_type {};
-
-    template<typename... Args>
-    auto operator()(Args&&... args) -> typename std::enable_if<is_invokable<Args&&...>::value>::type const
+    auto operator()(Args&&... args) const -> typename std::enable_if<is_invokable<Head, tinyrefl::meta::list<Args&&...>>::value>::type
     {
         (*static_cast<const Head*>(this))(std::forward<Args>(args)...);
     }
 
     template<typename... Args>
-    auto operator()(Args&&... args) -> typename std::enable_if<!is_invokable<Args&&...>::value>::type const
+    auto operator()(Args&&... args) const -> typename std::enable_if<!is_invokable<Head, tinyrefl::meta::list<Args&&...>>::value>::type
     {
         // does nothing
     }
 
     template<typename... Args>
-    auto operator()(Args&&... args) -> typename std::enable_if<is_invokable<Args&&...>::value>::type
+    auto operator()(Args&&... args) -> typename std::enable_if<is_invokable<Head, tinyrefl::meta::list<Args&&...>>::value>::type
     {
         (*static_cast<Head*>(this))(std::forward<Args>(args)...);
     }
 
     template<typename... Args>
-    auto operator()(Args&&... args) -> typename std::enable_if<!is_invokable<Args&&...>::value>::type
+    auto operator()(Args&&... args) -> typename std::enable_if<!is_invokable<Head, tinyrefl::meta::list<Args&&...>>::value>::type
     {
         // does nothing
     }
 };
 
-template<
+template<typename... Ts, typename Function, std::size_t... Indices>
+auto tuple_map_impl(const std::tuple<Ts...>& tuple, Function function, tinyrefl::meta::index_sequence<Indices...>)
+{
+    return std::make_tuple(function(std::get<Indices>(tuple))...);
+}
+
+template<typename... Ts, typename Function>
+auto tuple_map(const std::tuple<Ts...>& tuple, Function function)
+{
+    return tuple_map_impl(tuple, function, tinyrefl::meta::make_index_sequence_for<Ts...>());
+}
 
 template<typename Class, typename Visitor, std::size_t Depth>
 tinyrefl::meta::enable_if_t<std::is_class<Class>::value && has_metadata<Class>::value>
@@ -203,6 +214,35 @@ void visit_object(Class&& object, Visitors... visitors)
     {
         visitor(name, depth, entity.get(object), CTTI_STATIC_VALUE(entity::MEMBER_VARIABLE)());
     });
+}
+
+template<typename... Class>
+auto visit_objects(Class&&... objects)
+{
+    return [objects = std::make_tuple(std::forward<Class>(objects)...)](auto... visitors)
+    {
+        auto visitor = tinyrefl::overloaded_function(visitors...);
+
+        visit_class<typename std::decay<tinyrefl::meta::pack_head_t<Class...>>::type>(
+            [&objects = objects, visitor = visitor](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(entity::CLASS))
+        {
+            visitor(
+                name,
+                depth,
+                tinyrefl::detail::tuple_map(objects, [entity](auto&& object){ return tinyrefl::detail::cast<typename decltype(entity)::type>(object); }),
+                CTTI_STATIC_VALUE(entity::OBJECT)()
+            );
+        },
+            [&objects = objects, visitor = visitor](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(entity::MEMBER_VARIABLE))
+        {
+            visitor(
+                name,
+                depth,
+                tinyrefl::detail::tuple_map(objects, [entity](auto&& object){ return entity.get(object); }),
+                CTTI_STATIC_VALUE(entity::MEMBER_VARIABLE)()
+            );
+        });
+    };
 }
 
 }

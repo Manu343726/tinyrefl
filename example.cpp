@@ -1,5 +1,6 @@
 #include <tinyrefl/api.hpp>
 #include <iostream>
+#include <sstream>
 #include "example.hpp"
 #include "example.hpp.tinyrefl"
 
@@ -8,14 +9,32 @@ template<typename T,
     typename = typename std::enable_if<tinyrefl::has_metadata<T>::value>::type>
 std::ostream& operator<<(std::ostream& os, const T& object)
 {
-    os << "{";
+    std::ostringstream ss;
+    ss << "{";
 
-    tinyrefl::visit_object(object, [&os](const std::string& name, auto depth, auto member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+    tinyrefl::visit_object(object, [&ss](const std::string& name, auto depth, auto member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
     {
-        os << "\"" << name << "\": " << member << ",";
+        ss << "\"" << name << "\": " << member << ",";
     });
 
-    return os;
+    auto str = ss.str();
+    str.pop_back();
+    return os << str << "}";
+}
+
+template<typename T,
+    typename = typename std::enable_if<tinyrefl::has_metadata<T>::value>::type>
+bool operator==(const T& lhs, const T& rhs)
+{
+    bool equal = true;
+
+    tinyrefl::visit_objects(lhs, rhs)([&equal](const std::string& name, auto depth, auto members,
+        CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+    {
+        equal &= std::get<0>(members) == std::get<1>(members);
+    });
+
+    return equal;
 }
 
 int main()
@@ -32,6 +51,8 @@ int main()
     });
 
     std::cout << "c object dump: " << c << "\n";
+
+    std::cout << "is c == c ?: " << std::boolalpha << (c == c) << "\n";
 }
 
 

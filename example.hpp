@@ -18,15 +18,15 @@ struct B
     const char* b = "hello";
 };
 
-struct [[tinyrefl::exclude(tinyrefl::entity::MEMBER_VARIABLE, "_.*")]]
-    C : public A, public B
+struct C : public A, public B
 {
     TINYREFL_GODMODE
 public:
-    [[tinyrefl::ignore_no_really]] std::string ignore_me;
+    [[tinyrefl::ignore]] std::string ignore_me;
     std::string hey_im_here;
+    B subobject;
 private:
-    int _private;
+    int _private = 42;
 };
 
 }
