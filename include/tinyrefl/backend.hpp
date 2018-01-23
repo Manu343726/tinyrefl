@@ -6,6 +6,11 @@
 #include <ctti/detail/hash.hpp>
 #include <ctti/detailed_nameof.hpp>
 #include <ctti/symbol.hpp>
+#include <ctti/detail/algorithm.hpp>
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+#include <stdexcept>
+#include <initializer_list>
 
 namespace tinyrefl
 {
@@ -30,6 +35,14 @@ struct metadata_registered_for_hash : public tinyrefl::meta::bool_<!std::is_same
     typename metadata_of<Hash>::type,
     no_metadata
 >::value> {};
+
+template<typename T>
+using metadata_of_type = metadata_of<ctti::nameof<T>().hash()>;
+
+template<typename T>
+using metadata_registered_for_type = metadata_registered_for_hash<
+    ctti::nameof<T>().hash()
+>;
 
 enum class entity_kind
 {
@@ -85,14 +98,139 @@ struct class_
     static constexpr entity_kind kind = entity_kind::CLASS;
     using base_classes = BaseClasses;
     using members = Members;
+private:
+    template<typename Total, typename BaseClass,
+        typename HasMetadata = tinyrefl::meta::bool_<metadata_registered_for_type<BaseClass>::value>>
+    struct accumulate
+    {
+        using type = Total;
+    };
+
+    template<typename Total, typename BaseClass>
+    struct accumulate<Total, BaseClass, std::true_type>
+    {
+        using type = tinyrefl::meta::size_t<Total::value + metadata_of_type<BaseClass>::type::members::size + metadata_of_type<BaseClass>::type::total_members::value>;
+    };
+
+public:
+    using total_base_members = tinyrefl::meta::foldl_t<tinyrefl::meta::defer<accumulate>, tinyrefl::meta::size_t<0>, base_classes>;
+    using total_members = tinyrefl::meta::size_t<members::size + total_base_members::value>;
 };
 
+template<typename T, std::size_t N>
+struct constexpr_array
+{
+    constexpr constexpr_array(const std::initializer_list<T>& init) :
+        constexpr_array{init, tinyrefl::meta::make_index_sequence<N>()}
+    {}
 
-template<typename Values>
-struct enum_
+    constexpr const T& operator[](std::size_t i) const
+    {
+        return _array[i];
+    }
+
+    constexpr const T* begin() const
+    {
+        return ctti::detail::begin(_array);
+    }
+
+    constexpr const T* end() const
+    {
+        return ctti::detail::end(_array);
+    }
+
+    constexpr std::size_t size() const
+    {
+        return N;
+    }
+
+private:
+    T _array[N];
+
+    template<std::size_t... Is>
+    constexpr constexpr_array(const std::initializer_list<T>& init, tinyrefl::meta::index_sequence<Is...>) :
+        _array{*(init.begin() + Is)...}
+    {}
+};
+
+template<typename List>
+struct typelist_to_array;
+
+template<typename... Values>
+struct typelist_to_array<tinyrefl::meta::list<Values...>>
+{
+    using value_type = decltype(tinyrefl::meta::pack_head_t<Values...>::value);
+    using array_type = constexpr_array<value_type, ctti::detail::max(1ul, sizeof...(Values))>;
+
+    static constexpr array_type value = {Values::value...};
+};
+
+template<typename... Values>
+constexpr typename typelist_to_array<tinyrefl::meta::list<Values...>>::array_type typelist_to_array<tinyrefl::meta::list<Values...>>::value;
+
+template<typename Enum, typename Values>
+struct enum_;
+
+template<typename Enum, Enum... Values>
+struct enum_<Enum, tinyrefl::meta::list<ctti::static_value<Enum, Values>...>>
 {
     static constexpr entity_kind kind = entity_kind::CLASS;
-    using values = Values;
+    using values = tinyrefl::meta::list<ctti::static_value<Enum, Values>...>;
+    using names_array_t = constexpr_array<ctti::detail::cstring, ctti::detail::max(1ul, values::size)>;
+    using enum_type = Enum;
+
+    constexpr enum_() = default;
+
+    constexpr enum_type get_value(const ctti::detail::cstring& name) const
+    {
+        return find_value_by_name(name);
+    }
+
+    constexpr enum_type get_value(const std::size_t i) const
+    {
+        return get_values()[i];
+    }
+
+    constexpr ctti::detail::cstring get_name(std::size_t i) const
+    {
+        return get_names()[i];
+    }
+
+    constexpr ctti::detail::cstring get_name(const enum_type value) const
+    {
+        return find_name_by_value(value);
+    }
+
+    constexpr auto get_values() const
+    {
+        return typelist_to_array<values>::value;
+    }
+
+    constexpr names_array_t get_names() const
+    {
+        return { ctti::detailed_nameof<CTTI_STATIC_VALUE(Values)>().name()... };
+    }
+
+private:
+    constexpr enum_type find_value_by_name(const ctti::detail::cstring& name, std::size_t i = 0) const
+    {
+        return (i < values::size) ?
+            (get_name(i) == name ?
+                get_value(i) :
+                find_value_by_name(name, i + 1))
+            : throw std::runtime_error{fmt::format("Unknown {} enum value \"{}\"",
+                ctti::nameof<enum_type>(), name)};
+    }
+
+    constexpr ctti::detail::cstring find_name_by_value(const enum_type value, std::size_t i = 0) const
+    {
+        return (i < values::size) ?
+            (get_value(i) == value ?
+                get_name(i) :
+                find_name_by_value(value, i + 1))
+            : throw std::runtime_error{fmt::format("Unknown {} enum value '{}'",
+                ctti::nameof<enum_type>(), static_cast<typename std::underlying_type<enum_type>::type>(value))};
+    }
 };
 
 }
@@ -117,27 +255,25 @@ struct enum_
     };                                                     \
     } /* namespace backend */ } // namespace tinyrefl
 
-#define TINYREFL_REFLECT_ENUM_IMPL(enumname, values)      \
+#define TINYREFL_REFLECT_ENUM_IMPL(enumname, ...)         \
     namespace tinyrefl { namespace backend {              \
     template<>                                            \
     struct metadata_of<::ctti::nameof<enumname>().hash()> \
     {                                                     \
-        using type = enum_<values>;                       \
+        using type = enum_<enumname, __VA_ARGS__>;        \
     };                                                    \
     } /* namespace backend */ } // namespace tinyrefl
 
 
-#ifndef TINYREFL_RUNNING
 #define TINYREFL_GODMODE \
     template<typename __TinyRefl__GodModeTemplateParam__BaseClasses, typename __TinyRelf__GodModeTemplateParam__Members> \
-    friend struct ::tinyrefl::backend::class_;                                                                            \
+    friend struct ::tinyrefl::backend::class_;                                                                           \
     template<tinyrefl::backend::type_hash_t __TinyRefl__GodModeTemplateParam__Hash>                                      \
-    friend struct ::tinyrefl::backend::metadata_of;                                                                       \
+    friend struct ::tinyrefl::backend::metadata_of;                                                                      \
     template<typename __TinyRefl__GodModeTemplateParam__Pointer>                                                         \
-    friend struct ::tinyrefl::backend::member;                                                                            \
-    template<typename __TinyRefl__GodModeTemplateParam__Values>                                                          \
+    friend struct ::tinyrefl::backend::member;                                                                           \
+    template<typename __TinyRefl__GodModeTemplateParam__Enum, typename __TinyRefl__GodModeTemplateParam__Values>         \
     friend struct ::tinyrefl::backend::enum_;
-#endif // TINYREFL_RUNNING
 
 #ifndef TINYREFL_DEBUG_HASHES
 
@@ -148,7 +284,7 @@ struct enum_
     TINYREFL_REFLECT_CLASS_IMPL(classname, __VA_ARGS__)
 
 #define TINYREFL_REFLECT_ENUM(enumname, ...) \
-    TINYREFL_REFLECT_ENUM_IMPL(enumclass, __VA_ARGS__)
+    TINYREFL_REFLECT_ENUM_IMPL(enumname, __VA_ARGS__)
 
 #else
 

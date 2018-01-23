@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
 project(tinyrefl)
 
-set(CPPAST_BUILD_EXAMPLE OFF)
-set(CPPAST_BUILD_TEST OFF)
-set(CPPAST_BUILD_TOOL OFF)
-set(CXXOPTS_BUILD_EXAMPLES OFF)
+set(CPPAST_BUILD_EXAMPLE OFF CACHE BOOL "disable cppast examples")
+set(CPPAST_BUILD_TEST OFF CACHE BOOL "disable cppast tests")
+set(CPPAST_BUILD_TOOL OFF CACHE BOOL "disable cppast tool")
 
 set(CMAKE_CXX_STANDARD 14)
 add_subdirectory(fmt)

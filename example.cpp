@@ -9,17 +9,29 @@ template<typename T,
     typename = typename std::enable_if<tinyrefl::has_metadata<T>::value>::type>
 std::ostream& operator<<(std::ostream& os, const T& object)
 {
-    std::ostringstream ss;
-    ss << "{";
+    std::size_t total = 0;
+    std::size_t current = 0;
+    os << "{";
 
-    tinyrefl::visit_object(object, [&ss](const std::string& name, auto depth, auto member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+    tinyrefl::visit_object(object, [&total](const std::string& name, auto depth, auto member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
     {
-        ss << "\"" << name << "\": " << member << ",";
+        total++;
+    });
+    tinyrefl::visit_object(object, [&os, &current, total](const std::string& name, auto depth, auto member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+    {
+        os << "\"" << name << "\": " << member;
+
+        if(current < total - 1)
+        {
+            os << ", ";
+        }
+
+        current++;
     });
 
-    auto str = ss.str();
-    str.pop_back();
-    return os << str << "}";
+    os << "}";
+
+    return os;
 }
 
 template<typename T,
@@ -53,6 +65,17 @@ int main()
     std::cout << "c object dump: " << c << "\n";
 
     std::cout << "is c == c ?: " << std::boolalpha << (c == c) << "\n";
+
+    std::cout << ctti::nameof<CTTI_STATIC_VALUE(example::Enum::A)>() << "\n";
+    std::cout << ctti::detailed_nameof<CTTI_STATIC_VALUE(example::Enum::A)>().name() << "\n";
+
+    for(const auto& name : tinyrefl::metadata<example::Enum>().get_names())
+    {
+        std::cout << " - " << name << "\n";
+    }
+
+    std::cout << "enum to string: " << tinyrefl::metadata<example::Enum>().get_name(example::Enum::A) << "\n";
+    example::Enum enum_value_a = tinyrefl::metadata<example::Enum>().get_value("A");
 }
 
 

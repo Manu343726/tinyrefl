@@ -171,7 +171,27 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
 
 void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
 {
+    std::cout << " # " << full_qualified_name(enum_) << " [attributes: "
+                << sequence(enum_.attributes(), ", ", "\"", "\"") << "]\n";
 
+    if(!cppast::has_attribute(enum_, ATTRIBUTES_IGNORE))
+    {
+        std::vector<std::string> values;
+
+        cppast::visit(enum_, [&values](const cppast::cpp_entity& entity, const cppast::visitor_info& info)
+        {
+            if(entity.kind() == cppast::cpp_enum_value::kind())
+            {
+                std::cout << "    - (enum value) " << full_qualified_name(entity) << "\n";
+                values.push_back(fmt::format("CTTI_STATIC_VALUE({})", full_qualified_name(entity)));
+            }
+        });
+
+        fmt::print(os, "TINYREFL_REFLECT_ENUM({}, {})\n",
+            full_qualified_name(enum_),
+            typelist(values)
+        );
+    }
 }
 
 

@@ -247,4 +247,8 @@ auto visit_objects(Class&&... objects)
 
 }
 
+#ifndef TINYREFL_NO_REFLECTION_OPERATORS
+#define $(...) typename ::tinyrefl::backend::metadata_of<::ctti::nameof<__VA_ARGS__>().hash()>::type{}
+#endif // TINYREFL_NO_REFLECTION_OPERATORS
+
 #endif // TINYREFL_API_HPP
