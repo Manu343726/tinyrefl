@@ -10,7 +10,10 @@ TINYREFL_REFLECT_CLASS(example::B, tinyrefl::meta::list<>, tinyrefl::meta::list<
 TINYREFL_REFLECT_ENUM(example::Enum, tinyrefl::meta::list<CTTI_STATIC_VALUE(example::Enum::A), CTTI_STATIC_VALUE(example::Enum::B), CTTI_STATIC_VALUE(example::Enum::C), CTTI_STATIC_VALUE(example::Enum::D), CTTI_STATIC_VALUE(example::Enum::E)>)
 TINYREFL_REFLECT_MEMBER(&example::C::hey_im_here)
 TINYREFL_REFLECT_MEMBER(&example::C::subobject)
+TINYREFL_REFLECT_MEMBER(&example::C::method)
 TINYREFL_REFLECT_MEMBER(&example::C::_private)
-TINYREFL_REFLECT_CLASS(example::C, tinyrefl::meta::list<example::C::A, example::C::B>, tinyrefl::meta::list<tinyrefl::backend::member<CTTI_STATIC_VALUE(&example::C::hey_im_here)>, tinyrefl::backend::member<CTTI_STATIC_VALUE(&example::C::subobject)>, tinyrefl::backend::member<CTTI_STATIC_VALUE(&example::C::_private)>>)
+TINYREFL_REFLECT_CLASS(example::C, tinyrefl::meta::list<example::C::A, example::C::B>, tinyrefl::meta::list<tinyrefl::backend::member<CTTI_STATIC_VALUE(&example::C::hey_im_here)>, tinyrefl::backend::member<CTTI_STATIC_VALUE(&example::C::subobject)>, tinyrefl::backend::member<CTTI_STATIC_VALUE(&example::C::method)>, tinyrefl::backend::member<CTTI_STATIC_VALUE(&example::C::_private)>>)
+TINYREFL_REFLECT_CLASS(example::C::tinyrefl_godmode_tag, tinyrefl::meta::list<>, tinyrefl::meta::list<>)
+TINYREFL_REFLECT_ENUM(example::C::Enum, tinyrefl::meta::list<CTTI_STATIC_VALUE(example::C::Enum::A), CTTI_STATIC_VALUE(example::C::Enum::B), CTTI_STATIC_VALUE(example::C::Enum::C), CTTI_STATIC_VALUE(example::C::Enum::D), CTTI_STATIC_VALUE(example::C::Enum::E), CTTI_STATIC_VALUE(example::C::Enum::F), CTTI_STATIC_VALUE(example::C::Enum::G)>)
 
 #endif // TINYREFL_GENERATED_FILE_15880166986583019765_INCLUDED

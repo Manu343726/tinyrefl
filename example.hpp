@@ -30,6 +30,14 @@ public:
     [[tinyrefl::ignore]] std::string ignore_me;
     std::string hey_im_here;
     B subobject;
+
+    enum class Enum
+    {
+        A, B, C, D, E, F, G
+    };
+
+    void method() const {}
+
 private:
     int _private = 42;
 };

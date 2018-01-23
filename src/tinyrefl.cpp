@@ -103,7 +103,7 @@ std::string enum_declaration(const std::string& name, const std::vector<std::str
     return fmt::format("enum class {} {{{}}};", name, sequence(values, ", "));
 }
 
-std::string member_pointer(const cppast::cpp_member_variable& member)
+std::string member_pointer(const cppast::cpp_entity& member)
 {
     return fmt::format("&{}", full_qualified_name(member));
 }
@@ -118,13 +118,13 @@ std::string typelist_string(const std::string& str)
     return fmt::format("tinyrefl::meta::string<{}>", sequence(str, ", ", "'", "'"));
 }
 
-std::string member_instance(const cppast::cpp_member_variable& member)
+std::string member_instance(const cppast::cpp_entity& member)
 {
     return fmt::format("tinyrefl::backend::member<CTTI_STATIC_VALUE({})>",
         member_pointer(member));
 }
 
-void generate_member(std::ostream& os, const cppast::cpp_member_variable& member)
+void generate_member(std::ostream& os, const cppast::cpp_entity& member)
 {
     fmt::print(os, "TINYREFL_REFLECT_MEMBER({})\n", member_pointer(member));
 }
@@ -139,19 +139,28 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
                 << sequence(class_.attributes(), ", ", "\"", "\"") << "]\n";
 
 
-    for(const auto& child : class_)
+    cppast::visit(class_, [&](const cppast::cpp_entity& child, const cppast::visitor_info& info)
     {
-        if(child.kind() == cppast::cpp_entity_kind::member_variable_t &&
-           !cppast::has_attribute(child, ATTRIBUTES_IGNORE))
+        if(cppast::has_attribute(child, ATTRIBUTES_IGNORE))
         {
-            std::cout << "    - (member) " << child.name() << " [attributes: "
-                << sequence(child.attributes(), ", ", "\"", "\"") << "]\n";
-
-            const auto& member = static_cast<const cppast::cpp_member_variable&>(child);
-            members.push_back(member_instance(member));
-            generate_member(os, member);
+            return;
         }
-    }
+
+        switch(child.kind())
+        {
+            case cppast::cpp_entity_kind::member_function_t:
+            case cppast::cpp_entity_kind::member_variable_t:
+            {
+                std::cout << "    - (member) " << child.name() << " [attributes: "
+                          << sequence(child.attributes(), ", ", "\"", "\"") << "]\n";
+                members.push_back(member_instance(child));
+                generate_member(os, child);
+                break;
+            }
+            default:
+                break;
+        }
+    });
 
     for(const auto& base_class : class_.bases())
     {

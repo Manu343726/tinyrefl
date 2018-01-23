@@ -11,36 +11,8 @@
 namespace tinyrefl
 {
 
-enum class entity
-{
-    NAMESPACE,
-    CLASS,
-    BASE_CLASS,
-    MEMBER_VARIABLE,
-    MEMBER_FUNCTION,
-    OBJECT
-};
+using entity = tinyrefl::backend::entity_kind;
 
-std::ostream& operator<<(std::ostream& os, const entity e)
-{
-    switch(e)
-    {
-    case entity::NAMESPACE:
-        return os << "namespace";
-    case entity::CLASS:
-        return os << "class";
-    case entity::BASE_CLASS:
-        return os << "base_class";
-    case entity::MEMBER_FUNCTION:
-        return os << "member function";
-    case entity::MEMBER_VARIABLE:
-        return os << "member variable";
-    case entity::OBJECT:
-        return os << "object";
-    }
-
-    return os;
-}
 
 template<typename T>
 using type_tag = ctti::type_tag<T>;
@@ -102,6 +74,7 @@ struct overloaded_function<tinyrefl::meta::list<Head>> : public Head
     auto operator()(Args&&... args) const -> typename std::enable_if<!is_invokable<Head, tinyrefl::meta::list<Args&&...>>::value>::type
     {
         // does nothing
+        fmt::print("{}\n", __PRETTY_FUNCTION__);
     }
 
     template<typename... Args>
@@ -114,6 +87,7 @@ struct overloaded_function<tinyrefl::meta::list<Head>> : public Head
     auto operator()(Args&&... args) -> typename std::enable_if<!is_invokable<Head, tinyrefl::meta::list<Args&&...>>::value>::type
     {
         // does nothing
+        fmt::print("{}\n", __PRETTY_FUNCTION__);
     }
 };
 
@@ -153,7 +127,7 @@ visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>)
         visitor(ctti::detailed_nameof<typename member::pointer_static_value>().name().str(),
                 tinyrefl::meta::size_t<Depth>(),
                 member(),
-                CTTI_STATIC_VALUE(entity::MEMBER_VARIABLE)());
+                CTTI_STATIC_VALUE(member::kind)());
     });
 }
 

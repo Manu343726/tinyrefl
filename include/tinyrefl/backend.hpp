@@ -46,15 +46,41 @@ using metadata_registered_for_type = metadata_registered_for_hash<
 
 enum class entity_kind
 {
-    ENUM, CLASS, MEMBER
+    NAMESPACE,
+    CLASS,
+    BASE_CLASS,
+    MEMBER_VARIABLE,
+    MEMBER_FUNCTION,
+    OBJECT
 };
+
+std::ostream& operator<<(std::ostream& os, const entity_kind e)
+{
+    switch(e)
+    {
+    case entity_kind::NAMESPACE:
+        return os << "namespace";
+    case entity_kind::CLASS:
+        return os << "class";
+    case entity_kind::BASE_CLASS:
+        return os << "base_class";
+    case entity_kind::MEMBER_FUNCTION:
+        return os << "member function";
+    case entity_kind::MEMBER_VARIABLE:
+        return os << "member variable";
+    case entity_kind::OBJECT:
+        return os << "object";
+    }
+
+    return os;
+}
 
 template<typename Pointer>
 struct member : public Pointer
 {
     using pointer_type = typename Pointer::value_type;
     using pointer_static_value = Pointer;
-    static constexpr entity_kind kind = entity_kind::MEMBER;
+    static constexpr entity_kind kind = (std::is_member_function_pointer<pointer_type>::value ? entity_kind::MEMBER_FUNCTION : entity_kind::MEMBER_VARIABLE);
     static constexpr ctti::name_t name = ctti::detailed_nameof<Pointer>();
 
     constexpr member() = default;
@@ -178,8 +204,15 @@ struct enum_<Enum, tinyrefl::meta::list<ctti::static_value<Enum, Values>...>>
     using values = tinyrefl::meta::list<ctti::static_value<Enum, Values>...>;
     using names_array_t = constexpr_array<ctti::detail::cstring, ctti::detail::max(1ul, values::size)>;
     using enum_type = Enum;
+    using underlying_type = typename std::underlying_type<enum_type>::type;
+    using underlying_values = tinyrefl::meta::list<ctti::static_value<underlying_type, static_cast<underlying_type>(Values)>...>;
 
     constexpr enum_() = default;
+
+    constexpr std::size_t count() const
+    {
+        return values::size;
+    }
 
     constexpr enum_type get_value(const ctti::detail::cstring& name) const
     {
@@ -189,6 +222,21 @@ struct enum_<Enum, tinyrefl::meta::list<ctti::static_value<Enum, Values>...>>
     constexpr enum_type get_value(const std::size_t i) const
     {
         return get_values()[i];
+    }
+
+    constexpr underlying_type get_underlying_value(const ctti::detail::cstring& name) const
+    {
+        return static_cast<underlying_type>(get_value(name));
+    }
+
+    constexpr underlying_type get_underlying_value(std::size_t i) const
+    {
+        return static_cast<underlying_type>(get_value(i));
+    }
+
+    constexpr bool is_enumerated_value(const underlying_type value) const
+    {
+        return find_value_index(value) >= 0;
     }
 
     constexpr ctti::detail::cstring get_name(std::size_t i) const
@@ -211,10 +259,15 @@ struct enum_<Enum, tinyrefl::meta::list<ctti::static_value<Enum, Values>...>>
         return { ctti::detailed_nameof<CTTI_STATIC_VALUE(Values)>().name()... };
     }
 
+    constexpr auto get_underlying_values() const
+    {
+        return typelist_to_array<underlying_values>::value;
+    }
+
 private:
     constexpr enum_type find_value_by_name(const ctti::detail::cstring& name, std::size_t i = 0) const
     {
-        return (i < values::size) ?
+        return (i < count()) ?
             (get_name(i) == name ?
                 get_value(i) :
                 find_value_by_name(name, i + 1))
@@ -224,12 +277,21 @@ private:
 
     constexpr ctti::detail::cstring find_name_by_value(const enum_type value, std::size_t i = 0) const
     {
-        return (i < values::size) ?
+        return (i < count()) ?
             (get_value(i) == value ?
                 get_name(i) :
                 find_name_by_value(value, i + 1))
             : throw std::runtime_error{fmt::format("Unknown {} enum value '{}'",
                 ctti::nameof<enum_type>(), static_cast<typename std::underlying_type<enum_type>::type>(value))};
+    }
+
+    constexpr int find_value_index(const underlying_type value, std::size_t i = 0) const
+    {
+        return (i < count()) ?
+            (get_underlying_values()[i] == value ?
+                static_cast<int>(i) :
+                find_value_index(value, i + 1))
+            : -1;
     }
 };
 
@@ -266,6 +328,7 @@ private:
 
 
 #define TINYREFL_GODMODE \
+    struct tinyrefl_godmode_tag {}; \
     template<typename __TinyRefl__GodModeTemplateParam__BaseClasses, typename __TinyRelf__GodModeTemplateParam__Members> \
     friend struct ::tinyrefl::backend::class_;                                                                           \
     template<tinyrefl::backend::type_hash_t __TinyRefl__GodModeTemplateParam__Hash>                                      \
@@ -325,7 +388,7 @@ struct entity_hash : public tinyrefl::meta::size_t<0> {};
 #define TINYREFL_REFLECT_ENUM_REGISTER_HASH(enumname, values)   \
     namespace tinyrefl { namespace backend { namespace debug {  \
     template<>                                                  \
-    struct entity_hash<enumname> : public  i                    \
+    struct entity_hash<enumname> : public                       \
         tinyrefl::meta::size_t<ctti::nameof<enumname>().hash()> \
     {};                                                         \
     } /* namespace backend */ } /* namespace tinyrefl */ } // namespace debug

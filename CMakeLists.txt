@@ -6,6 +6,7 @@ set(CPPAST_BUILD_TEST OFF CACHE BOOL "disable cppast tests")
 set(CPPAST_BUILD_TOOL OFF CACHE BOOL "disable cppast tool")
 
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-inline")
 add_subdirectory(fmt)
 add_subdirectory(cppast)
 add_subdirectory(ctti)

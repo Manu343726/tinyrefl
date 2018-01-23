@@ -56,7 +56,7 @@ int main()
     static_assert(tinyrefl::has_metadata<example::C>::value, "");
     static_assert(!tinyrefl::has_metadata<int>::value, "");
 
-    tinyrefl::visit_object(c, [](const std::string& name, auto depth, auto entity, auto entity_kind)
+    tinyrefl::visit_class<example::C>([](const std::string& name, auto depth, auto entity, auto entity_kind)
     {
         std::size_t hierarchy_level = depth;
         std::cout << std::string(2*hierarchy_level, ' ') << "at '" << name << "' (" << decltype(entity_kind)::value << ")\n";
@@ -69,10 +69,14 @@ int main()
     std::cout << ctti::nameof<CTTI_STATIC_VALUE(example::Enum::A)>() << "\n";
     std::cout << ctti::detailed_nameof<CTTI_STATIC_VALUE(example::Enum::A)>().name() << "\n";
 
-    for(const auto& name : tinyrefl::metadata<example::Enum>().get_names())
+    for(std::size_t i = 0; i < $(example::Enum).count(); ++i)
     {
-        std::cout << " - " << name << "\n";
+        std::cout << " - example::Enum[" << i << "]: \"" << $(example::Enum).get_name(i) << "\" ("
+            << $(example::Enum).get_underlying_value(i) << ")\n";
     }
+
+    static_assert( $(example::Enum).is_enumerated_value(42), "");
+    static_assert(!$(example::Enum).is_enumerated_value(42*42), "");
 
     std::cout << "enum to string: " << tinyrefl::metadata<example::Enum>().get_name(example::Enum::A) << "\n";
     example::Enum enum_value_a = tinyrefl::metadata<example::Enum>().get_value("A");
