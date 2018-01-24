@@ -3,7 +3,7 @@ git submodule update --init --recursive
 
 SOURCE_DIR=$(pwd)
 cd cppast/external/type_safe
-git apply -v $SOURCE_DIR/stdlibcxx_checks.patch && git diff
+#git apply -v $SOURCE_DIR/stdlibcxx_checks.patch && git diff
 cd $SOURCE_DIR
 
 mkdir build && cd build
