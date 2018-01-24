@@ -1,0 +1,19 @@
+commit fb24a55686adfa5dcddd7be6d69738f5cec7954e
+Author: Manu343726 <Manu343726@gmail.com>
+Date:   Wed Jan 24 11:35:56 2018 +0000
+
+    check for stdlibc++ release for is_trivially_copyable trait support
+
+diff --git a/include/type_safe/tagged_union.hpp b/include/type_safe/tagged_union.hpp
+index 4af69a7..37b1843 100644
+--- a/include/type_safe/tagged_union.hpp
++++ b/include/type_safe/tagged_union.hpp
+@@ -89,7 +89,7 @@ namespace type_safe
+     template <typename... Types>
+     class tagged_union
+     {
+-#if !defined(__clang__) && defined(__GNUC__) && __GNUC__ < 5
++#if defined(__GNUC__) && __GNUC__ < 5
+         // does not have is_trivially_copyable
+         using trivial = detail::all_of<std::is_trivial<Types>::value...>;
+ #else

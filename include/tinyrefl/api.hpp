@@ -74,7 +74,6 @@ struct overloaded_function<tinyrefl::meta::list<Head>> : public Head
     auto operator()(Args&&... args) const -> typename std::enable_if<!is_invokable<Head, tinyrefl::meta::list<Args&&...>>::value>::type
     {
         // does nothing
-        fmt::print("{}\n", __PRETTY_FUNCTION__);
     }
 
     template<typename... Args>
@@ -87,7 +86,6 @@ struct overloaded_function<tinyrefl::meta::list<Head>> : public Head
     auto operator()(Args&&... args) -> typename std::enable_if<!is_invokable<Head, tinyrefl::meta::list<Args&&...>>::value>::type
     {
         // does nothing
-        fmt::print("{}\n", __PRETTY_FUNCTION__);
     }
 };
 

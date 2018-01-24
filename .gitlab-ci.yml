@@ -1,0 +1,7 @@
+test-linux-ubuntu-clang50:
+    stage: test
+    tags:
+      - linux
+      - docker
+    image: geordiejones/cpp14-build-machine
+    script: ./ci.sh
