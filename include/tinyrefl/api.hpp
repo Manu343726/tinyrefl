@@ -127,6 +127,26 @@ visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>)
                 member(),
                 CTTI_STATIC_VALUE(member::kind)());
     });
+
+    tinyrefl::meta::foreach<typename metadata<Class>::classes>([visitor](auto class_, auto Index)
+    {
+        using class_type = typename decltype(class_)::type;
+
+        visitor(ctti::nameof<class_type>().str(),
+                tinyrefl::meta::size_t<Depth>(),
+                class_,
+                CTTI_STATIC_VALUE(entity::MEMBER_CLASS)());
+    });
+
+    tinyrefl::meta::foreach<typename metadata<Class>::enums>([visitor](auto enum_, auto Index)
+    {
+        using enum_type = typename decltype(enum_)::type;
+
+        visitor(ctti::nameof<enum_type>().str(),
+                tinyrefl::meta::size_t<Depth>(),
+                enum_,
+                CTTI_STATIC_VALUE(entity::MEMBER_ENUM)());
+    });
 }
 
 template<typename Class, typename Visitor, std::size_t Depth>

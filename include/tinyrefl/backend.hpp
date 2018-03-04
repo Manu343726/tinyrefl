@@ -48,9 +48,12 @@ enum class entity_kind
 {
     NAMESPACE,
     CLASS,
+    ENUM,
     BASE_CLASS,
     MEMBER_VARIABLE,
+    MEMBER_CLASS,
     MEMBER_FUNCTION,
+    MEMBER_ENUM,
     OBJECT
 };
 
@@ -62,12 +65,18 @@ std::ostream& operator<<(std::ostream& os, const entity_kind e)
         return os << "namespace";
     case entity_kind::CLASS:
         return os << "class";
+    case entity_kind::ENUM:
+        return os << "enum";
     case entity_kind::BASE_CLASS:
         return os << "base_class";
     case entity_kind::MEMBER_FUNCTION:
         return os << "member function";
     case entity_kind::MEMBER_VARIABLE:
         return os << "member variable";
+    case entity_kind::MEMBER_CLASS:
+        return os << "member class";
+    case entity_kind::MEMBER_ENUM:
+        return os << "member enum";
     case entity_kind::OBJECT:
         return os << "object";
     }
@@ -115,15 +124,51 @@ struct member : public Pointer
     }
 };
 
+template<typename Signature>
+struct constructor;
+
+template<typename Class, typename... Args>
+struct constructor<Class(Args...)>
+{
+    using class_type = Class;
+    using args = tinyrefl::meta::list<Args...>;
+    using decayed_args = tinyrefl::meta::list<tinyrefl::meta::decay_t<Args>...>;
+
+    constexpr constructor() = default;
+
+    constexpr auto construct(Args... args) const -> tinyrefl::meta::enable_if_t<
+        std::is_move_constructible<Class>::value || std::is_copy_constructible<Class>::value,
+        Class
+    >
+    {
+        return Class{std::forward<Args>(args)...};
+    }
+
+    void inplace_construct(void* where, Args... args) const
+    {
+        new(where) Class{std::forward<Args>(args)...};
+    }
+
+    void inplace_construct(Class* where, Args... args) const
+    {
+        inplace_construct(reinterpret_cast<void*>(where), std::forward<Args>(args)...);
+    }
+};
+
 template<
     typename BaseClasses,
-    typename Members
+    typename Members,
+    typename Classes,
+    typename Enums
 >
 struct class_
 {
     static constexpr entity_kind kind = entity_kind::CLASS;
     using base_classes = BaseClasses;
     using members = Members;
+    using classes = Classes;
+    using enums = Enums;
+
 private:
     template<typename Total, typename BaseClass,
         typename HasMetadata = tinyrefl::meta::bool_<metadata_registered_for_type<BaseClass>::value>>
@@ -327,15 +372,22 @@ private:
     } /* namespace backend */ } // namespace tinyrefl
 
 
-#define TINYREFL_GODMODE \
-    struct tinyrefl_godmode_tag {}; \
-    template<typename __TinyRefl__GodModeTemplateParam__BaseClasses, typename __TinyRelf__GodModeTemplateParam__Members> \
-    friend struct ::tinyrefl::backend::class_;                                                                           \
-    template<tinyrefl::backend::type_hash_t __TinyRefl__GodModeTemplateParam__Hash>                                      \
-    friend struct ::tinyrefl::backend::metadata_of;                                                                      \
-    template<typename __TinyRefl__GodModeTemplateParam__Pointer>                                                         \
-    friend struct ::tinyrefl::backend::member;                                                                           \
-    template<typename __TinyRefl__GodModeTemplateParam__Enum, typename __TinyRefl__GodModeTemplateParam__Values>         \
+#define TINYREFL_GODMODE                                                                                         \
+    struct tinyrefl_godmode_tag {};                                                                              \
+    template<                                                                                                    \
+        typename __TinyRefl__GodModeTemplateParam__BaseClasses,                                                  \
+        typename __TinyRelf__GodModeTemplateParam__Members,                                                      \
+        typename __TinyRelf__GodModeTemplateParam__Classes,                                                      \
+        typename __TinyRelf__GodModeTemplateParam__Enums                                                         \
+    >                                                                                                            \
+    friend struct ::tinyrefl::backend::class_;                                                                   \
+    template<tinyrefl::backend::type_hash_t __TinyRefl__GodModeTemplateParam__Hash>                              \
+    friend struct ::tinyrefl::backend::metadata_of;                                                              \
+    template<typename __TinyRefl__GodModeTemplateParam__Pointer>                                                 \
+    friend struct ::tinyrefl::backend::member;                                                                   \
+    template<typename __TinyRefl__GodModeTemplateParam__Signature>                                               \
+    friend struct ::tinyrefl::backend::constructor;                                                              \
+    template<typename __TinyRefl__GodModeTemplateParam__Enum, typename __TinyRefl__GodModeTemplateParam__Values> \
     friend struct ::tinyrefl::backend::enum_;
 
 #ifndef TINYREFL_DEBUG_HASHES

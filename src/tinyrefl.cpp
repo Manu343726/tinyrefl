@@ -133,7 +133,8 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
 {
     std::vector<std::string> members;
     std::vector<std::string> base_classes;
-
+    std::vector<std::string> enums;
+    std::vector<std::string> classes;
 
     std::cout << " # " << full_qualified_name(class_) << " [attributes: "
                 << sequence(class_.attributes(), ", ", "\"", "\"") << "]\n";
@@ -141,7 +142,9 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
 
     cppast::visit(class_, [&](const cppast::cpp_entity& child, const cppast::visitor_info& info)
     {
-        if(cppast::has_attribute(child, ATTRIBUTES_IGNORE))
+        if(cppast::has_attribute(child, ATTRIBUTES_IGNORE) || info.is_old_entity() ||
+           info.access != cppast::cpp_access_specifier_kind::cpp_public ||
+           cppast::is_templated(child))
         {
             return;
         }
@@ -155,6 +158,25 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
                           << sequence(child.attributes(), ", ", "\"", "\"") << "]\n";
                 members.push_back(member_instance(child));
                 generate_member(os, child);
+                break;
+            }
+            case cppast::cpp_entity_kind::class_t:
+            {
+                if(child.name() != class_.name())
+                {
+                    std::cout << "    - (class) " << child.name() << " ("
+                              << (static_cast<const cppast::cpp_class&>(child).is_declaration() ? "declaration" :
+                                  static_cast<const cppast::cpp_class&>(child).is_definition() ? "definition" : "") << ") [attributes: "
+                              << sequence(child.attributes(), ", ", "\"", "\"") << "]\n";
+                    classes.push_back(full_qualified_name(child));
+                }
+                break;
+            }
+            case cppast::cpp_entity_kind::enum_t:
+            {
+                std::cout << "    - (enum) " << child.name() << " [attributes: "
+                          << sequence(child.attributes(), ", ", "\"", "\"") << "]\n";
+                enums.push_back(full_qualified_name(child));
                 break;
             }
             default:
@@ -171,10 +193,12 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
         }
     }
 
-    fmt::print(os, "TINYREFL_REFLECT_CLASS({}, {}, {})\n",
+    fmt::print(os, "TINYREFL_REFLECT_CLASS({}, {}, {}, {}, {})\n",
         full_qualified_name(class_),
         typelist(base_classes),
-        typelist(members)
+        typelist(members),
+        typelist(classes),
+        typelist(enums)
     );
 }
 
