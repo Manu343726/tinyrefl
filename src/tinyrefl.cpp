@@ -126,7 +126,7 @@ std::string member_instance(const cppast::cpp_entity& member)
 
 void generate_member(std::ostream& os, const cppast::cpp_entity& member)
 {
-    fmt::print(os, "TINYREFL_REFLECT_MEMBER({})\n", member_pointer(member));
+    fmt::print(os, "TINYREFL_REFLECT_MEMBER({}, {})\n", member_pointer(member));
 }
 
 void generate_class(std::ostream& os, const cppast::cpp_class& class_)
@@ -193,7 +193,16 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
         }
     }
 
-    fmt::print(os, "TINYREFL_REFLECT_CLASS({}, {}, {}, {}, {})\n",
+    fmt::print(os, "TINYREFL_REFLECT_CLASS({}, \n"
+"// Base classes:\n"
+"{},\n"
+"// Members: \n"
+"{},\n"
+"// Member classes: \n"
+"{},\n"
+"// Member enums: \n"
+"{}\n"
+")\n",
         full_qualified_name(class_),
         typelist(base_classes),
         typelist(members),
