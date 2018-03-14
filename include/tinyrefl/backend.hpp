@@ -165,7 +165,7 @@ struct class_
 {
     static constexpr entity_kind kind = entity_kind::CLASS;
     using base_classes = BaseClasses;
-    using members = Members;
+    using members = tinyrefl::meta::fmap_t<tinyrefl::meta::defer<metadata_of_type>, Members>;
     using classes = Classes;
     using enums = Enums;
 
@@ -344,16 +344,22 @@ private:
 
 }
 
-#define TINYREFL_REFLECT_MEMBER_IMPL(pointer)                               \
-    namespace tinyrefl { namespace backend {                                \
-    template<>                                                              \
-    struct metadata_of<::ctti::nameof<CTTI_STATIC_VALUE(pointer)>().hash()> \
-    {                                                                       \
-        using type = tinyrefl::backend::member<CTTI_STATIC_VALUE(pointer)>; \
-    };                                                                      \
+#define TINYREFL_SEQUENCE(...) ::tinyrefl::meta::list<__VA_ARGS__>
+#define TINYREFL_TYPE(name, fullname) fullname
+#define TINYREFL_VALUE(value) value
+#define TINYREFL_MEMBER(name, type, pointer) CTTI_STATIC_VALUE(pointer)
+#define TINYREFL_ENUM_VALUE(name, type, value) CTTI_STATIC_VALUE(value)
+
+#define TINYREFL_REFLECT_MEMBER(pointer)                 \
+    namespace tinyrefl { namespace backend {             \
+    template<>                                           \
+    struct metadata_of<::ctti::nameof<pointer>().hash()> \
+    {                                                    \
+        using type = tinyrefl::backend::member<pointer>; \
+    };                                                   \
     } /* namespace backend */ } // namespace tinyrefl
 
-#define TINYREFL_REFLECT_CLASS_IMPL(classname, ...)        \
+#define TINYREFL_REFLECT_CLASS(classname, ...)             \
     namespace tinyrefl { namespace backend {               \
     template<>                                             \
     struct metadata_of<::ctti::nameof<classname>().hash()> \
@@ -362,7 +368,7 @@ private:
     };                                                     \
     } /* namespace backend */ } // namespace tinyrefl
 
-#define TINYREFL_REFLECT_ENUM_IMPL(enumname, ...)         \
+#define TINYREFL_REFLECT_ENUM(enumname, ...)              \
     namespace tinyrefl { namespace backend {              \
     template<>                                            \
     struct metadata_of<::ctti::nameof<enumname>().hash()> \
@@ -389,75 +395,5 @@ private:
     friend struct ::tinyrefl::backend::constructor;                                                              \
     template<typename __TinyRefl__GodModeTemplateParam__Enum, typename __TinyRefl__GodModeTemplateParam__Values> \
     friend struct ::tinyrefl::backend::enum_;
-
-#ifndef TINYREFL_DEBUG_HASHES
-
-#define TINYREFL_REFLECT_MEMBER(pointer) \
-    TINYREFL_REFLECT_MEMBER_IMPL(pointer)
-
-#define TINYREFL_REFLECT_CLASS(classname, ...) \
-    TINYREFL_REFLECT_CLASS_IMPL(classname, __VA_ARGS__)
-
-#define TINYREFL_REFLECT_ENUM(enumname, ...) \
-    TINYREFL_REFLECT_ENUM_IMPL(enumname, __VA_ARGS__)
-
-#else
-
-namespace tinyrefl
-{
-
-namespace backend
-{
-
-namespace debug
-{
-
-template<typename T>
-struct entity_hash : public tinyrefl::meta::size_t<0> {};
-
-}
-
-}
-
-}
-
-#define TINYREFL_REFLECT_MEMBER_REGISTER_HASH(pointer)             \
-    namespace tinyrefl { namespace backend { namespace debug {     \
-    template<>                                                     \
-    struct entity_hash<CTTI_STATIC_VALUE(pointer)> : public        \
-        tinyrefl::meta::size_t<ctti::nameof<CTTI_STATIC_VALUE(pointer)>().hash()> \
-    {};                                                            \
-    } /* namespace backend */ } /* namespace tinyrefl */ } // namespace debug
-
-#define TINYREFL_REFLECT_CLASS_REGISTER_HASH(classname)          \
-    namespace tinyrefl { namespace backend { namespace debug {   \
-    template<>                                                   \
-    struct entity_hash<classname> : public                       \
-        tinyrefl::meta::size_t<ctti::nameof<classname>().hash()> \
-    {};                                                          \
-    } /* namespace backend */ } /* namespace tinyrefl */ } // namespace debug
-
-#define TINYREFL_REFLECT_ENUM_REGISTER_HASH(enumname, values)   \
-    namespace tinyrefl { namespace backend { namespace debug {  \
-    template<>                                                  \
-    struct entity_hash<enumname> : public                       \
-        tinyrefl::meta::size_t<ctti::nameof<enumname>().hash()> \
-    {};                                                         \
-    } /* namespace backend */ } /* namespace tinyrefl */ } // namespace debug
-
-
-#define TINYREFL_REFLECT_MEMBER(pointer)  \
-    TINYREFL_REFLECT_MEMBER_IMPL(pointer) \
-    TINYREFL_REFLECT_MEMBER_REGISTER_HASH(pointer)
-
-#define TINYREFL_REFLECT_CLASS(classname, ...)          \
-    TINYREFL_REFLECT_CLASS_IMPL(classname, __VA_ARGS__) \
-    TINYREFL_REFLECT_CLASS_REGISTER_HASH(classname)
-
-#define TINYREFL_REFLECT_ENUM(enumname, ...)          \
-    TINYREFL_REFLECT_ENUM_IMPL(enumname, __VA_ARGS__) \
-    TINYREFL_REFLECT_ENUM_REGISTER_HASH(enumname)
-
-#endif // TINYREFL_DEBUG_HASHES
 
 #endif // TINYREFL_BACKEND_HPP

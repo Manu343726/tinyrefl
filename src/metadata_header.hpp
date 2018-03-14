@@ -1,7 +1,4 @@
-#ifndef TINYREFL_GENERATED_FILE_15880166986583019765_INCLUDED
-#define TINYREFL_GENERATED_FILE_15880166986583019765_INCLUDED
-
-
+R"========(
 #ifndef TINYREFL_SEQUENCE
     #warning "The TINYREFL_SEQUENCE(...) macro is not defined. A definition of this macro is required by tinyrefl to model sequences of metadata"
     #warning "Tinyrefl will define an empty TINYREFL_SEQUENCE() macro for you, but this would mean the metadata of your types could end up being incomplete"
@@ -64,53 +61,4 @@
 
     #define TINYREFL_REFLECT_ENUM(...)
 #endif // TINYREFL_REFLECT_ENUM
-
-TINYREFL_REFLECT_MEMBER(TINYREFL_MEMBER(a, TINYREFL_TYPE(A, example::A), TINYREFL_VALUE(&example::A::a)))
-TINYREFL_REFLECT_CLASS(TINYREFL_TYPE(A, example::A), 
-// Base classes:
-TINYREFL_SEQUENCE(),
-// Members: 
-TINYREFL_SEQUENCE(TINYREFL_MEMBER(a, TINYREFL_TYPE(A, example::A), TINYREFL_VALUE(&example::A::a))),
-// Member classes: 
-TINYREFL_SEQUENCE(),
-// Member enums: 
-TINYREFL_SEQUENCE()
-)
-TINYREFL_REFLECT_MEMBER(TINYREFL_MEMBER(b, TINYREFL_TYPE(B, example::B), TINYREFL_VALUE(&example::B::b)))
-TINYREFL_REFLECT_CLASS(TINYREFL_TYPE(B, example::B), 
-// Base classes:
-TINYREFL_SEQUENCE(),
-// Members: 
-TINYREFL_SEQUENCE(TINYREFL_MEMBER(b, TINYREFL_TYPE(B, example::B), TINYREFL_VALUE(&example::B::b))),
-// Member classes: 
-TINYREFL_SEQUENCE(),
-// Member enums: 
-TINYREFL_SEQUENCE()
-)
-TINYREFL_REFLECT_ENUM(TINYREFL_TYPE(Enum, example::Enum), TINYREFL_SEQUENCE(TINYREFL_ENUM_VALUE(A, TINYREFL_TYPE(Enum, example::Enum), TINYREFL_VALUE(example::Enum::A)), TINYREFL_ENUM_VALUE(B, TINYREFL_TYPE(Enum, example::Enum), TINYREFL_VALUE(example::Enum::B)), TINYREFL_ENUM_VALUE(C, TINYREFL_TYPE(Enum, example::Enum), TINYREFL_VALUE(example::Enum::C)), TINYREFL_ENUM_VALUE(D, TINYREFL_TYPE(Enum, example::Enum), TINYREFL_VALUE(example::Enum::D)), TINYREFL_ENUM_VALUE(E, TINYREFL_TYPE(Enum, example::Enum), TINYREFL_VALUE(example::Enum::E))))
-TINYREFL_REFLECT_MEMBER(TINYREFL_MEMBER(hey_im_here, TINYREFL_TYPE(C, example::C), TINYREFL_VALUE(&example::C::hey_im_here)))
-TINYREFL_REFLECT_MEMBER(TINYREFL_MEMBER(subobject, TINYREFL_TYPE(C, example::C), TINYREFL_VALUE(&example::C::subobject)))
-TINYREFL_REFLECT_MEMBER(TINYREFL_MEMBER(method, TINYREFL_TYPE(C, example::C), TINYREFL_VALUE(&example::C::method)))
-TINYREFL_REFLECT_CLASS(TINYREFL_TYPE(C, example::C), 
-// Base classes:
-TINYREFL_SEQUENCE(example::C::A, example::C::B),
-// Members: 
-TINYREFL_SEQUENCE(TINYREFL_MEMBER(hey_im_here, TINYREFL_TYPE(C, example::C), TINYREFL_VALUE(&example::C::hey_im_here)), TINYREFL_MEMBER(subobject, TINYREFL_TYPE(C, example::C), TINYREFL_VALUE(&example::C::subobject)), TINYREFL_MEMBER(method, TINYREFL_TYPE(C, example::C), TINYREFL_VALUE(&example::C::method))),
-// Member classes: 
-TINYREFL_SEQUENCE(example::C::tinyrefl_godmode_tag),
-// Member enums: 
-TINYREFL_SEQUENCE(example::C::Enum)
-)
-TINYREFL_REFLECT_CLASS(TINYREFL_TYPE(tinyrefl_godmode_tag, example::C::tinyrefl_godmode_tag), 
-// Base classes:
-TINYREFL_SEQUENCE(),
-// Members: 
-TINYREFL_SEQUENCE(),
-// Member classes: 
-TINYREFL_SEQUENCE(),
-// Member enums: 
-TINYREFL_SEQUENCE()
-)
-TINYREFL_REFLECT_ENUM(TINYREFL_TYPE(Enum, example::C::Enum), TINYREFL_SEQUENCE(TINYREFL_ENUM_VALUE(A, TINYREFL_TYPE(Enum, example::C::Enum), TINYREFL_VALUE(example::C::Enum::A)), TINYREFL_ENUM_VALUE(B, TINYREFL_TYPE(Enum, example::C::Enum), TINYREFL_VALUE(example::C::Enum::B)), TINYREFL_ENUM_VALUE(C, TINYREFL_TYPE(Enum, example::C::Enum), TINYREFL_VALUE(example::C::Enum::C)), TINYREFL_ENUM_VALUE(D, TINYREFL_TYPE(Enum, example::C::Enum), TINYREFL_VALUE(example::C::Enum::D)), TINYREFL_ENUM_VALUE(E, TINYREFL_TYPE(Enum, example::C::Enum), TINYREFL_VALUE(example::C::Enum::E)), TINYREFL_ENUM_VALUE(F, TINYREFL_TYPE(Enum, example::C::Enum), TINYREFL_VALUE(example::C::Enum::F)), TINYREFL_ENUM_VALUE(G, TINYREFL_TYPE(Enum, example::C::Enum), TINYREFL_VALUE(example::C::Enum::G))))
-
-#endif // TINYREFL_GENERATED_FILE_15880166986583019765_INCLUDED
+)========"

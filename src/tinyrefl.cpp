@@ -95,7 +95,19 @@ std::string full_qualified_name(const cppast::cpp_entity& entity)
 
 std::string typelist(const std::vector<std::string>& args)
 {
-    return fmt::format("tinyrefl::meta::list<{}>", sequence(args, ", "));
+    return fmt::format("TINYREFL_SEQUENCE({})", sequence(args, ", "));
+}
+
+template<typename T>
+std::string value(const T& value)
+{
+    return fmt::format("TINYREFL_VALUE({})", value);
+}
+
+std::string type_reference(const cppast::cpp_entity& type_declaration)
+{
+    return fmt::format("TINYREFL_TYPE({}, {})",
+        type_declaration.name(), full_qualified_name(type_declaration));
 }
 
 std::string enum_declaration(const std::string& name, const std::vector<std::string>& values)
@@ -103,9 +115,16 @@ std::string enum_declaration(const std::string& name, const std::vector<std::str
     return fmt::format("enum class {} {{{}}};", name, sequence(values, ", "));
 }
 
+std::string enum_value(const cppast::cpp_enum_value& enum_value)
+{
+    return fmt::format("TINYREFL_ENUM_VALUE({}, {}, {})",
+        enum_value.name(), type_reference(enum_value.parent().value()), value(full_qualified_name(enum_value)));
+}
+
 std::string member_pointer(const cppast::cpp_entity& member)
 {
-    return fmt::format("&{}", full_qualified_name(member));
+    return fmt::format("TINYREFL_MEMBER({}, {}, {})",
+        member.name(), type_reference(member.parent().value()), value("&" + full_qualified_name(member)));
 }
 
 std::string string_literal(const std::string& str)
@@ -120,13 +139,12 @@ std::string typelist_string(const std::string& str)
 
 std::string member_instance(const cppast::cpp_entity& member)
 {
-    return fmt::format("tinyrefl::backend::member<CTTI_STATIC_VALUE({})>",
-        member_pointer(member));
+    return member_pointer(member);
 }
 
 void generate_member(std::ostream& os, const cppast::cpp_entity& member)
 {
-    fmt::print(os, "TINYREFL_REFLECT_MEMBER({}, {})\n", member_pointer(member));
+    fmt::print(os, "TINYREFL_REFLECT_MEMBER({})\n", member_pointer(member));
 }
 
 void generate_class(std::ostream& os, const cppast::cpp_class& class_)
@@ -203,7 +221,7 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
 "// Member enums: \n"
 "{}\n"
 ")\n",
-        full_qualified_name(class_),
+        type_reference(class_),
         typelist(base_classes),
         typelist(members),
         typelist(classes),
@@ -225,12 +243,12 @@ void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
             if(entity.kind() == cppast::cpp_enum_value::kind())
             {
                 std::cout << "    - (enum value) " << full_qualified_name(entity) << "\n";
-                values.push_back(fmt::format("CTTI_STATIC_VALUE({})", full_qualified_name(entity)));
+                values.push_back(enum_value(static_cast<const cppast::cpp_enum_value&>(entity)));
             }
         });
 
         fmt::print(os, "TINYREFL_REFLECT_ENUM({}, {})\n",
-            full_qualified_name(enum_),
+            type_reference(enum_),
             typelist(values)
         );
     }
@@ -245,9 +263,11 @@ void visit_ast_and_generate(const cppast::cpp_file& ast_root, const std::string&
 
     const auto include_guard = fmt::format("TINYREFL_GENERATED_FILE_{}_INCLUDED", std::hash<std::string>()(filepath));
 
-    os << "#ifndef " << include_guard << "\n";
-    os << "#define " << include_guard << "\n\n";
-    os << "#include <tinyrefl/backend.hpp>\n\n";
+    os << "#ifndef " << include_guard << "\n"
+       << "#define " << include_guard << "\n\n"
+       <<
+#include "metadata_header.hpp"
+       << std::endl;
 
     cppast::visit(ast_root,
         [](const cppast::cpp_entity& e) {
