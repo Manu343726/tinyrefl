@@ -84,13 +84,13 @@ std::ostream& operator<<(std::ostream& os, const entity_kind e)
     return os;
 }
 
-template<typename Pointer>
+template<const ctti::detail::cstring& Name, typename Pointer>
 struct member : public Pointer
 {
     using pointer_type = typename Pointer::value_type;
     using pointer_static_value = Pointer;
     static constexpr entity_kind kind = (std::is_member_function_pointer<pointer_type>::value ? entity_kind::MEMBER_FUNCTION : entity_kind::MEMBER_VARIABLE);
-    static constexpr ctti::name_t name = ctti::detailed_nameof<Pointer>();
+    static constexpr ctti::name_t name = Name;
 
     constexpr member() = default;
 
@@ -151,7 +151,7 @@ struct constructor<Class(Args...)>
 
     void inplace_construct(Class* where, Args... args) const
     {
-        inplace_construct(reinterpret_cast<void*>(where), std::forward<Args>(args)...);
+        new(where) Class{std::move(args)...};
     }
 };
 
@@ -340,26 +340,49 @@ private:
     }
 };
 
-}
+template<ctti::detail::hash_t Hash>
+constexpr ctti::detail::cstring string_constant = "Unknown tinyrefl string constant";
 
 }
 
-#define TINYREFL_SEQUENCE(...) ::tinyrefl::meta::list<__VA_ARGS__>
+}
+
+#ifndef TINYREFL_PP_CAT
+#define TINYREFL_PP_CAT_IMPL(x, y) x ## y
+#define TINYREFL_PP_CAT(x, y) TINYREFL_PP_CAT_IMPL(x, y)
+#endif // TINYREFL_PP_CAT
+
+#ifndef TINYREFL_PP_STR
+#define TINYREFL_PP_STR(...) #__VA_ARGS__
+#endif // TINYREFL_PP_STR
+
+#ifndef TINYREFL_PP_UNWRAP
+#define TINYREFL_PP_UNWRAP(...) __VA_ARGS__
+#endif // TINYREFL_PP_UNWRAP
+
+#define TINYREFL_DEFINE_STRINGS
+#define TINYREFL_STRING(string) ::tinyrefl::backend::string_constant<ctti::detail::cstring{TINYREFL_PP_STR(string)}.hash()>
+#define TINYREFL_DEFINE_STRING(string)                                                               \
+    namespace tinyrefl { namespace backend {                                                               \
+        template<> constexpr ::ctti::detail::cstring string_constant<ctti::detail::cstring{TINYREFL_PP_STR(string)}.hash()> = TINYREFL_PP_STR(string); \
+    } /* namespace backend */ } // namespace tinyrefl
+
+#define TINYREFL_SEQUENCE(elems) ::tinyrefl::meta::list<TINYREFL_PP_UNWRAP elems>
 #define TINYREFL_TYPE(name, fullname) fullname
 #define TINYREFL_VALUE(value) value
-#define TINYREFL_MEMBER(name, type, pointer) CTTI_STATIC_VALUE(pointer)
+#define TINYREFL_MEMBER(name, fullname, type, pointer) ::tinyrefl::backend::member<fullname, CTTI_STATIC_VALUE(pointer)>
 #define TINYREFL_ENUM_VALUE(name, type, value) CTTI_STATIC_VALUE(value)
 
-#define TINYREFL_REFLECT_MEMBER(pointer)                 \
+#define TINYREFL_REFLECT_MEMBER(member)                  \
     namespace tinyrefl { namespace backend {             \
     template<>                                           \
-    struct metadata_of<::ctti::nameof<pointer>().hash()> \
+    struct metadata_of<member::name.full_name().hash()>               \
     {                                                    \
-        using type = tinyrefl::backend::member<pointer>; \
+        using type = member;                            \
     };                                                   \
     } /* namespace backend */ } // namespace tinyrefl
 
-#define TINYREFL_REFLECT_CLASS(classname, ...)             \
+#define TINYREFL_REFLECT_CLASS(classname, ...)              \
     namespace tinyrefl { namespace backend {               \
     template<>                                             \
     struct metadata_of<::ctti::nameof<classname>().hash()> \
@@ -389,7 +412,7 @@ private:
     friend struct ::tinyrefl::backend::class_;                                                                   \
     template<tinyrefl::backend::type_hash_t __TinyRefl__GodModeTemplateParam__Hash>                              \
     friend struct ::tinyrefl::backend::metadata_of;                                                              \
-    template<typename __TinyRefl__GodModeTemplateParam__Pointer>                                                 \
+    template<const ::ctti::detail::cstring& __TinyRefl__GodModeTemplateParamName, typename __TinyRefl__GodModeTemplateParam__Pointer> \
     friend struct ::tinyrefl::backend::member;                                                                   \
     template<typename __TinyRefl__GodModeTemplateParam__Signature>                                               \
     friend struct ::tinyrefl::backend::constructor;                                                              \

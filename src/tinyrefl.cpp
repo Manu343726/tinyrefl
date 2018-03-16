@@ -15,6 +15,8 @@
 #include <string>
 #include <functional>
 #include <regex>
+#include <ctti/detail/cstring.hpp>
+#include <unordered_set>
 
 static const std::string ATTRIBUTES_IGNORE = "tinyrefl::ignore";
 
@@ -95,7 +97,29 @@ std::string full_qualified_name(const cppast::cpp_entity& entity)
 
 std::string typelist(const std::vector<std::string>& args)
 {
-    return fmt::format("TINYREFL_SEQUENCE({})", sequence(args, ", "));
+    return fmt::format("TINYREFL_SEQUENCE(({}))", sequence(args, ", "));
+
+}
+
+static std::unordered_set<std::string> string_registry;
+
+void generate_string_definition(std::ostream& os, const std::string& str)
+{
+    const auto hash = std::hash<std::string>()(str);
+    const auto guard = fmt::format("TINYREFL_DEFINE_STRING_{}", hash);
+
+    os << "#if defined(TINYREFL_DEFINE_STRINGS) && !defined(" << guard << ")\n"
+       << "#define " << guard << "\n"
+       << "TINYREFL_DEFINE_STRING(\"" << str << "\")\n"
+       << "#endif //" << guard << "\n\n";
+}
+
+void generate_string_definitions(std::ostream& os)
+{
+    for(const std::string& str : string_registry)
+    {
+        generate_string_definition(os, str);
+    }
 }
 
 template<typename T>
@@ -104,10 +128,21 @@ std::string value(const T& value)
     return fmt::format("TINYREFL_VALUE({})", value);
 }
 
+const std::string& string(const std::string& str)
+{
+    string_registry.insert(str);
+    return str;
+}
+
+std::string string_constant(const std::string& str)
+{
+    return fmt::format("TINYREFL_STRING({})", string(str));
+}
+
 std::string type_reference(const cppast::cpp_entity& type_declaration)
 {
     return fmt::format("TINYREFL_TYPE({}, {})",
-        type_declaration.name(), full_qualified_name(type_declaration));
+        string(type_declaration.name()), string(full_qualified_name(type_declaration)));
 }
 
 std::string enum_declaration(const std::string& name, const std::vector<std::string>& values)
@@ -118,13 +153,13 @@ std::string enum_declaration(const std::string& name, const std::vector<std::str
 std::string enum_value(const cppast::cpp_enum_value& enum_value)
 {
     return fmt::format("TINYREFL_ENUM_VALUE({}, {}, {})",
-        enum_value.name(), type_reference(enum_value.parent().value()), value(full_qualified_name(enum_value)));
+        string(enum_value.name()), type_reference(enum_value.parent().value()), value(string(full_qualified_name(enum_value))));
 }
 
 std::string member_pointer(const cppast::cpp_entity& member)
 {
-    return fmt::format("TINYREFL_MEMBER({}, {}, {})",
-        member.name(), type_reference(member.parent().value()), value("&" + full_qualified_name(member)));
+    return fmt::format("TINYREFL_MEMBER({}, {}, {}, {})",
+        string_constant(member.name()), string_constant(full_qualified_name(member)), type_reference(member.parent().value()), value(string("&" + full_qualified_name(member))));
 }
 
 std::string string_literal(const std::string& str)
@@ -269,26 +304,31 @@ void visit_ast_and_generate(const cppast::cpp_file& ast_root, const std::string&
 #include "metadata_header.hpp"
        << std::endl;
 
+    std::ostringstream body;
+
     cppast::visit(ast_root,
         [](const cppast::cpp_entity& e) {
             return !cppast::is_templated(e) &&
                    cppast::is_definition(e) &&
                    !cppast::has_attribute(e, ATTRIBUTES_IGNORE);
         },
-        [&os](const cppast::cpp_entity& e, const cppast::visitor_info& info) {
+        [&body](const cppast::cpp_entity& e, const cppast::visitor_info& info) {
             if(info.is_new_entity() && info.access == cppast::cpp_public)
             {
                 switch(e.kind())
                 {
                 case cppast::cpp_entity_kind::class_t:
-                    generate_class(os, static_cast<const cppast::cpp_class&>(e)); break;
+                    generate_class(body, static_cast<const cppast::cpp_class&>(e)); break;
                 case cppast::cpp_entity_kind::enum_t:
-                    generate_enum(os, static_cast<const cppast::cpp_enum&>(e)); break;
+                    generate_enum(body, static_cast<const cppast::cpp_enum&>(e)); break;
                 default:
                     break;
                 }
             }
         });
+
+    generate_string_definitions(os);
+    os << body.str();
 
     os << "\n#endif // " << include_guard << "\n";
 
