@@ -1,12 +1,12 @@
 [submodule "cppast"]
-	path = cppast
+	path = external/cppast
 	url = https://github.com/foonathan/cppast
 [submodule "fmt"]
-	path = fmt
+	path = external/fmt
 	url = https://github.com/fmtlib/fmt.git
 [submodule "ctti"]
-	path = ctti
+	path = external/ctti
 	url = https://github.com/Manu343726/ctti
 [submodule "masquerade"]
-	path = masquerade
+	path = external/masquerade
 	url = https://gitlab.com/Manu343726/masquerade.git
