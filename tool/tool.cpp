@@ -15,7 +15,6 @@
 #include <string>
 #include <functional>
 #include <regex>
-#include <ctti/detail/cstring.hpp>
 #include <unordered_set>
 
 static const std::string ATTRIBUTES_IGNORE = "tinyrefl::ignore";
@@ -60,10 +59,6 @@ std::ostream& operator<<(std::ostream& os, const cppast::cpp_attribute& attribut
 }
 
 }
-
-
-namespace tinyrefl
-{
 
 bool is_reflectable(const cppast::cpp_entity& e)
 {
@@ -110,7 +105,7 @@ void generate_string_definition(std::ostream& os, const std::string& str)
 
     os << "#if defined(TINYREFL_DEFINE_STRINGS) && !defined(" << guard << ")\n"
        << "#define " << guard << "\n"
-       << "TINYREFL_DEFINE_STRING(\"" << str << "\")\n"
+       << "TINYREFL_DEFINE_STRING(" << str << ")\n"
        << "#endif //" << guard << "\n\n";
 }
 
@@ -294,8 +289,6 @@ void visit_ast_and_generate(const cppast::cpp_file& ast_root, const std::string&
 {
     std::ofstream os{filepath + ".tinyrefl"};
 
-    std::cout << "parsing file " << filepath << " ...\n";
-
     const auto include_guard = fmt::format("TINYREFL_GENERATED_FILE_{}_INCLUDED", std::hash<std::string>()(filepath));
 
     os << "#ifndef " << include_guard << "\n"
@@ -335,21 +328,58 @@ void visit_ast_and_generate(const cppast::cpp_file& ast_root, const std::string&
     std::cout << "Done. Metadata saved in " << filepath << ".tinyrefl\n";
 }
 
-bool reflect_file(const std::string& filepath)
+cppast::cpp_standard get_cpp_standard(const std::string& cpp_standard)
+{
+    static const std::unordered_map<std::string, cppast::cpp_standard> map{
+        {"98", cppast::cpp_standard::cpp_98},
+        {"03", cppast::cpp_standard::cpp_03},
+        {"11", cppast::cpp_standard::cpp_11},
+        {"14", cppast::cpp_standard::cpp_14},
+        {"1z", cppast::cpp_standard::cpp_1z},
+    };
+
+    auto it = map.find(cpp_standard);
+
+    if(it != map.end())
+    {
+        return it->second;
+    }
+    else
+    {
+        return cppast::cpp_standard::cpp_latest;
+    }
+}
+
+bool reflect_file(const std::string& filepath, const std::string& cpp_standard, const std::vector<std::string>& include_dirs)
 {
     using parser_t = cppast::simple_file_parser<cppast::libclang_parser>;
 
     cppast::cpp_entity_index index;
     parser_t parser{type_safe::ref(index)};
     parser_t::config config;
+    config.set_flags(get_cpp_standard(cpp_standard));
     config.add_include_dir(TINYREFL_INCLUDE_DIR);
     config.add_include_dir(CTTI_INCLUDE_DIR);
     config.add_include_dir(FMT_INCLUDE_DIR);
     config.add_include_dir(MASQUERADE_INCLUDE_DIR);
-    config.set_flags(cppast::cpp_standard::cpp_14);
+
+    std::cout << "parsing file " << filepath << " -std=c++"
+        << cpp_standard << " ";
+
+    for(const std::string& include_dir : include_dirs)
+    {
+        std::cout << "-I" << include_dir << " ";
+        config.add_include_dir(include_dir);
+    }
+
+    std::cout << " ...\n";
 
     try
     {
+
+
+
+
         auto file = parser.parse(filepath, config);
 
         if(file.has_value())
@@ -369,4 +399,23 @@ bool reflect_file(const std::string& filepath)
     return false;
 }
 
+int main(int argc, char** argv)
+{
+    if(argc > 2)
+    {
+        std::vector<std::string> include_dirs;
+        include_dirs.reserve(argc - 3);
+
+        for(std::size_t i = 3; i < argc; ++i)
+        {
+            include_dirs.push_back(argv[i]);
+        }
+
+        return !reflect_file(argv[1], argv[2], include_dirs);
+    }
+    else
+    {
+        std::cerr << "usage: tool <path to file> <c++ standard> [<include dirs>...]\n";
+        return 1;
+    }
 }

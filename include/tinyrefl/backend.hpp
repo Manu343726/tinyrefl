@@ -57,7 +57,7 @@ enum class entity_kind
     OBJECT
 };
 
-std::ostream& operator<<(std::ostream& os, const entity_kind e)
+inline std::ostream& operator<<(std::ostream& os, const entity_kind e)
 {
     switch(e)
     {
@@ -165,7 +165,7 @@ struct class_
 {
     static constexpr entity_kind kind = entity_kind::CLASS;
     using base_classes = BaseClasses;
-    using members = tinyrefl::meta::fmap_t<tinyrefl::meta::defer<metadata_of_type>, Members>;
+    using members = Members;
     using classes = Classes;
     using enums = Enums;
 
@@ -340,8 +340,10 @@ private:
     }
 };
 
+constexpr ctti::detail::cstring default_string_constant = "default tinyrefl string constant";
+
 template<ctti::detail::hash_t Hash>
-constexpr ctti::detail::cstring string_constant = "Unknown tinyrefl string constant";
+constexpr ctti::detail::cstring string_constant = default_string_constant;
 
 }
 
@@ -361,10 +363,10 @@ constexpr ctti::detail::cstring string_constant = "Unknown tinyrefl string const
 #endif // TINYREFL_PP_UNWRAP
 
 #define TINYREFL_DEFINE_STRINGS
-#define TINYREFL_STRING(string) ::tinyrefl::backend::string_constant<ctti::detail::cstring{TINYREFL_PP_STR(string)}.hash()>
-#define TINYREFL_DEFINE_STRING(string)                                                               \
+#define TINYREFL_STRING(...) ::tinyrefl::backend::string_constant<ctti::detail::cstring{TINYREFL_PP_STR(__VA_ARGS__)}.hash()>
+#define TINYREFL_DEFINE_STRING(...)                                                               \
     namespace tinyrefl { namespace backend {                                                               \
-        template<> constexpr ::ctti::detail::cstring string_constant<ctti::detail::cstring{TINYREFL_PP_STR(string)}.hash()> = TINYREFL_PP_STR(string); \
+        template<> constexpr ::ctti::detail::cstring string_constant<ctti::detail::cstring{TINYREFL_PP_STR(__VA_ARGS__)}.hash()> = TINYREFL_PP_STR(__VA_ARGS__); \
     } /* namespace backend */ } // namespace tinyrefl
 
 #define TINYREFL_SEQUENCE(elems) ::tinyrefl::meta::list<TINYREFL_PP_UNWRAP elems>
