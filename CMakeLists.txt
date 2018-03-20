@@ -14,6 +14,7 @@ add_subdirectory(examples)
 
 option(TINYREFL_BUILD_TESTS "Build unit tests" OFF)
 if(TINYREFL_BUILD_TESTS)
+    enable_testing()
     add_subdirectory(tests)
 endif()
 

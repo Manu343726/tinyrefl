@@ -8,11 +8,34 @@ EXPECT_NE(ctti::detail::cstring{"hello"}.hash(), tinyrefl::backend::default_stri
 // Hash based string lookup works for known (defined) strings
 TINYREFL_DEFINE_STRING(hello)
 TINYREFL_DEFINE_STRING(world)
-EXPECT_NE(TINYREFL_STRING(hello), tinyrefl::backend::default_string_constant);
-EXPECT_EQ(TINYREFL_STRING(hello), "hello");
-EXPECT_NE(TINYREFL_STRING(world), tinyrefl::backend::default_string_constant);
-EXPECT_EQ(TINYREFL_STRING(world), "world");
-EXPECT_EQ(TINYREFL_STRING(here is an string that it seems no one has registered before), tinyrefl::backend::default_string_constant);
+EXPECT_NE(tinyrefl::backend::string_constant<TINYREFL_STRING(hello)>(), tinyrefl::backend::default_string_constant);
+EXPECT_EQ(tinyrefl::backend::string_constant<TINYREFL_STRING(hello)>(), "hello");
+EXPECT_NE(tinyrefl::backend::string_constant<TINYREFL_STRING(world)>(), tinyrefl::backend::default_string_constant);
+EXPECT_EQ(tinyrefl::backend::string_constant<TINYREFL_STRING(world)>(), "world");
+EXPECT_EQ(tinyrefl::backend::string_constant<TINYREFL_STRING(here is an string that it seems no one has registered before)>(), tinyrefl::backend::default_string_constant);
+
+namespace foo { namespace bar {
+template<ctti::detail::hash_t Hash>
+constexpr ctti::detail::cstring get_string()
+{
+    return "default string";
+}
+
+} }
+
+namespace foo { namespace bar {
+template<>
+constexpr ctti::detail::cstring get_string<ctti::detail::cstring{"foobar::foo"}.hash()>()
+{
+    return "foobar::foo";
+}
+
+} }
+
+EXPECT_EQ(foo::bar::get_string<ctti::detail::cstring{"foobar::foo"}.hash()>(), "foobar::foo");
+
+TINYREFL_DEFINE_STRING(hello::world)
+EXPECT_EQ(ctti::name_t{tinyrefl::backend::string_constant<TINYREFL_STRING(hello::world)>()}.name(), "world");
 
 struct Foo
 {
@@ -42,8 +65,8 @@ EXPECT_NE(a_member::name.full_name().hash(), b_member::name.full_name().hash());
 
 // Check member pointers are passed correctly to the member metadata template
 EXPECT_EQ(a_member{}.get(), &Foo::a);
-constexpr Foo foo;
-EXPECT_EQ(&(a_member{}.get(foo)), &foo.a);
+constexpr Foo foobar;
+EXPECT_EQ(&(a_member{}.get(foobar)), &foobar.a);
 
 // The should be no double definition errors here, each member must specialize its own reflect (backend::metadata_of<>) template
 TINYREFL_REFLECT_MEMBER(a_member)

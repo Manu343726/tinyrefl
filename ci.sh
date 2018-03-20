@@ -8,3 +8,5 @@ cd $SOURCE_DIR
 mkdir build && cd build
 cmake .. -DTINYREFL_BUILD_TESTS=ON
 make -j
+ctest . -V
+./examples/tinyrefl-example

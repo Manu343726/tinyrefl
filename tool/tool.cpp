@@ -80,7 +80,11 @@ std::string full_qualified_name(const cppast::cpp_entity& entity)
 {
     std::string name = entity.name();
 
-    if(entity.parent().has_value() && entity.parent().value().kind() != cppast::cpp_entity_kind::file_t)
+    if(entity.kind() == cppast::cpp_entity_kind::base_class_t)
+    {
+        return cppast::to_string(static_cast<const cppast::cpp_base_class&>(entity).type());
+    }
+    else if(entity.parent().has_value() && entity.parent().value().kind() != cppast::cpp_entity_kind::file_t)
     {
         return fmt::format("{}::{}", full_qualified_name(entity.parent().value()), name);
     }
@@ -147,8 +151,9 @@ std::string enum_declaration(const std::string& name, const std::vector<std::str
 
 std::string enum_value(const cppast::cpp_enum_value& enum_value)
 {
-    return fmt::format("TINYREFL_ENUM_VALUE({}, {}, {})",
-        string(enum_value.name()), type_reference(enum_value.parent().value()), value(string(full_qualified_name(enum_value))));
+    return fmt::format("TINYREFL_ENUM_VALUE({}, {}, {}, {})",
+        string_constant(enum_value.name()), string_constant(full_qualified_name(enum_value)),
+        type_reference(enum_value.parent().value()), value(string(full_qualified_name(enum_value))));
 }
 
 std::string member_pointer(const cppast::cpp_entity& member)
@@ -259,6 +264,11 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
     );
 }
 
+void generate_enum_value(std::ostream& os, const cppast::cpp_enum_value& value)
+{
+    fmt::format("TINYREFL_REFLECT_ENUM_VALUE({})\n", enum_value(value));
+}
+
 void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
 {
     std::cout << " # " << full_qualified_name(enum_) << " [attributes: "
@@ -268,16 +278,21 @@ void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
     {
         std::vector<std::string> values;
 
-        cppast::visit(enum_, [&values](const cppast::cpp_entity& entity, const cppast::visitor_info& info)
+        cppast::visit(enum_, [&values, &os](const cppast::cpp_entity& entity, const cppast::visitor_info& info)
         {
             if(entity.kind() == cppast::cpp_enum_value::kind())
             {
+                const auto& value = static_cast<const cppast::cpp_enum_value&>(entity);
+
                 std::cout << "    - (enum value) " << full_qualified_name(entity) << "\n";
-                values.push_back(enum_value(static_cast<const cppast::cpp_enum_value&>(entity)));
+
+                generate_enum_value(os, value);
+                values.push_back(enum_value(value));
             }
         });
 
-        fmt::print(os, "TINYREFL_REFLECT_ENUM({}, {})\n",
+        fmt::print(os, "TINYREFL_REFLECT_ENUM({}, {}, {})\n",
+            string_constant(full_qualified_name(enum_)),
             type_reference(enum_),
             typelist(values)
         );
