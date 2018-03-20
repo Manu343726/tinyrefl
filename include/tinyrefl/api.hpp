@@ -102,7 +102,7 @@ auto tuple_map(const std::tuple<Ts...>& tuple, Function function)
 
 template<typename Class, typename Visitor, std::size_t Depth, entity ClassKind>
 tinyrefl::meta::enable_if_t<!std::is_class<Class>::value || !has_metadata<Class>::value>
-visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, CTTI_STATIC_VALUE(ClassKind))
+visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<entity, ClassKind>)
 {
     visitor(tinyrefl::utils::type_name<Class>(),
             tinyrefl::meta::size_t<Depth>(),
@@ -112,7 +112,7 @@ visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, CTTI_STATIC_VALUE(Cl
 
 template<typename Class, typename Visitor, std::size_t Depth, entity ClassKind>
 tinyrefl::meta::enable_if_t<std::is_class<Class>::value && has_metadata<Class>::value>
-visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, CTTI_STATIC_VALUE(ClassKind))
+visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<entity, ClassKind>)
 {
     // visit base classes first (if reflected)
     tinyrefl::meta::foreach<typename metadata<Class>::base_classes>([visitor](auto Base, auto Index)
