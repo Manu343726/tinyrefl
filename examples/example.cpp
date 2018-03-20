@@ -117,17 +117,19 @@ int main()
      * In case of enum types, this constexpr metaobject implements an intuitive
      * API to introspect enumeration values
      */
-    for(std::size_t i = 0; i < $(example::Enum).count(); ++i)
+    for(std::size_t i = 0; i < $(example::Enum)().count(); ++i)
     {
-        std::cout << " - example::Enum[" << i << "]: \"" << $(example::Enum).get_name(i) << "\" ("
-            << $(example::Enum).get_underlying_value(i) << ")\n";
+        const auto& value = $(example::Enum)().get_value(i);
+
+        std::cout << " - example::Enum[" << i << "]: \"" << value.name() << "\" ("
+            << value.underlying_value() << ")\n";
     }
 
-    static_assert( $(example::Enum).is_enumerated_value(42), "");
-    static_assert(!$(example::Enum).is_enumerated_value(42*42), "");
+    static_assert( $(example::Enum)().is_enumerated_value(42), "");
+    static_assert(!$(example::Enum)().is_enumerated_value(42*42), "");
 
-    std::cout << "enum to string: " << tinyrefl::metadata<example::Enum>().get_name(example::Enum::A) << "\n";
-    example::Enum enum_value_a = tinyrefl::metadata<example::Enum>().get_value("A");
+    std::cout << "enum to string: " << tinyrefl::metadata<example::Enum>().get_value(example::Enum::A).name() << "\n";
+    constexpr example::Enum enum_value_a = tinyrefl::metadata<example::Enum>().get_value("A").value();
 }
 
 

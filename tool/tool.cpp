@@ -15,6 +15,7 @@
 #include <string>
 #include <functional>
 #include <regex>
+#include <unordered_set>
 
 static const std::string ATTRIBUTES_IGNORE = "tinyrefl::ignore";
 
@@ -59,10 +60,6 @@ std::ostream& operator<<(std::ostream& os, const cppast::cpp_attribute& attribut
 
 }
 
-
-namespace tinyrefl
-{
-
 bool is_reflectable(const cppast::cpp_entity& e)
 {
     return cppast::has_attribute(e, "tinyrefl::on").has_value();
@@ -83,7 +80,11 @@ std::string full_qualified_name(const cppast::cpp_entity& entity)
 {
     std::string name = entity.name();
 
-    if(entity.parent().has_value() && entity.parent().value().kind() != cppast::cpp_entity_kind::file_t)
+    if(entity.kind() == cppast::cpp_entity_kind::base_class_t)
+    {
+        return cppast::to_string(static_cast<const cppast::cpp_base_class&>(entity).type());
+    }
+    else if(entity.parent().has_value() && entity.parent().value().kind() != cppast::cpp_entity_kind::file_t)
     {
         return fmt::format("{}::{}", full_qualified_name(entity.parent().value()), name);
     }
@@ -95,7 +96,29 @@ std::string full_qualified_name(const cppast::cpp_entity& entity)
 
 std::string typelist(const std::vector<std::string>& args)
 {
-    return fmt::format("TINYREFL_SEQUENCE({})", sequence(args, ", "));
+    return fmt::format("TINYREFL_SEQUENCE(({}))", sequence(args, ", "));
+
+}
+
+static std::unordered_set<std::string> string_registry;
+
+void generate_string_definition(std::ostream& os, const std::string& str)
+{
+    const auto hash = std::hash<std::string>()(str);
+    const auto guard = fmt::format("TINYREFL_DEFINE_STRING_{}", hash);
+
+    os << "#if defined(TINYREFL_DEFINE_STRINGS) && !defined(" << guard << ")\n"
+       << "#define " << guard << "\n"
+       << "TINYREFL_DEFINE_STRING(" << str << ")\n"
+       << "#endif //" << guard << "\n\n";
+}
+
+void generate_string_definitions(std::ostream& os)
+{
+    for(const std::string& str : string_registry)
+    {
+        generate_string_definition(os, str);
+    }
 }
 
 template<typename T>
@@ -104,10 +127,21 @@ std::string value(const T& value)
     return fmt::format("TINYREFL_VALUE({})", value);
 }
 
+const std::string& string(const std::string& str)
+{
+    string_registry.insert(str);
+    return str;
+}
+
+std::string string_constant(const std::string& str)
+{
+    return fmt::format("TINYREFL_STRING({})", string(str));
+}
+
 std::string type_reference(const cppast::cpp_entity& type_declaration)
 {
     return fmt::format("TINYREFL_TYPE({}, {})",
-        type_declaration.name(), full_qualified_name(type_declaration));
+        string(type_declaration.name()), string(full_qualified_name(type_declaration)));
 }
 
 std::string enum_declaration(const std::string& name, const std::vector<std::string>& values)
@@ -117,14 +151,15 @@ std::string enum_declaration(const std::string& name, const std::vector<std::str
 
 std::string enum_value(const cppast::cpp_enum_value& enum_value)
 {
-    return fmt::format("TINYREFL_ENUM_VALUE({}, {}, {})",
-        enum_value.name(), type_reference(enum_value.parent().value()), value(full_qualified_name(enum_value)));
+    return fmt::format("TINYREFL_ENUM_VALUE({}, {}, {}, {})",
+        string_constant(enum_value.name()), string_constant(full_qualified_name(enum_value)),
+        type_reference(enum_value.parent().value()), value(string(full_qualified_name(enum_value))));
 }
 
 std::string member_pointer(const cppast::cpp_entity& member)
 {
-    return fmt::format("TINYREFL_MEMBER({}, {}, {})",
-        member.name(), type_reference(member.parent().value()), value("&" + full_qualified_name(member)));
+    return fmt::format("TINYREFL_MEMBER({}, {}, {}, {})",
+        string_constant(member.name()), string_constant(full_qualified_name(member)), type_reference(member.parent().value()), value(string("&" + full_qualified_name(member))));
 }
 
 std::string string_literal(const std::string& str)
@@ -229,6 +264,11 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
     );
 }
 
+void generate_enum_value(std::ostream& os, const cppast::cpp_enum_value& value)
+{
+    fmt::format("TINYREFL_REFLECT_ENUM_VALUE({})\n", enum_value(value));
+}
+
 void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
 {
     std::cout << " # " << full_qualified_name(enum_) << " [attributes: "
@@ -238,16 +278,21 @@ void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
     {
         std::vector<std::string> values;
 
-        cppast::visit(enum_, [&values](const cppast::cpp_entity& entity, const cppast::visitor_info& info)
+        cppast::visit(enum_, [&values, &os](const cppast::cpp_entity& entity, const cppast::visitor_info& info)
         {
             if(entity.kind() == cppast::cpp_enum_value::kind())
             {
+                const auto& value = static_cast<const cppast::cpp_enum_value&>(entity);
+
                 std::cout << "    - (enum value) " << full_qualified_name(entity) << "\n";
-                values.push_back(enum_value(static_cast<const cppast::cpp_enum_value&>(entity)));
+
+                generate_enum_value(os, value);
+                values.push_back(enum_value(value));
             }
         });
 
-        fmt::print(os, "TINYREFL_REFLECT_ENUM({}, {})\n",
+        fmt::print(os, "TINYREFL_REFLECT_ENUM({}, {}, {})\n",
+            string_constant(full_qualified_name(enum_)),
             type_reference(enum_),
             typelist(values)
         );
@@ -259,8 +304,6 @@ void visit_ast_and_generate(const cppast::cpp_file& ast_root, const std::string&
 {
     std::ofstream os{filepath + ".tinyrefl"};
 
-    std::cout << "parsing file " << filepath << " ...\n";
-
     const auto include_guard = fmt::format("TINYREFL_GENERATED_FILE_{}_INCLUDED", std::hash<std::string>()(filepath));
 
     os << "#ifndef " << include_guard << "\n"
@@ -269,47 +312,89 @@ void visit_ast_and_generate(const cppast::cpp_file& ast_root, const std::string&
 #include "metadata_header.hpp"
        << std::endl;
 
+    std::ostringstream body;
+
     cppast::visit(ast_root,
         [](const cppast::cpp_entity& e) {
             return !cppast::is_templated(e) &&
                    cppast::is_definition(e) &&
                    !cppast::has_attribute(e, ATTRIBUTES_IGNORE);
         },
-        [&os](const cppast::cpp_entity& e, const cppast::visitor_info& info) {
+        [&body](const cppast::cpp_entity& e, const cppast::visitor_info& info) {
             if(info.is_new_entity() && info.access == cppast::cpp_public)
             {
                 switch(e.kind())
                 {
                 case cppast::cpp_entity_kind::class_t:
-                    generate_class(os, static_cast<const cppast::cpp_class&>(e)); break;
+                    generate_class(body, static_cast<const cppast::cpp_class&>(e)); break;
                 case cppast::cpp_entity_kind::enum_t:
-                    generate_enum(os, static_cast<const cppast::cpp_enum&>(e)); break;
+                    generate_enum(body, static_cast<const cppast::cpp_enum&>(e)); break;
                 default:
                     break;
                 }
             }
         });
 
+    generate_string_definitions(os);
+    os << body.str();
+
     os << "\n#endif // " << include_guard << "\n";
 
     std::cout << "Done. Metadata saved in " << filepath << ".tinyrefl\n";
 }
 
-bool reflect_file(const std::string& filepath)
+cppast::cpp_standard get_cpp_standard(const std::string& cpp_standard)
+{
+    static const std::unordered_map<std::string, cppast::cpp_standard> map{
+        {"98", cppast::cpp_standard::cpp_98},
+        {"03", cppast::cpp_standard::cpp_03},
+        {"11", cppast::cpp_standard::cpp_11},
+        {"14", cppast::cpp_standard::cpp_14},
+        {"1z", cppast::cpp_standard::cpp_1z},
+    };
+
+    auto it = map.find(cpp_standard);
+
+    if(it != map.end())
+    {
+        return it->second;
+    }
+    else
+    {
+        return cppast::cpp_standard::cpp_latest;
+    }
+}
+
+bool reflect_file(const std::string& filepath, const std::string& cpp_standard, const std::vector<std::string>& include_dirs)
 {
     using parser_t = cppast::simple_file_parser<cppast::libclang_parser>;
 
     cppast::cpp_entity_index index;
     parser_t parser{type_safe::ref(index)};
     parser_t::config config;
+    config.set_flags(get_cpp_standard(cpp_standard));
     config.add_include_dir(TINYREFL_INCLUDE_DIR);
     config.add_include_dir(CTTI_INCLUDE_DIR);
     config.add_include_dir(FMT_INCLUDE_DIR);
     config.add_include_dir(MASQUERADE_INCLUDE_DIR);
-    config.set_flags(cppast::cpp_standard::cpp_14);
+
+    std::cout << "parsing file " << filepath << " -std=c++"
+        << cpp_standard << " ";
+
+    for(const std::string& include_dir : include_dirs)
+    {
+        std::cout << "-I" << include_dir << " ";
+        config.add_include_dir(include_dir);
+    }
+
+    std::cout << " ...\n";
 
     try
     {
+
+
+
+
         auto file = parser.parse(filepath, config);
 
         if(file.has_value())
@@ -329,4 +414,23 @@ bool reflect_file(const std::string& filepath)
     return false;
 }
 
+int main(int argc, char** argv)
+{
+    if(argc > 2)
+    {
+        std::vector<std::string> include_dirs;
+        include_dirs.reserve(argc - 3);
+
+        for(std::size_t i = 3; i < argc; ++i)
+        {
+            include_dirs.push_back(argv[i]);
+        }
+
+        return !reflect_file(argv[1], argv[2], include_dirs);
+    }
+    else
+    {
+        std::cerr << "usage: tool <path to file> <c++ standard> [<include dirs>...]\n";
+        return 1;
+    }
 }

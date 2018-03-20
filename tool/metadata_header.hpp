@@ -6,6 +6,20 @@ R"========(
     #define TINYREFL_SEQUENCE(...)
 #endif // TINYREFL_SEQUENCE
 
+#if defined(TINYREFL_DEFINE_STRINGS) && !defined(TINYREFL_DEFINE_STRING)
+    #warning "The TINYREFL_DEFINE_STRING(...) macro is not defined. A definition of this macro is required by tinyrefl to generate definitions of string constants"
+    #warning "Tinyrefl will define an empty TINYREFL_DEFINE_STRING() macro for you, but this would mean the metadata of your types could end up being incomplete"
+
+    #define TINYREFL_DEFINE_STRING(...)
+#endif // TINYREFL_DEFINE_STRING
+
+#ifndef TINYREFL_STRING
+    #warning "The TINYREFL_STRING(...) macro is not defined. A definition of this macro is required by tinyrefl to model string constants"
+    #warning "Tinyrefl will define an empty TINYREFL_STRING() macro for you, but this would mean the metadata of your types could end up being incomplete"
+
+    #define TINYREFL_STRING(...)
+#endif // TINYREFL_STRING
+
 #ifndef TINYREFL_TYPE
     #warning "The TINYREFL_TYPE(...) macro is not defined. A definition of this macro is required by tinyrefl to model references to types"
     #warning "Tinyrefl will define an empty TINYREFL_TYPE() macro for you, but this would mean the metadata of your types could end up being incomplete"

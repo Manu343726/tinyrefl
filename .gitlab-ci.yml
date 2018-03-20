@@ -5,3 +5,11 @@ test-linux-ubuntu-clang50:
       - docker
     image: geordiejones/cpp14-build-machine
     script: ./ci.sh
+
+test-linux-ubuntu-gcc5:
+    stage: test
+    tags:
+      - linux
+      - docker
+    image: lasote/conangcc5
+    script: ./ci.sh
