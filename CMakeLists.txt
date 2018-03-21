@@ -3,9 +3,9 @@ project(tinyrefl)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-inline")
-set(TINYREFL_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-set(TINYREFL_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-set(TINYREFL_INCLUDE_DIR "${TINYREFL_SOURCE_DIR}/include")
+set(TINYREFL_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "")
+set(TINYREFL_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "")
+set(TINYREFL_INCLUDE_DIR "${TINYREFL_SOURCE_DIR}/include" CACHE PATH "")
 
 add_subdirectory(external)
 add_subdirectory(src)
@@ -18,7 +18,10 @@ if(TINYREFL_BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
-configure_file(
-    ${CMAKE_SOURCE_DIR}/.ycm_extra_conf.py.in
-    ${CMAKE_SOURCE_DIR}/.ycm_extra_conf.py
-)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    message(STATUS "Generate vim YCM config file for tinyrefl at ${TINYREFL_SOURCE_DIR} ...")
+    configure_file(
+        ${TINYREFL_SOURCE_DIR}/.ycm_extra_conf.py.in
+        ${TINYREFL_SOURCE_DIR}/.ycm_extra_conf.py
+    )
+endif()
