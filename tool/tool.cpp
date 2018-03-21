@@ -377,6 +377,7 @@ bool reflect_file(const std::string& filepath, const std::string& cpp_standard, 
     config.add_include_dir(CTTI_INCLUDE_DIR);
     config.add_include_dir(FMT_INCLUDE_DIR);
     config.add_include_dir(MASQUERADE_INCLUDE_DIR);
+    config.add_flag("-fPIC");
 
     std::cout << "parsing file " << filepath << " -std=c++"
         << cpp_standard << " ";
