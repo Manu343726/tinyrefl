@@ -421,7 +421,7 @@ int main(int argc, char** argv)
         std::vector<std::string> include_dirs;
         include_dirs.reserve(argc - 3);
 
-        for(std::size_t i = 3; i < argc; ++i)
+        for(int i = 3; i < argc; ++i)
         {
             include_dirs.push_back(argv[i]);
         }
