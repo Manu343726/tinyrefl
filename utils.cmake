@@ -286,3 +286,13 @@ function(copy_dll_dependencies TARGET)
         )
     endif()
 endfunction()
+
+function(parse_version_number NUMBER MAJOR MINOR FIX)
+    string(REGEX REPLACE "([0-9])+\\.([0-9]+)\\.([0-9]+)" "\\1" _major "${NUMBER}")
+    string(REGEX REPLACE "([0-9])+\\.([0-9]+)\\.([0-9]+)" "\\2" _minor "${NUMBER}")
+    string(REGEX REPLACE "([0-9])+\\.([0-9]+)\\.([0-9]+)" "\\3" _fix   "${NUMBER}")
+
+    set(${MAJOR} "${_major}" PARENT_SCOPE)
+    set(${MINOR} "${_minor}" PARENT_SCOPE)
+    set(${FIX}   "${_fix}"   PARENT_SCOPE)
+endfunction()
