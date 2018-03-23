@@ -17,6 +17,28 @@
 #include <regex>
 #include <unordered_set>
 
+#ifdef __cpp_lib_experimental_filesystem
+#include <experimental/filesystem>
+
+using fs = std::experimental::filesystem;
+
+bool is_outdated_file(const std::string& file)
+{
+    const fs::path output_file{file + ".tinyrefl"};
+    const fs::path input_file{file};
+
+    return fs::exists(output_file) && fs::last_write_time(output_file) < fs::last_write_time(input_file);
+}
+
+#else
+
+bool is_outdated_file(const std::string& file)
+{
+    return true;
+}
+
+#endif // __cpp_lib_experimental_filesystem
+
 static const std::string ATTRIBUTES_IGNORE = "tinyrefl::ignore";
 
 template<typename Seq>
@@ -369,14 +391,16 @@ bool reflect_file(const std::string& filepath, const std::string& cpp_standard, 
 {
     using parser_t = cppast::simple_file_parser<cppast::libclang_parser>;
 
+    if(!is_outdated_file(filepath))
+    {
+        std::cout << "file " << filepath << " metadata is up to date, skipping\n";
+        return true;
+    }
+
     cppast::cpp_entity_index index;
     parser_t parser{type_safe::ref(index)};
     parser_t::config config;
     config.set_flags(get_cpp_standard(cpp_standard));
-    config.add_include_dir(TINYREFL_INCLUDE_DIR);
-    config.add_include_dir(CTTI_INCLUDE_DIR);
-    config.add_include_dir(FMT_INCLUDE_DIR);
-    config.add_include_dir(MASQUERADE_INCLUDE_DIR);
     config.add_flag("-fPIC");
 
     std::cout << "parsing file " << filepath << " -std=c++"
@@ -392,10 +416,6 @@ bool reflect_file(const std::string& filepath, const std::string& cpp_standard, 
 
     try
     {
-
-
-
-
         auto file = parser.parse(filepath, config);
 
         if(file.has_value())
