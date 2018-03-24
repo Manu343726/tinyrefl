@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(tinyrefl)
 
-option(TINYREFL_USE_LOCAL_LLVM "Use local LLVM install instead of downloading LLVM" ON)
+option(TINYREFL_USE_LOCAL_LLVM "Use local LLVM install instead of downloading LLVM" OFF)
 option(TINYREFL_BUILD_TESTS "Build tinyrefl tests" OFF)
 option(TINYREFL_BUILD_EXAMPLES "Build tinyrefl examples" OFF)
 
