@@ -1,3 +1,6 @@
+variables:
+    GIT_STRATEGY: clone
+
 test-linux-ubuntu-clang50:
     stage: test
     tags:
