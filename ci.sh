@@ -1,4 +1,5 @@
 #/bin/sh
+set -e
 
 mkdir build && cd build
 cmake .. -DTINYREFL_BUILD_TESTS=ON -DTINYREFL_BUILD_EXAMPLES=ON
