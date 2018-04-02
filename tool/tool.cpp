@@ -208,12 +208,29 @@ void generate_member(std::ostream& os, const cppast::cpp_entity& member)
     fmt::print(os, "TINYREFL_REFLECT_MEMBER({})\n", member_pointer(member));
 }
 
+std::vector<std::string> filter_members(bool godmode, std::vector<std::pair<cppast::cpp_access_specifier_kind, std::string>> members)
+{
+    std::vector<std::string> result;
+    result.reserve(members.size());
+
+    for(auto& member : members)
+    {
+        if(godmode || member.first == cppast::cpp_access_specifier_kind::cpp_public)
+        {
+            result.emplace_back(std::move(member.second));
+        }
+    }
+
+    return result;
+}
+
 void generate_class(std::ostream& os, const cppast::cpp_class& class_)
 {
-    std::vector<std::string> members;
+    std::vector<std::pair<cppast::cpp_access_specifier_kind, std::string>> members;
+    std::vector<std::pair<cppast::cpp_access_specifier_kind, std::string>> enums;
+    std::vector<std::pair<cppast::cpp_access_specifier_kind, std::string>> classes;
     std::vector<std::string> base_classes;
-    std::vector<std::string> enums;
-    std::vector<std::string> classes;
+    bool godmode = false;
 
     std::cout << " # " << full_qualified_name(class_) << " [attributes: "
                 << sequence(class_.attributes(), ", ", "\"", "\"") << "]\n";
@@ -222,9 +239,14 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
     cppast::visit(class_, [&](const cppast::cpp_entity& child, const cppast::visitor_info& info)
     {
         if(cppast::has_attribute(child, ATTRIBUTES_IGNORE) || info.is_old_entity() ||
-           info.access != cppast::cpp_access_specifier_kind::cpp_public ||
            cppast::is_templated(child))
         {
+            return;
+        }
+
+        if(child.name() == "tinyrefl_godmode_tag")
+        {
+            godmode = true;
             return;
         }
 
@@ -235,7 +257,7 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
             {
                 std::cout << "    - (member) " << child.name() << " [attributes: "
                           << sequence(child.attributes(), ", ", "\"", "\"") << "]\n";
-                members.push_back(member_instance(child));
+                members.push_back({info.access, member_instance(child)});
                 generate_member(os, child);
                 break;
             }
@@ -247,7 +269,7 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
                               << (static_cast<const cppast::cpp_class&>(child).is_declaration() ? "declaration" :
                                   static_cast<const cppast::cpp_class&>(child).is_definition() ? "definition" : "") << ") [attributes: "
                               << sequence(child.attributes(), ", ", "\"", "\"") << "]\n";
-                    classes.push_back(full_qualified_name(child));
+                    classes.push_back({info.access, full_qualified_name(child)});
                 }
                 break;
             }
@@ -255,7 +277,7 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
             {
                 std::cout << "    - (enum) " << child.name() << " [attributes: "
                           << sequence(child.attributes(), ", ", "\"", "\"") << "]\n";
-                enums.push_back(full_qualified_name(child));
+                enums.push_back({info.access, full_qualified_name(child)});
                 break;
             }
             default:
@@ -284,9 +306,9 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
 ")\n",
         type_reference(class_),
         typelist(base_classes),
-        typelist(members),
-        typelist(classes),
-        typelist(enums)
+        typelist(filter_members(godmode, members)),
+        typelist(filter_members(godmode, classes)),
+        typelist(filter_members(godmode, enums))
     );
 }
 
