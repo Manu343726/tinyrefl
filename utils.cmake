@@ -407,11 +407,14 @@ ${footer}"
                 )
             endif()
 
-            list(REMOVE_DUPLICATES includedirs)
-            set(${INCLUDES} "${includedirs}" PARENT_SCOPE)
+	    if(includedirs)
+		list(REMOVE_DUPLICATES includedirs)
+		set(${INCLUDES} "${includedirs}" PARENT_SCOPE)
+	    else()
+		set(${INCLUDES} PARENT_SCOPE)
+	    endif()
+
             return()
         endif()
     endforeach()
-
-    message(FATAL_ERROR "No ${stdlib} include directories found")
 endfunction()
