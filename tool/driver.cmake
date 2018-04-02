@@ -19,13 +19,14 @@ function(tinyrefl_tool)
     target_link_libraries(${ARGS_TARGET} PUBLIC tinyrefl)
 
     get_target_include_directories(${ARGS_TARGET} includes)
+    clangxx_stdlib_includes(stdlibc++ stdlib_includes)
 
     set(compile_options ${options} ${include_options})
 
     foreach(header ${ARGS_HEADERS})
         add_prebuild_command(TARGET ${ARGS_TARGET}
             NAME "tinyrefl_tool_${ARGS_TARGET}_${header}"
-            COMMAND tinyrefl-tool ${header} ${CMAKE_CXX_STANDARD} ${includes}
+            COMMAND tinyrefl-tool ${header} ${CMAKE_CXX_STANDARD} ${includes} ${stdlib_includes}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "Generating tinyrefl metadata for ${ARGS_TARGET}/${header}"
         )

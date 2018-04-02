@@ -26,6 +26,10 @@ bool is_outdated_file(const std::string& file)
 {
     const fs::path output_file{file + ".tinyrefl"};
     const fs::path input_file{file};
+    const auto last_output = fs::last_write_time(output_file);
+    const auto last_input = fs::last_write_time(input_file);
+
+    std::cout << output_file << " (" << last_output << ") vs " << input_file << " (" << last_input << ")\n";
 
     return fs::exists(output_file) && fs::last_write_time(output_file) < fs::last_write_time(input_file);
 }
