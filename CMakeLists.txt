@@ -6,7 +6,7 @@ option(TINYREFL_BUILD_TESTS "Build tinyrefl tests" OFF)
 option(TINYREFL_BUILD_EXAMPLES "Build tinyrefl examples" OFF)
 
 if(NOT DEFINED TINYREFL_LLVM_VERSION)
-    set(TINYREFL_LLVM_VERSION "3.9.1")
+    set(TINYREFL_LLVM_VERSION "4.0.0")
 endif()
 
 set(CMAKE_CXX_STANDARD 14)
