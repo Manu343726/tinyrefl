@@ -407,6 +407,7 @@ bool reflect_file(const std::string& filepath, const std::string& cpp_standard, 
     parser_t::config config;
     config.set_flags(get_cpp_standard(cpp_standard));
     config.add_flag("-fPIC");
+    config.add_flag("-v");
 
     std::cout << "parsing file " << filepath << " -std=c++"
         << cpp_standard << " ";
