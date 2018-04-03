@@ -66,6 +66,11 @@ TEST_CASE("tinyrefl api")
                 {"Foo",          0},
                 {"my_namespace::BaseClass", 0},
                 {"my_namespace::Foo", 0},
+                {"InnerClassWithMembers", 0},
+                {"a", 0},
+                {"b", 0},
+                {"c", 0},
+                {"innerClassInstance", 1}
             });
         }
 
@@ -82,6 +87,11 @@ TEST_CASE("tinyrefl api")
                 {"Foo",          0},
                 {"my_namespace::BaseClass", 0},
                 {"my_namespace::Foo", 0},
+                {"InnerClassWithMembers", 0},
+                {"a", 0},
+                {"b", 0},
+                {"c", 0},
+                {"innerClassInstance", 0}
             });
         }
 
@@ -99,6 +109,11 @@ TEST_CASE("tinyrefl api")
                 {"Foo",          0},
                 {"my_namespace::BaseClass", 0},
                 {"my_namespace::Foo", 0},
+                {"InnerClassWithMembers", 0},
+                {"a", 0},
+                {"b", 0},
+                {"c", 0},
+                {"innerClassInstance", 0}
             });
         }
 
@@ -116,6 +131,11 @@ TEST_CASE("tinyrefl api")
                 {"Foo",          1},
                 {"my_namespace::BaseClass", 0},
                 {"my_namespace::Foo", 0},
+                {"InnerClassWithMembers", 1},
+                {"a", 0},
+                {"b", 0},
+                {"c", 0},
+                {"innerClassInstance", 0}
             });
         }
 
@@ -132,6 +152,11 @@ TEST_CASE("tinyrefl api")
                 {"Foo",          0},
                 {"my_namespace::BaseClass", 1},
                 {"my_namespace::Foo", 1},
+                {"InnerClassWithMembers", 0},
+                {"a", 0},
+                {"b", 0},
+                {"c", 0},
+                {"innerClassInstance", 0}
             });
         }
     }

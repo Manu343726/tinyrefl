@@ -24,6 +24,13 @@ public:
 
     struct Foo {};
 
+    struct InnerClassWithMembers
+    {
+        int a, b, c;
+    };
+
+    InnerClassWithMembers innerClassInstance;
+
 private:
     int _private;
 };

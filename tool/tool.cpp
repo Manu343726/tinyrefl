@@ -223,7 +223,8 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
     {
         if(cppast::has_attribute(child, ATTRIBUTES_IGNORE) || info.is_old_entity() ||
            info.access != cppast::cpp_access_specifier_kind::cpp_public ||
-           cppast::is_templated(child))
+           cppast::is_templated(child) ||
+           child.parent() != class_)
         {
             return;
         }
