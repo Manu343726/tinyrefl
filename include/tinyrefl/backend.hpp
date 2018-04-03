@@ -173,9 +173,23 @@ template<
 >
 struct class_
 {
+private:
+    template<entity_kind Kind>
+    struct has_kind
+    {
+        template<typename Member>
+        struct apply
+        {
+            using type = tinyrefl::meta::bool_<Member::kind == Kind>;
+        };
+    };
+
+public:
     static constexpr entity_kind kind = entity_kind::CLASS;
     using base_classes = BaseClasses;
     using members = Members;
+    using member_variables = tinyrefl::meta::filter_t<has_kind<entity_kind::MEMBER_VARIABLE>, members>;
+    using member_functions = tinyrefl::meta::filter_t<has_kind<entity_kind::MEMBER_FUNCTION>, members>;
     using classes = Classes;
     using enums = Enums;
 

@@ -4,7 +4,6 @@
 #include "example.hpp.tinyrefl"
 #include <unordered_set>
 #include <unordered_map>
-#include <iostream>
 
 TEST_CASE("tinyrefl api")
 {
@@ -33,15 +32,11 @@ TEST_CASE("tinyrefl api")
             tinyrefl::visit_class<my_namespace::MyClass>(
                 [&entities, expected_entity_kind](const std::string& name, auto depth, auto entity, auto entity_kind)
             {
-            std::cout << "-- " << depth << " -- On " << entity_kind << " " << name << "\n";
-
                 if(entity_kind == expected_entity_kind)
                 {
                     entities.insert(name);
                 }
             });
-
-            std::cout << "\n\n";
 
             for(const auto& key_value : expected_results)
             {
@@ -157,6 +152,55 @@ TEST_CASE("tinyrefl api")
                 {"b", 0},
                 {"c", 0},
                 {"innerClassInstance", 0}
+            });
+        }
+    }
+
+    SECTION("visit object")
+    {
+        auto test = [](auto expected_kind, const std::unordered_set<std::string>& expected)
+        {
+            std::unordered_set<std::string> members;
+            my_namespace::MyClass myObject;
+
+            tinyrefl::visit_object(myObject,
+                [&members, expected_kind](const std::string& name, auto depth, auto entity, decltype(expected_kind) kind)
+            {
+                CHECK(kind == expected_kind.get());
+                members.insert(name);
+            });
+
+            INFO([members]
+            {
+                std::ostringstream ss;
+
+                for(const auto& member : members)
+                {
+                    ss << " - got member \"" << member << "\"\n";
+                }
+
+                return ss.str();
+            }());
+            CHECK(members.size() == expected.size());
+
+            for(const auto& member : expected)
+            {
+                INFO("Expected " << expected_kind << " \"" << member << "\"");
+                CHECK(members.count(member) == 1);
+            }
+        };
+
+        SECTION("visit member variables only")
+        {
+            test(CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)(), {
+                "str", "innerClassInstance", "vector"
+            });
+        }
+
+        SECTION("visit subobjects only")
+        {
+            test(CTTI_STATIC_VALUE(tinyrefl::entity::OBJECT)(), {
+                "my_namespace::BaseClass", "my_namespace::Foo"
             });
         }
     }
