@@ -203,5 +203,64 @@ TEST_CASE("tinyrefl api")
                 "my_namespace::BaseClass", "my_namespace::Foo"
             });
         }
+
+        SECTION("visit returns references to the object members")
+        {
+            my_namespace::MyClass myObject;
+
+            auto addressof = [](auto& object)
+            {
+                return reinterpret_cast<void*>(std::addressof(object));
+            };
+
+            tinyrefl::visit_object(myObject, [&myObject, addressof](const std::string& name, auto depth, auto& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+            {
+                if(name == "str")
+                {
+                    CHECK(addressof(member) == addressof(myObject.str));
+                }
+                else if(name == "innerClassInstance")
+                {
+                    CHECK(addressof(member) == addressof(myObject.innerClassInstance));
+                }
+                else if(name == "vector")
+                {
+                    CHECK(addressof(member) == addressof(myObject.vector));
+                }
+            });
+        }
+
+        SECTION("assigning values to members in visit changes members of visited object")
+        {
+            my_namespace::MyClass myObject;
+
+            tinyrefl::visit_object(myObject,
+                [](const std::string& name, auto depth, std::string& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+            {
+                member = "a new string value";
+            },
+                [](const std::string& name, auto depth, std::vector<int>& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+            {
+                member.assign(42, 42);
+            },
+                [](const std::string& name, auto depth, my_namespace::MyClass::InnerClassWithMembers& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+            {
+                member.a = 42;
+                member.b = 42;
+                member.c = 42;
+            });
+
+            CHECK(myObject.str == "a new string value");
+            REQUIRE(myObject.vector.size() == 42);
+
+            for(int e : myObject.vector)
+            {
+                CHECK(e == 42);
+            }
+
+            CHECK(myObject.innerClassInstance.a == 42);
+            CHECK(myObject.innerClassInstance.b == 42);
+            CHECK(myObject.innerClassInstance.c == 42);
+        }
     }
 }

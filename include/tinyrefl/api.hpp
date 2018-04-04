@@ -195,21 +195,34 @@ void visit_class(Visitors... visitors)
 }
 
 template<typename Class, typename... Visitors>
-void visit_object(Class&& object, Visitors... visitors)
+void visit_object(const Class& object, Visitors... visitors)
 {
     auto visitor = tinyrefl::overloaded_function_default(visitors...);
 
     visit_class<typename std::decay<Class>::type>(
-        [=](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::BASE_CLASS))
+        [&](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::BASE_CLASS))
     {
         visitor(name, depth, tinyrefl::detail::cast<typename decltype(entity)::type>(object), CTTI_STATIC_VALUE(tinyrefl::entity::OBJECT)());
     },
-        [=](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+        [&](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
     {
         visitor(name, depth, entity.get(object), CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)());
-    },
-        [=](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_FUNCTION))
+    });
+}
+
+template<typename Class, typename... Visitors>
+void visit_object(Class& object, Visitors... visitors)
+{
+    auto visitor = tinyrefl::overloaded_function_default(visitors...);
+
+    visit_class<typename std::decay<Class>::type>(
+        [&](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::BASE_CLASS))
     {
+        visitor(name, depth, tinyrefl::detail::cast<typename decltype(entity)::type>(object), CTTI_STATIC_VALUE(tinyrefl::entity::OBJECT)());
+    },
+        [&](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+    {
+        visitor(name, depth, entity.get(object), CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)());
     });
 }
 
