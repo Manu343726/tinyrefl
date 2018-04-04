@@ -4,6 +4,7 @@ add_executable(tinyrefl-test-static
     main.cpp
     backend.cpp
     generated_code.cpp
+    api.cpp
 )
 
 target_link_libraries(tinyrefl-test-static PRIVATE tinyrefl)
