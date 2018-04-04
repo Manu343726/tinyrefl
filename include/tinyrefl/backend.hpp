@@ -33,13 +33,13 @@ constexpr ctti::detail::cstring string_constant()
 
 struct no_metadata {};
 
-template<typename Type, typename = void>
+template<typename Type>
 struct metadata_of
 {
     using type = no_metadata;
 };
 
-template<typename Type, typename = void>
+template<typename Type>
 struct metadata_registered_for_type : public tinyrefl::meta::bool_<!std::is_same<
     typename metadata_of<Type>::type,
     no_metadata
@@ -515,7 +515,7 @@ constexpr typename enum_<Name, Enum, tinyrefl::meta::list<Values...>>::value_t e
 #define TINYREFL_REFLECT_MEMBER(member)                  \
     namespace tinyrefl { namespace backend {             \
     template<>                                           \
-    struct metadata_of<typename member::pointer_static_value, void>               \
+    struct metadata_of<typename member::pointer_static_value>               \
     {                                                    \
         using type = member;                            \
     };                                                   \
@@ -524,7 +524,7 @@ constexpr typename enum_<Name, Enum, tinyrefl::meta::list<Values...>>::value_t e
 #define TINYREFL_REFLECT_ENUM_VALUE(value)                  \
     namespace tinyrefl { namespace backend {             \
     template<>                                           \
-    struct metadata_of<typename value::value_static_value, void>               \
+    struct metadata_of<typename value::value_static_value>               \
     {                                                    \
         using type = value;                            \
     };                                                   \
@@ -533,7 +533,7 @@ constexpr typename enum_<Name, Enum, tinyrefl::meta::list<Values...>>::value_t e
 #define TINYREFL_REFLECT_CLASS(classname, ...)              \
     namespace tinyrefl { namespace backend {               \
     template<>                                             \
-    struct metadata_of<classname, void> \
+    struct metadata_of<classname> \
     {                                                      \
         using type = class_<__VA_ARGS__>;                  \
     };                                                     \
@@ -542,7 +542,7 @@ constexpr typename enum_<Name, Enum, tinyrefl::meta::list<Values...>>::value_t e
 #define TINYREFL_REFLECT_ENUM(name, enum_type, values)    \
     namespace tinyrefl { namespace backend {              \
     template<>                                            \
-    struct metadata_of<enum_type, void> \
+    struct metadata_of<enum_type> \
     {                                                     \
         using type = enum_<name, enum_type, values>; \
     };                                                    \
@@ -558,7 +558,7 @@ constexpr typename enum_<Name, Enum, tinyrefl::meta::list<Values...>>::value_t e
         typename __TinyRelf__GodModeTemplateParam__Enums                                                         \
     >                                                                                                            \
     friend struct ::tinyrefl::backend::class_;                                                                   \
-    template<typename __TinyRefl__GodModeTemplateParam__Type, typename __TinyRefl__GodModeTemplateParam__Void>                              \
+    template<typename __TinyRefl__GodModeTemplateParam__Type>                                                    \
     friend struct ::tinyrefl::backend::metadata_of;                                                              \
     template<ctti::detail::hash_t __TinyRefl__GodModeTemplateParam__Name, typename __TinyRefl__GodModeTemplateParam__Pointer> \
     friend struct ::tinyrefl::backend::member;                                                                   \
