@@ -208,6 +208,32 @@ void generate_member(std::ostream& os, const cppast::cpp_entity& member)
     fmt::print(os, "TINYREFL_REFLECT_MEMBER({})\n", member_pointer(member));
 }
 
+bool is_unknown_entity(const cppast::cpp_entity& entity)
+{
+    auto parent = entity.parent();
+
+    if(entity.name().empty())
+    {
+        std::cerr << "[warning] Found " << cppast::to_string(entity.kind()) << " with empty name";
+
+        if(parent.has_value())
+        {
+            std::cerr << " at " << full_qualified_name(parent.value());
+        }
+
+        std::cerr << "\n";
+
+        return true;
+    }
+
+    if(parent.has_value() && is_unknown_entity(parent.value()))
+    {
+        return true;
+    }
+
+    return false;
+}
+
 void generate_class(std::ostream& os, const cppast::cpp_class& class_)
 {
     std::vector<std::string> members;
@@ -224,7 +250,8 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
         if(cppast::has_attribute(child, ATTRIBUTES_IGNORE) || info.is_old_entity() ||
            info.access != cppast::cpp_access_specifier_kind::cpp_public ||
            cppast::is_templated(child) ||
-           child.parent() != class_)
+           child.parent() != class_ ||
+           is_unknown_entity(child))
         {
             return;
         }
@@ -307,7 +334,8 @@ void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
 
         cppast::visit(enum_, [&values, &os](const cppast::cpp_entity& entity, const cppast::visitor_info& info)
         {
-            if(entity.kind() == cppast::cpp_enum_value::kind())
+            if(entity.kind() == cppast::cpp_enum_value::kind() &&
+               !is_unknown_entity(entity))
             {
                 const auto& value = static_cast<const cppast::cpp_enum_value&>(entity);
 
@@ -348,7 +376,7 @@ void visit_ast_and_generate(const cppast::cpp_file& ast_root, const std::string&
                    !cppast::has_attribute(e, ATTRIBUTES_IGNORE);
         },
         [&body](const cppast::cpp_entity& e, const cppast::visitor_info& info) {
-            if(info.is_new_entity() && info.access == cppast::cpp_public)
+            if(info.is_new_entity() && info.access == cppast::cpp_public && !is_unknown_entity(e))
             {
                 switch(e.kind())
                 {
