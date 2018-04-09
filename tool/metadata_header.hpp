@@ -34,6 +34,13 @@ R"========(
     #define TINYREFL_VALUE(...)
 #endif // TINYREFL_VALUE
 
+#ifndef TINYREFL_ATTRIBUTE
+    #warning "The TINYREFL_ATTRIBUTE(...) macro is not defined. A definition of this macro is required by tinyrefl to model user defined attributes"
+    #warning "Tinyrefl will define an empty TINYREFL_ATTRIBUTE() macro for you, but this would mean the metadata of your types could end up being incomplete"
+
+    #define TINYREFL_ATTRIBUTE(...)
+#endif // TINYREFL_ATTRIBUTE
+
 #ifndef TINYREFL_ENUM_VALUE
     #warning "The TINYREFL_ENUM_VALUE(...) macro is not defined. A definition of this macro is required by tinyrefl to model sequences of metadata"
     #warning "Tinyrefl will define an empty TINYREFL_ENUM_VALUE() macro for you, but this would mean the metadata of your types could end up being incomplete"

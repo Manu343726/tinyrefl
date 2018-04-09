@@ -708,8 +708,9 @@ constexpr typename enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes
 #define TINYREFL_SEQUENCE(elems) ::tinyrefl::meta::list<TINYREFL_PP_UNWRAP elems>
 #define TINYREFL_TYPE(name, fullname) fullname
 #define TINYREFL_VALUE(value) value
-#define TINYREFL_MEMBER(name, fullname, type, pointer) ::tinyrefl::backend::member<fullname, CTTI_STATIC_VALUE(pointer)>
-#define TINYREFL_ENUM_VALUE(name, fullname, type, value) ::tinyrefl::backend::enum_value<fullname, CTTI_STATIC_VALUE(value)>
+#define TINYREFL_ATTRIBUTE(name, namespace_, args) ::tinyrefl::backend::attribute_metadata<name, namespace_, args>
+#define TINYREFL_MEMBER(name, fullname, type, pointer, attributes) ::tinyrefl::backend::member<fullname, CTTI_STATIC_VALUE(pointer), attributes>
+#define TINYREFL_ENUM_VALUE(name, fullname, type, value, attributes) ::tinyrefl::backend::enum_value<fullname, CTTI_STATIC_VALUE(value), attributes>
 
 #define TINYREFL_REFLECT_MEMBER(member)                  \
     namespace tinyrefl { namespace backend {             \
@@ -738,12 +739,12 @@ constexpr typename enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes
     };                                                     \
     } /* namespace backend */ } // namespace tinyrefl
 
-#define TINYREFL_REFLECT_ENUM(name, enum_type, values)    \
+#define TINYREFL_REFLECT_ENUM(name, enum_type, values, attributes)    \
     namespace tinyrefl { namespace backend {              \
     template<>                                            \
     struct metadata_of<enum_type> \
     {                                                     \
-        using type = enum_<name, enum_type, values>; \
+        using type = enum_<name, enum_type, values, attributes>; \
     };                                                    \
     } /* namespace backend */ } // namespace tinyrefl
 
