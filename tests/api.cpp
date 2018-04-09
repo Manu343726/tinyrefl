@@ -9,18 +9,19 @@ TEST_CASE("tinyrefl api")
 {
     SECTION("class metadata")
     {
-        using metadata = $(my_namespace::MyClass);
+        using Metadata = $(my_namespace::MyClass);
         std::ostringstream ss;
-        INFO((tinyrefl::meta::foreach<metadata::base_classes>([&ss](auto type, auto index)
+        INFO((tinyrefl::meta::foreach<Metadata::base_classes>([&ss](auto type, auto index)
         {
             using Type = typename decltype(type)::type;
             ss << "Base class(" << index << "): " << ctti::nameof<Type>() << "\n";
         }), ss.str()));
-        REQUIRE(metadata::base_classes::size == 2);
-        REQUIRE(std::is_same<tinyrefl::meta::get_t<0, metadata::base_classes>, my_namespace::BaseClass>());
-        REQUIRE(std::is_same<tinyrefl::meta::get_t<1, metadata::base_classes>, my_namespace::Foo>());
+        REQUIRE(Metadata::base_classes::size == 2);
+        REQUIRE(std::is_same<tinyrefl::meta::get_t<0, Metadata::base_classes>, my_namespace::BaseClass>());
+        REQUIRE(std::is_same<tinyrefl::meta::get_t<1, Metadata::base_classes>, my_namespace::Foo>());
 
-        REQUIRE(tinyrefl::meta::get_t<0, metadata::members>::value == &my_namespace::MyClass::f);
+        REQUIRE(tinyrefl::meta::get_t<0, Metadata::members>::value == &my_namespace::MyClass::f);
+        REQUIRE(!tinyrefl::has_attribute<my_namespace::MyClass>("foo"));
     }
 
     SECTION("visit class")

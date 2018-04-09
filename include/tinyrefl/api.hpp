@@ -24,6 +24,28 @@ using metadata = typename tinyrefl::backend::metadata_of_type<T>;
 template<typename T>
 using has_metadata = tinyrefl::backend::metadata_registered_for_type<T>;
 
+template<typename Metadata>
+constexpr bool has_attribute(const Metadata& metadata, const ctti::detail::cstring& attribute)
+{
+    return tinyrefl::backend::has_attribute(metadata, attribute);
+}
+
+template<typename T>
+constexpr auto has_attribute(const ctti::detail::cstring& attribute) -> tinyrefl::meta::enable_if_t<
+    has_metadata<T>::value, bool
+>
+{
+    return tinyrefl::backend::has_attribute(metadata<T>{}, attribute);
+}
+
+template<typename T>
+constexpr auto has_attribute(const ctti::detail::cstring& attribute) -> tinyrefl::meta::enable_if_t<
+    !has_metadata<T>::value, bool
+>
+{
+    return false;
+}
+
 template<typename T>
 std::string default_object_name(const T& object)
 {
