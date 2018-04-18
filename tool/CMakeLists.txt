@@ -8,4 +8,4 @@ target_compile_definitions(tinyrefl-tool PRIVATE
 )
 
 target_include_directories(tinyrefl-tool PRIVATE ${TINYREFL_INCLUDE_DIR})
-target_link_libraries(tinyrefl-tool PRIVATE cppast fmt masquerade)
+target_link_libraries(tinyrefl-tool PRIVATE cppast fmt masquerade cppfs)

@@ -8,6 +8,7 @@ constexpr check triggerCheck;
 
 EXPECT_FALSE(tinyrefl::has_attribute<foo::Foo>("attribute"));
 
+#ifdef __clang__
 template<typename T>
 constexpr auto overload_on_attributes() -> tinyrefl::meta::enable_if_t<
     tinyrefl::has_attribute<T>("return_42"), int
@@ -25,3 +26,4 @@ constexpr auto overload_on_attributes() -> tinyrefl::meta::enable_if_t<
 }
 
 EXPECT_EQ(overload_on_attributes<foo::Foo>(), 0);
+#endif // __clang__

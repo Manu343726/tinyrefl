@@ -7,6 +7,8 @@ execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive)
 set(CPPAST_BUILD_EXAMPLE OFF CACHE BOOL "disable cppast examples")
 set(CPPAST_BUILD_TEST OFF CACHE BOOL "disable cppast tests")
 set(CPPAST_BUILD_TOOL OFF CACHE BOOL "disable cppast tool")
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "build cppfs as static lib")
+set(OPTION_BUILD_TESTS OFF CACHE BOOL "disable cppfs tests")
 
 parse_version_number(${TINYREFL_LLVM_VERSION} TINYREFL_LLVM_VERSION_MAJOR TINYREFL_LLVM_VERSION_MINOR TINYREFL_LLVM_VERSION_FIX)
 

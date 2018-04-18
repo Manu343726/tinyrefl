@@ -16,32 +16,18 @@
 #include <functional>
 #include <regex>
 #include <unordered_set>
-
-#ifdef __cpp_lib_experimental_filesystem
-#include <experimental/filesystem>
-
-using fs = std::experimental::filesystem;
+#include <cppfs/fs.h>
+#include <cppfs/FileHandle.h>
 
 bool is_outdated_file(const std::string& file)
 {
-    const fs::path output_file{file + ".tinyrefl"};
-    const fs::path input_file{file};
-    const auto last_output = fs::last_write_time(output_file);
-    const auto last_input = fs::last_write_time(input_file);
+    const auto input_file = cppfs::fs::open(file);
+    const auto output_file = cppfs::fs::open(file + ".tinyrefl");
 
-    std::cout << output_file << " (" << last_output << ") vs " << input_file << " (" << last_input << ")\n";
+    assert(input_file.exists());
 
-    return fs::exists(output_file) && fs::last_write_time(output_file) < fs::last_write_time(input_file);
+    return !output_file.exists() || input_file.modificationTime() > output_file.modificationTime();
 }
-
-#else
-
-bool is_outdated_file(const std::string& file)
-{
-    return true;
-}
-
-#endif // __cpp_lib_experimental_filesystem
 
 static const std::string ATTRIBUTES_IGNORE = "tinyrefl::ignore";
 
