@@ -88,6 +88,37 @@ void generate_symbol_declaration(std::ostream& os, const std::string& symbol)
 "#endif // TINYREFL_SYMBOL_{0}_DEFINED\n", symbol);
 }
 
+std::string unqualified_name(const cppast::cpp_entity& entity)
+{
+    auto rename_command = cppast::has_attribute(entity, "tinyrefl::rename");
+
+    if(rename_command)
+    {
+        const auto arguments = rename_command.value().arguments();
+
+        if(!arguments || arguments.value().empty())
+        {
+            throw std::runtime_error{fmt::format("[error] expected argument for [[tinyrefl::rename(name)]] attribute")};
+        }
+        else if(arguments.value().end() - arguments.value().begin() != 1)
+        {
+            throw std::runtime_error{fmt::format("[error] expected one argument for [[tinyrefl::rename(name)]] attribute")};
+        }
+        else if(arguments.value().front().kind != cppast::cpp_token_kind::string_literal)
+        {
+            throw std::runtime_error{fmt::format("[error] expected string literal as argument for [[tinyrefl::rename(name)]] attribute")};
+        }
+        else
+        {
+            return arguments.value().front().spelling;
+        }
+    }
+    else
+    {
+        return entity.name();
+    }
+}
+
 std::string full_qualified_name(const cppast::cpp_entity& entity)
 {
     std::string name = entity.name();
