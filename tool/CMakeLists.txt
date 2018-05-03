@@ -1,3 +1,4 @@
+add_subdirectory(external)
 add_executable(tinyrefl-tool tool.cpp)
 
 target_compile_definitions(tinyrefl-tool PRIVATE

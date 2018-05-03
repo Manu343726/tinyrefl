@@ -1,7 +1,7 @@
 #include "template_using_reflection.hpp"
 #include "members.hpp"
 #include "members.hpp.tinyrefl"
-#include <ctti/tests/static/static_test.hpp>
+#include CTTI_STATIC_TESTS_HEADER
 
 using check = tinyrefl::test::AssertMetadataAvailableForTemplateParam<foo::Foo>;
 constexpr check triggerCheck;

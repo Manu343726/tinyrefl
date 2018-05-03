@@ -1,4 +1,5 @@
-#include <ctti/tests/static/static_test.hpp>
+
+#include CTTI_STATIC_TESTS_HEADER
 #include <tinyrefl/backend.hpp>
 
 // String hashing from TINYREFL_STRING() macros works as expected
