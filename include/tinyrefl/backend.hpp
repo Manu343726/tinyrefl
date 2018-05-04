@@ -134,7 +134,7 @@ template<typename... Values>
 struct typelist_to_array<tinyrefl::meta::list<Values...>>
 {
     using value_type = typename std::remove_cv<decltype(tinyrefl::meta::pack_head_t<Values...>::value)>::type;
-    using array_type = constexpr_array<value_type, ctti::detail::max(1ul, sizeof...(Values))>;
+    using array_type = constexpr_array<value_type, ctti::detail::max(static_cast<std::size_t>(1), sizeof...(Values))>;
 
     static constexpr array_type value = {Values::value...};
 };

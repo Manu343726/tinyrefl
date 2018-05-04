@@ -26,13 +26,12 @@ function(tinyrefl_tool)
     foreach(header ${ARGS_HEADERS})
         add_prebuild_command(TARGET ${ARGS_TARGET}
             NAME "tinyrefl_tool_${ARGS_TARGET}_${header}"
-            COMMAND tinyrefl-tool ${header} ${CMAKE_CXX_STANDARD} ${includes} ${stdlib_includes}
+            COMMAND ${TINYREFL_TOOL_EXECUTABLE} ${header} ${CMAKE_CXX_STANDARD} ${includes} ${stdlib_includes}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "Generating tinyrefl metadata for ${ARGS_TARGET}/${header}"
+            DEPENDS ${TINYREFL_TOOL_TARGET}
         )
     endforeach()
-
-    add_dependencies(${ARGS_TARGET} tinyrefl-tool)
 
     string(REGEX REPLACE ";" " " header_list "${ARGS_HEADERS}")
     string(REGEX REPLACE ";" " " options_list "${compile_options}")
