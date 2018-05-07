@@ -38,7 +38,7 @@ else()
     )
 
     target_include_directories(tinyrefl-tool PRIVATE ${TINYREFL_INCLUDE_DIR})
-    target_link_libraries(tinyrefl-tool PRIVATE cppast fmt masquerade cppfs)
+    target_link_libraries(tinyrefl-tool PRIVATE cppast fmt masquerade cppfs llvm-commandline)
 
     set(TINYREFL_TOOL_EXECUTABLE $<TARGET_FILE:tinyrefl-tool> CACHE STRING "")
     set(TINYREFL_TOOL_TARGET tinyrefl-tool CACHE STRING "")

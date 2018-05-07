@@ -18,6 +18,8 @@
 #include <unordered_set>
 #include <cppfs/fs.h>
 #include <cppfs/FileHandle.h>
+#include <llvm/Support/CommandLine.h>
+namespace cl = llvm::cl;
 
 bool is_outdated_file(const std::string& file)
 {
@@ -418,11 +420,11 @@ void visit_ast_and_generate(const cppast::cpp_file& ast_root, const std::string&
 cppast::cpp_standard get_cpp_standard(const std::string& cpp_standard)
 {
     static const std::unordered_map<std::string, cppast::cpp_standard> map{
-        {"98", cppast::cpp_standard::cpp_98},
-        {"03", cppast::cpp_standard::cpp_03},
-        {"11", cppast::cpp_standard::cpp_11},
-        {"14", cppast::cpp_standard::cpp_14},
-        {"1z", cppast::cpp_standard::cpp_1z},
+        {"c++98", cppast::cpp_standard::cpp_98},
+        {"c++03", cppast::cpp_standard::cpp_03},
+        {"c++11", cppast::cpp_standard::cpp_11},
+        {"c++14", cppast::cpp_standard::cpp_14},
+        {"c++1z", cppast::cpp_standard::cpp_1z},
     };
 
     auto it = map.find(cpp_standard);
@@ -437,7 +439,48 @@ cppast::cpp_standard get_cpp_standard(const std::string& cpp_standard)
     }
 }
 
-bool reflect_file(const std::string& filepath, const std::string& cpp_standard, const std::vector<std::string>& include_dirs)
+struct compile_definition
+{
+    std::string macro;
+    std::string value;
+
+    compile_definition() = default;
+    compile_definition(std::string macro, std::string value);
+    compile_definition(const std::string& input);
+};
+
+compile_definition parse_compile_definition(const std::string& input)
+{
+    std::size_t equal_sign = input.find_first_of('=');
+
+    if(equal_sign != std::string::npos)
+    {
+        return {input.substr(0, equal_sign), input.substr(equal_sign + 1)};
+    }
+    else
+    {
+        return {input, ""};
+    }
+}
+
+compile_definition::compile_definition(std::string macro, std::string value) :
+    macro{std::move(macro)},
+    value{std::move(value)}
+{}
+
+compile_definition::compile_definition(const std::string& input) :
+    compile_definition{parse_compile_definition(input)}
+{}
+
+std::istream& operator>>(std::istream& is, compile_definition& compile_definition)
+{
+    std::string input;
+    is >> input;
+    compile_definition = parse_compile_definition(input);
+    return is;
+}
+
+bool reflect_file(const std::string& filepath, const cppast::cpp_standard cpp_standard, const cl::list<std::string>& include_dirs, const cl::list<std::string>& definitions, const std::vector<std::string>& custom_flags)
 {
     using parser_t = cppast::simple_file_parser<cppast::libclang_parser>;
 
@@ -450,16 +493,44 @@ bool reflect_file(const std::string& filepath, const std::string& cpp_standard, 
     cppast::cpp_entity_index index;
     parser_t parser{type_safe::ref(index)};
     parser_t::config config;
-    config.set_flags(get_cpp_standard(cpp_standard));
-    config.add_flag("-fPIC");
+    config.set_flags(cpp_standard);
 
-    std::cout << "parsing file " << filepath << " -std=c++"
-        << cpp_standard << " ";
+    std::cout << "parsing file " << filepath << " "
+        << cppast::to_string(cpp_standard) << " ";
+
+    for(const auto& definition : definitions)
+    {
+        compile_definition def{definition};
+        std::cout << "-D" << def.macro << "=" << def.value << " ";
+
+        if(def.macro.empty())
+        {
+            std::cout << "(empty, ignored) ";
+        }
+        else
+        {
+            config.define_macro(def.macro, def.value);
+        }
+    }
 
     for(const std::string& include_dir : include_dirs)
     {
         std::cout << "-I" << include_dir << " ";
-        config.add_include_dir(include_dir);
+
+        if(include_dir.empty())
+        {
+            std::cout << "(empty, ignored) ";
+        }
+        else
+        {
+            config.add_include_dir(include_dir);
+        }
+    }
+
+    for(const auto& flag : custom_flags)
+    {
+        std::cout << flag << " ";
+        config.add_flag(flag);
     }
 
     std::cout << " ...\n";
@@ -487,21 +558,31 @@ bool reflect_file(const std::string& filepath, const std::string& cpp_standard, 
 
 int main(int argc, char** argv)
 {
-    if(argc > 2)
+    cl::opt<std::string>          filename{cl::Positional, cl::desc("<input header>"), cl::Required};
+    cl::list<std::string>         includes{"I", cl::Prefix, cl::ValueOptional, cl::desc("Include directories")};
+    cl::list<std::string>         definitions{"D", cl::Prefix, cl::ValueOptional, cl::desc("Compile definitions")};
+    cl::opt<cppast::cpp_standard> stdversion{"std", cl::desc("C++ standard"), cl::values(
+        clEnumValN(cppast::cpp_standard::cpp_98, "c++98", "C++ 1998 standard"),
+        clEnumValN(cppast::cpp_standard::cpp_03, "c++03", "C++ 2003 standard"),
+        clEnumValN(cppast::cpp_standard::cpp_11, "c++11", "C++ 2011 standard"),
+        clEnumValN(cppast::cpp_standard::cpp_14, "c++14", "C++ 2014 standard"),
+        clEnumValN(cppast::cpp_standard::cpp_1z, "c++17", "C++ 2017 standard")
+    )};
+    cl::list<std::string> custom_flags{cl::Sink, cl::desc("Custom compiler flags")};
+
+    if(cl::ParseCommandLineOptions(argc, argv, "Tinyrefl codegen tool"))
     {
-        std::vector<std::string> include_dirs;
-        include_dirs.reserve(argc - 3);
-
-        for(int i = 3; i < argc; ++i)
+        if(reflect_file(filename, stdversion, includes, definitions, custom_flags))
         {
-            include_dirs.push_back(argv[i]);
+            return 0;
         }
-
-        return !reflect_file(argv[1], argv[2], include_dirs);
+        else
+        {
+            return 1;
+        }
     }
     else
     {
-        std::cerr << "usage: tool <path to file> <c++ standard> [<include dirs>...]\n";
-        return 1;
+        return 2;
     }
 }
