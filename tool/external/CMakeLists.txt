@@ -41,6 +41,20 @@ external_dependency(cppast https://github.com/Manu343726/cppast.git bytech)
 external_dependency(cppfs https://github.com/gabm/cppfs.git optional_libSSL2)
 external_dependency(masquerade https://gitlab.com/Manu343726/masquerade.git master)
 
-find_package(LLVM ${TINYREFL_LLVM_VERSION} REQUIRED EXACT CONFIG)
+if(NOT LLVM_CONFIG_BINARY)
+    message(FATAL_ERROR "llvm-config binary not set")
+else()
+    message(STATUS "llvm-config binary: ${LLVM_CONFIG_BINARY}")
+endif()
+
+execute_process(COMMAND ${LLVM_CONFIG_BINARY} --libdir OUTPUT_VARIABLE stdout)
+string(STRIP "${stdout}" stdout)
+set(LLVM_CMAKE_PATH "${stdout}/cmake/llvm")
+set(CLANG_CMAKE_PATH "${stdout}/cmake/clang")
+
+message(STATUS "llvm cmake path: ${LLVM_CMAKE_PATH}")
+message(STATUS "clang cmake path: ${CLANG_CMAKE_PATH}")
+
+find_package(LLVM ${TINYREFL_LLVM_VERSION} REQUIRED EXACT CONFIG PATHS "${LLVM_CMAKE_PATH}" NO_DEFAULT_PATH)
 add_library(llvm-commandline INTERFACE)
-target_link_libraries(llvm-commandline PUBLIC LLVMX86Utils)
+target_link_libraries(llvm-commandline INTERFACE LLVMX86Utils)
