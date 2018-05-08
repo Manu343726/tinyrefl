@@ -42,5 +42,5 @@ external_dependency(cppfs https://github.com/gabm/cppfs.git optional_libSSL2)
 external_dependency(masquerade https://gitlab.com/Manu343726/masquerade.git master)
 
 find_package(LLVM ${TINYREFL_LLVM_VERSION} REQUIRED EXACT CONFIG)
-add_library(llvm-commandline SHARED dummy.cpp)
+add_library(llvm-commandline INTERFACE)
 target_link_libraries(llvm-commandline PUBLIC LLVMX86Utils)
