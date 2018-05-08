@@ -6,7 +6,7 @@ test-linux-ubuntu-clang50:
     tags:
       - linux
       - docker
-    image: geordiejones/cpp14-build-machine
+    image: manu343726/tinyrefl:clang50
     script: ./ci.sh
 
 test-linux-ubuntu-gcc5:
@@ -14,5 +14,5 @@ test-linux-ubuntu-gcc5:
     tags:
       - linux
       - docker
-    image: lasote/conangcc5
+    image: manu343726/tinyrefl:gcc5
     script: ./ci.sh
