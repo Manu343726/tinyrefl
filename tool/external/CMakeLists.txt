@@ -54,8 +54,8 @@ endif()
 
 execute_process(COMMAND ${LLVM_CONFIG_BINARY} --libdir OUTPUT_VARIABLE stdout)
 string(STRIP "${stdout}" stdout)
-set(LLVM_CMAKE_PATH "${stdout}/cmake/llvm")
-set(CLANG_CMAKE_PATH "${stdout}/cmake/clang")
+set(LLVM_CMAKE_PATH "${stdout}/cmake/llvm" CACHE PATH "")
+set(CLANG_CMAKE_PATH "${stdout}/cmake/clang" CACHE PATH "")
 
 message(STATUS "llvm cmake path: ${LLVM_CMAKE_PATH}")
 message(STATUS "clang cmake path: ${CLANG_CMAKE_PATH}")
