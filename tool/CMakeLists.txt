@@ -32,12 +32,14 @@ else()
     add_executable(tinyrefl-tool tool.cpp)
 
     # LLVM releases are compiled with old GCC ABI and RTTI disabled
-    if(CMAKE_CXX_COMPILER_ID MATCHES GNU AND NOT TINYREFL_USE_LOCAL_LLVM)
-        target_compile_definitions(tinyrefl-tool PRIVATE
-            _GLIBCXX_USE_CXX11_ABI=0
-        )
+    if(NOT TINYREFL_USE_LOCAL_LLVM)
+        if(NOT MSVC)
+            target_compile_definitions(tinyrefl-tool PRIVATE
+                _GLIBCXX_USE_CXX11_ABI=0
+            )
 
-        target_compile_options(tinyrefl-tool PRIVATE -fno-rtti)
+            target_compile_options(tinyrefl-tool PRIVATE -fno-rtti)
+        endif()
     endif()
 
     target_include_directories(tinyrefl-tool PRIVATE ${TINYREFL_INCLUDE_DIR})
