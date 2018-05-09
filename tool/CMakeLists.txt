@@ -31,15 +31,19 @@ else()
     add_subdirectory(external)
     add_executable(tinyrefl-tool tool.cpp)
 
-    target_compile_definitions(tinyrefl-tool PRIVATE
-        "-DTINYREFL_INCLUDE_DIR=\"${CMAKE_SOURCE_DIR}/include\""
-        "-DCTTI_INCLUDE_DIR=\"${CMAKE_SOURCE_DIR}/ctti/include/\""
-        "-DFMT_INCLUDE_DIR=\"${CMAKE_SOURCE_DIR}/fmt/\""
-        "-DMASQUERADE_INCLUDE_DIR=\"${CMAKE_SOURCE_DIR}/masquerade\""
-    )
+    # LLVM releases are compiled with old GCC ABI and RTTI disabled
+    if(CMAKE_CXX_COMPILER_ID MATCHES GNU AND NOT TINYREFL_USE_LOCAL_LLVM)
+        target_compile_definitions(tinyrefl-tool PRIVATE
+            _GLIBCXX_USE_CXX11_ABI=0
+        )
+
+        target_compile_options(tinyrefl-tool PRIVATE -fno-rtti)
+    endif()
 
     target_include_directories(tinyrefl-tool PRIVATE ${TINYREFL_INCLUDE_DIR})
-    target_link_libraries(tinyrefl-tool PRIVATE cppast fmt masquerade cppfs llvm-commandline)
+
+    find_package(LLVM ${TINYREFL_LLVM_VERSION} REQUIRED EXACT CONFIG PATHS "${LLVM_CMAKE_PATH}" NO_DEFAULT_PATH)
+    target_link_libraries(tinyrefl-tool PRIVATE cppast fmt masquerade cppfs LLVMSupport)
 
     set(TINYREFL_TOOL_EXECUTABLE $<TARGET_FILE:tinyrefl-tool> CACHE STRING "")
     set(TINYREFL_TOOL_TARGET tinyrefl-tool CACHE STRING "")

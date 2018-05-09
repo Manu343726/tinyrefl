@@ -33,6 +33,11 @@ else()
         message(STATUS "Using custom LLVM download url: ${TINYREFL_LLVM_DOWNLOAD_URL}")
     endif()
 
+    # LLVM releases are compiled with old GCC ABI
+    if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+        add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
+    endif()
+
     set(LLVM_DOWNLOAD_URL "${TINYREFL_LLVM_DOWNLOAD_URL}")
 endif()
 
@@ -54,7 +59,3 @@ set(CLANG_CMAKE_PATH "${stdout}/cmake/clang")
 
 message(STATUS "llvm cmake path: ${LLVM_CMAKE_PATH}")
 message(STATUS "clang cmake path: ${CLANG_CMAKE_PATH}")
-
-find_package(LLVM ${TINYREFL_LLVM_VERSION} REQUIRED EXACT CONFIG PATHS "${LLVM_CMAKE_PATH}" NO_DEFAULT_PATH)
-add_library(llvm-commandline INTERFACE)
-target_link_libraries(llvm-commandline INTERFACE LLVMX86Utils)
