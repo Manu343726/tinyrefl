@@ -1,18 +1,66 @@
 variables:
     GIT_STRATEGY: clone
+    CROSS_BUILDING: "NO"
 
-test-linux-ubuntu-clang50:
+test-x86-linux-ubuntu-clang50:
     stage: test
     tags:
       - linux
       - docker
-    image: manu343726/tinyrefl:clang50
+    image: manu343726/tinyrefl:clang50-x86
     script: ./ci.sh
 
-test-linux-ubuntu-gcc5:
+test-x86-linux-ubuntu-gcc5:
     stage: test
     tags:
       - linux
       - docker
-    image: manu343726/tinyrefl:gcc5
+    image: manu343726/tinyrefl:gcc5-x86
+    script: ./ci.sh
+
+test-x86-linux-ubuntu-gcc6:
+    stage: test
+    tags:
+      - linux
+      - docker
+    image: manu343726/tinyrefl:gcc6-x86
+    script: ./ci.sh
+
+test-x86-linux-ubuntu-gcc7:
+    stage: test
+    tags:
+      - linux
+      - docker
+    image: manu343726/tinyrefl:gcc7-x86
+    script: ./ci.sh
+
+test-armv7-linux-gcc5:
+    stage: test
+    tags:
+      - linux
+      - docker
+    image: manu343726/tinyrefl:gcc5-armv7
+    variables:
+        CROSS_BUILDING: "YES"
+    script: ./ci.sh
+    allow_failure: true # TODO: Enable build. See https://github.com/foonathan/type_safe/issues/78
+
+test-armv7-linux-gcc6:
+    stage: test
+    tags:
+      - linux
+      - docker
+    image: manu343726/tinyrefl:gcc6-armv7
+    variables:
+        CROSS_BUILDING: "YES"
+    script: ./ci.sh
+
+test-armv7-linux-gcc7:
+    stage: test
+    tags:
+      - linux
+      - docker
+    image: manu343726/tinyrefl:gcc7-armv7
+    variables:
+        CROSS_BUILDING: "YES"
     script: ./ci.sh
