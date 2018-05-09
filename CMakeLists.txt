@@ -28,7 +28,7 @@ add_subdirectory(tool)
 
 option(TINYREFL_BUILD_TESTS "Build unit tests" OFF)
 if(TINYREFL_BUILD_TESTS)
-    enable_testing()
+    include(ctest_setup.cmake)
     add_subdirectory(tests)
 endif()
 

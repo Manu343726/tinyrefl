@@ -1,7 +1,6 @@
 include(${TINYREFL_SOURCE_DIR}/tool/driver.cmake)
 
-add_executable(tinyrefl-test-static
-    main.cpp
+add_library(tinyrefl-test-static
     backend.cpp
     generated_code.cpp
     api.cpp

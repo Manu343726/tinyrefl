@@ -10,5 +10,5 @@ fi;
 mkdir build && cd build
 cmake .. -DTINYREFL_BUILD_TESTS=ON -DTINYREFL_BUILD_EXAMPLES=ON
 make $MAKE_CONCURRENCY VERBOSE=1
-ctest . -T memcheck -V
+ctest . -V
 ./examples/tinyrefl-example
