@@ -91,12 +91,17 @@ A work in progress minimal C++ static reflection API and codegen tool.
    cross compiled with a custom CMake toolchain file, and configures itself accordingly. No changes are needed
    in the tool integration as shown in the previous example.
 
+## Compiler support
+
+The library has been testes against GCC >= 5.x and Clang >= 5.x.y. MSVC is not supported, but I have plans to make it work in the future.
+See the [CI build matrix](https://gitlab.com/Manu343726/tinyrefl/-/jobs) for details.
+
 ## Acknowledgements
 
 Many thanks to:
 
- - Jonathan "foonathan" Muller, for his awesome [cppast]() library, feedback, and quick bugfixing.
- - My team lead at Bytech, for letting me integrate this for QML C++ models (More about this soon).
+ - [Jonathan "foonathan" Müller](https://foonathan.net/), for his awesome [cppast](https://github.com/foonathan/cppast) library, feedback, and quick bugfixing.
+ - My team lead at Bytech, for letting me integrate this for Qt QML C++ models (More about this soon).
 
 ## License
 
@@ -104,4 +109,4 @@ This project is released under the MIT license. See LICENSE file for details.
 
 ## Feedback and bug reporting
 
-Feel free to open an issue in this repository or by sending a mail to the project desk account ***incoming+Manu343726/tinyrefl@incoming.gitlab.com***.
+Feel free to [open an issue](https://gitlab.com/Manu343726/tinyrefl/issues) in this repository. You can also send a mail to the project desk account ***incoming+Manu343726/tinyrefl@incoming.gitlab.com***.
