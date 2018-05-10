@@ -90,3 +90,18 @@ A work in progress minimal C++ static reflection API and codegen tool.
  - **Cross compilation supported**: The CMake setup of tinyrefl detects whether your proyect is being
    cross compiled with a custom CMake toolchain file, and configures itself accordingly. No changes are needed
    in the tool integration as shown in the previous example.
+
+## Acknowledgements
+
+Many thanks to:
+
+ - Jonathan "foonathan" Muller, for his awesome [cppast]() library, feedback, and quick bugfixing.
+ - My team lead at Bytech, for letting me integrate this for QML C++ models (More about this soon).
+
+## License
+
+This project is released under the MIT license. See LICENSE file for details.
+
+## Feedback and bug reporting
+
+Feel free to open an issue in this repository or by sending a mail to the project desk account ***incoming+Manu343726/tinyrefl@incoming.gitlab.com***.
