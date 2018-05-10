@@ -64,3 +64,18 @@ test-armv7-linux-gcc7:
     variables:
         CROSS_BUILDING: "YES"
     script: ./ci.sh
+
+test-x86-windows-msvc2017:
+  stage: build
+  tags:
+    - vs2017
+    - windows
+  before_script:
+    - set PATH=%PATH%;C:\Qt\5.10.0\msvc2017_64\bin
+  script:
+    - mkdir build
+    - cd build
+    - '"C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 15 2017 Win64" -DTINYREFL_BUILD_EXAMPLES=ON -DTINYREFL_BUILD_TESTS=ON'
+    - '"C:\Program Files\CMake\bin\cmake.exe" ..'
+    - '"C:\Program Files\CMake\bin\cmake.exe" --build . --config Release --target ALL_BUILD'
+    - '"C:\Program Files\CMake\bin\ctest.exe" . -V'
