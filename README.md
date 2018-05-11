@@ -1,4 +1,4 @@
-tinyrefl [![pipeline status](https://gitlab.com/Manu343726/tinyrefl/badges/master/pipeline.svg)](https://gitlab.com/Manu343726/tinyrefl/commits/master)
+tinyrefl [![pipeline status](https://gitlab.com/Manu343726/tinyrefl/badges/master/pipeline.svg)](https://gitlab.com/Manu343726/tinyrefl/commits/master) [![Build status](https://ci.appveyor.com/api/projects/status/ht9h9sq6hfvpn6hg?svg=true)](https://ci.appveyor.com/project/Manu343726/tinyrefl)
 ========
 
 A work in progress minimal C++ static reflection API and codegen tool.
