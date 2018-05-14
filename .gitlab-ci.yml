@@ -8,7 +8,7 @@ test-x86-linux-ubuntu-clang50:
       - linux
       - docker
     image: manu343726/tinyrefl:clang50-x86
-    script: ./ci.sh
+    script: ./ci/ci.sh
 
 test-x86-linux-ubuntu-gcc5:
     stage: test
@@ -16,7 +16,7 @@ test-x86-linux-ubuntu-gcc5:
       - linux
       - docker
     image: manu343726/tinyrefl:gcc5-x86
-    script: ./ci.sh
+    script: ./ci/ci.sh
 
 test-x86-linux-ubuntu-gcc6:
     stage: test
@@ -24,7 +24,7 @@ test-x86-linux-ubuntu-gcc6:
       - linux
       - docker
     image: manu343726/tinyrefl:gcc6-x86
-    script: ./ci.sh
+    script: ./ci/ci.sh
 
 test-x86-linux-ubuntu-gcc7:
     stage: test
@@ -32,7 +32,7 @@ test-x86-linux-ubuntu-gcc7:
       - linux
       - docker
     image: manu343726/tinyrefl:gcc7-x86
-    script: ./ci.sh
+    script: ./ci/ci.sh
 
 test-armv7-linux-gcc5:
     stage: test
@@ -42,7 +42,7 @@ test-armv7-linux-gcc5:
     image: manu343726/tinyrefl:gcc5-armv7
     variables:
         CROSS_BUILDING: "YES"
-    script: ./ci.sh
+    script: ./ci/ci.sh
     allow_failure: true # TODO: Enable build. See https://github.com/foonathan/type_safe/issues/78
 
 test-armv7-linux-gcc6:
@@ -53,7 +53,7 @@ test-armv7-linux-gcc6:
     image: manu343726/tinyrefl:gcc6-armv7
     variables:
         CROSS_BUILDING: "YES"
-    script: ./ci.sh
+    script: ./ci/ci.sh
 
 test-armv7-linux-gcc7:
     stage: test
@@ -63,4 +63,4 @@ test-armv7-linux-gcc7:
     image: manu343726/tinyrefl:gcc7-armv7
     variables:
         CROSS_BUILDING: "YES"
-    script: ./ci.sh
+    script: ./ci/ci.sh
