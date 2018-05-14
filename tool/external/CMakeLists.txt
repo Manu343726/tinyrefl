@@ -1,5 +1,5 @@
-include(${TINYREFL_SOURCE_DIR}/utils.cmake)
-include(${TINYREFL_SOURCE_DIR}/externals.cmake)
+include(${TINYREFL_SOURCE_DIR}/cmake/utils.cmake)
+include(${TINYREFL_SOURCE_DIR}/cmake/externals.cmake)
 
 set(CPPAST_BUILD_EXAMPLE OFF CACHE BOOL "disable cppast examples")
 set(CPPAST_BUILD_TEST OFF CACHE BOOL "disable cppast tests")

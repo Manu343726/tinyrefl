@@ -1,4 +1,4 @@
-include(${TINYREFL_SOURCE_DIR}/DownloadProject.cmake)
+include(${TINYREFL_SOURCE_DIR}/cmake/DownloadProject.cmake)
 
 macro(external_dependency NAME URL COMMIT)
     if(NOT TARGET ${NAME})

@@ -1,4 +1,4 @@
-include(${TINYREFL_SOURCE_DIR}/utils.cmake)
+include(${TINYREFL_SOURCE_DIR}/cmake/utils.cmake)
 
 function(tinyrefl_tool)
     cmake_parse_arguments(
