@@ -139,9 +139,33 @@ endfunction()
 
 # Gets a list of target dependencies
 function(get_target_dependencies TARGET RESULT)
+    get_target_dependencies_impl(${TARGET} ${TARGET} ${RESULT} "")
+endfunction()
+
+function(get_target_dependencies_impl TARGET ROOT_TARGET RESULT CALLSTACK)
     if(NOT TARGET ${TARGET})
         set(${RESULT} PARENT_SCOPE)
         return()
+    endif()
+
+    list(LENGTH CALLSTACK stack_length)
+    string(REGEX REPLACE ";" " -> " stack_string "${CALLSTACK}")
+
+    if(stack_length GREATER 0)
+        string(RANDOM LENGTH ${stack_length} ALPHABET " " padding)
+    else()
+        set(padding "")
+    endif()
+
+    if(TINYREFL_UTILS_DEBUG_GETTARGETDEPENDENCIES)
+        message(STATUS "${padding}[${stack_length}] ${TARGET} (from '${ROOT_TARGET}': ${stack_string})")
+    endif()
+
+    list(APPEND CALLSTACK ${TARGET})
+
+    if(("${TARGET}" STREQUAL "${ROOT_TARGET}") AND (stack_length GREATER 0))
+        string(REGEX REPLACE ";" " -> " stack_string "${CALLSTACK}")
+        message(FATAL_ERROR "Dependency cycle detected on ${ROOT_TARGET} target. Full dependency chain: ${stack_string}")
     endif()
 
     get_target_common_property(link_libraries ${TARGET} LINK_LIBRARIES)
@@ -156,7 +180,7 @@ function(get_target_dependencies TARGET RESULT)
         endforeach()
 
         foreach(dep ${dependencies})
-            get_target_dependencies(${dep} deps)
+            get_target_dependencies_impl(${dep} ${ROOT_TARGET} deps "${CALLSTACK}")
             list(APPEND dependencies ${deps})
         endforeach()
     endif()
