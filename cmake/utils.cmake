@@ -93,7 +93,7 @@ function(get_target_common_property RESULT TARGET PROPERTY)
     endif()
 
     set(${RESULT} ${value} PARENT_SCOPE)
-endfunction() 
+endfunction()
 
 function(get_target_compile_options TARGET RESULT)
     if(NOT TARGET ${TARGET})
@@ -140,6 +140,7 @@ endfunction()
 # Gets a list of target dependencies
 function(get_target_dependencies TARGET RESULT)
     get_target_dependencies_impl(${TARGET} ${TARGET} ${RESULT} "")
+    set(${RESULT} ${${RESULT}} PARENT_SCOPE)
 endfunction()
 
 function(get_target_dependencies_impl TARGET ROOT_TARGET RESULT CALLSTACK)
