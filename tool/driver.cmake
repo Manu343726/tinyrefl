@@ -24,7 +24,15 @@ function(tinyrefl_tool)
     get_target_property(interface_target_definitions ${ARGS_TARGET} INTERFACE_COMPILE_DEFINITIONS)
     get_target_property(target_options ${ARGS_TARGET} COMPILE_OPTIONS)
     get_target_property(target_definitions ${ARGS_TARGET} COMPILE_DEFINITIONS)
-    set(compile_options ${ARGS_COMPILE_OPTIONS})
+    string(REGEX REPLACE " " ";" global_compile_options "${CMAKE_CXX_FLAGS}")
+
+    if(CMAKE_BUILD_TYPE MATCHES "Debug")
+        string(REGEX REPLACE " " ";" global_extra_compile_options "${CMAKE_CXX_FLAGS_DEBUG}")
+    else()
+        string(REGEX REPLACE " " ";" global_extra_compile_options "${CMAKE_CXX_FLAGS_RELEASE}")
+    endif()
+
+    set(compile_options ${ARGS_COMPILE_OPTIONS} ${global_compile_options} ${global_extra_compile_options})
     set(compile_definitions ${ARGS_COMPILE_DEFINITIONS})
 
     if(interface_target_options)
