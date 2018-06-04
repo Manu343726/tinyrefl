@@ -480,7 +480,7 @@ std::istream& operator>>(std::istream& is, compile_definition& compile_definitio
     return is;
 }
 
-bool reflect_file(const std::string& filepath, const cppast::cpp_standard cpp_standard, const cl::list<std::string>& include_dirs, const cl::list<std::string>& definitions, const std::vector<std::string>& custom_flags)
+bool reflect_file(const std::string& filepath, const cppast::cpp_standard cpp_standard, cl::list<std::string>& include_dirs, cl::list<std::string>& definitions, const std::vector<std::string>& custom_flags)
 {
     using parser_t = cppast::simple_file_parser<cppast::libclang_parser>;
 
@@ -497,6 +497,11 @@ bool reflect_file(const std::string& filepath, const cppast::cpp_standard cpp_st
 
     std::cout << "parsing file " << filepath << " "
         << cppast::to_string(cpp_standard) << " ";
+
+    // Add definitions to identify that the translation unit
+    // is being parsed by tinyrefl-tool
+    definitions.addValue("TINYREFL_TOOL_RUNNING");
+    definitions.addValue("__tinyrefl__");
 
     for(const auto& definition : definitions)
     {
