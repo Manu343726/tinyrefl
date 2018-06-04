@@ -145,8 +145,7 @@ endfunction()
 
 function(get_target_dependencies_impl TARGET ROOT_TARGET RESULT CALLSTACK)
     if(NOT TARGET ${TARGET})
-        set(${RESULT} PARENT_SCOPE)
-        return()
+        set(notatarget "[NOT A TARGET!!!] ")
     endif()
 
     list(LENGTH CALLSTACK stack_length)
@@ -159,7 +158,12 @@ function(get_target_dependencies_impl TARGET ROOT_TARGET RESULT CALLSTACK)
     endif()
 
     if(TINYREFL_UTILS_DEBUG_GETTARGETDEPENDENCIES)
-        message(STATUS "${padding}[${stack_length}] ${TARGET} (from '${ROOT_TARGET}': ${stack_string})")
+        message(STATUS "${padding}[${stack_length}] ${TARGET} ${notatarget}(from '${ROOT_TARGET}': ${stack_string})")
+    endif()
+
+    if(NOT TARGET ${TARGET})
+        set(${RESULT} PARENT_SCOPE)
+        return()
     endif()
 
     list(APPEND CALLSTACK ${TARGET})
