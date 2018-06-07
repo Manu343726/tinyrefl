@@ -13,7 +13,7 @@ struct Foo
 class MyClass : public BaseClass, public my_namespace::Foo
 {
 public:
-    void f(int i) {}
+    void f(int i) {(void)i;}
 
     std::string str;
 

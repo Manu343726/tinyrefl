@@ -43,7 +43,7 @@ endif()
 
 external_dependency(fmt https://github.com/fmtlib/fmt.git master)
 external_dependency(cppast https://github.com/Manu343726/cppast.git bytech)
-external_dependency(cppfs https://github.com/cginternals/cppfs.git optional_libSSL2)
+external_dependency(cppfs https://github.com/Manu343726/cppfs.git optional_libSSL2)
 external_dependency(masquerade https://gitlab.com/Manu343726/masquerade.git master)
 
 if(NOT LLVM_CONFIG_BINARY)

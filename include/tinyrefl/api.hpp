@@ -114,7 +114,7 @@ tinyrefl::meta::enable_if_t<std::is_class<Class>::value && has_metadata<Class>::
 visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<entity, ClassKind>)
 {
     // visit base classes first (if reflected)
-    tinyrefl::meta::foreach<typename metadata<Class>::base_classes>([visitor](auto Base, auto Index)
+    tinyrefl::meta::foreach<typename metadata<Class>::base_classes>([visitor](auto Base, auto /* Index */)
     {
         using base_class = typename decltype(Base)::type;
 
@@ -126,7 +126,7 @@ visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<e
             tinyrefl::type_tag<Class>(),
             CTTI_STATIC_VALUE(ClassKind)());
 
-    tinyrefl::meta::foreach<typename metadata<Class>::member_variables>([visitor](auto Member, auto Index)
+    tinyrefl::meta::foreach<typename metadata<Class>::member_variables>([visitor](auto Member, auto /* Index */)
     {
         using member = typename decltype(Member)::type;
 
@@ -136,7 +136,7 @@ visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<e
                 CTTI_STATIC_VALUE(entity::MEMBER_VARIABLE)());
     });
 
-    tinyrefl::meta::foreach<typename metadata<Class>::member_functions>([visitor](auto Member, auto Index)
+    tinyrefl::meta::foreach<typename metadata<Class>::member_functions>([visitor](auto Member, auto /* Index */)
     {
         using member = typename decltype(Member)::type;
 
@@ -146,7 +146,7 @@ visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<e
                 CTTI_STATIC_VALUE(entity::MEMBER_FUNCTION)());
     });
 
-    tinyrefl::meta::foreach<typename metadata<Class>::classes>([visitor](auto class_, auto Index)
+    tinyrefl::meta::foreach<typename metadata<Class>::classes>([visitor](auto class_, auto /* Index */)
     {
         using class_type = typename decltype(class_)::type;
 
@@ -156,7 +156,7 @@ visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<e
                 CTTI_STATIC_VALUE(entity::MEMBER_CLASS)());
     });
 
-    tinyrefl::meta::foreach<typename metadata<Class>::enums>([visitor](auto enum_, auto Index)
+    tinyrefl::meta::foreach<typename metadata<Class>::enums>([visitor](auto enum_, auto /* Index */)
     {
         using enum_type = typename decltype(enum_)::type;
 

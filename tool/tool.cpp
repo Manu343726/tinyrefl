@@ -339,7 +339,7 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
 
 void generate_enum_value(std::ostream& os, const cppast::cpp_enum_value& value)
 {
-    fmt::format("TINYREFL_REFLECT_ENUM_VALUE({})\n", enum_value(value));
+    fmt::print(os, "TINYREFL_REFLECT_ENUM_VALUE({})\n", enum_value(value));
 }
 
 void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
@@ -351,7 +351,7 @@ void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
     {
         std::vector<std::string> values;
 
-        cppast::visit(enum_, [&values, &os](const cppast::cpp_entity& entity, const cppast::visitor_info& info)
+        cppast::visit(enum_, [&values, &os](const cppast::cpp_entity& entity, const cppast::visitor_info&)
         {
             if(entity.kind() == cppast::cpp_enum_value::kind() &&
                !is_unknown_entity(entity))

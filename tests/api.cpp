@@ -31,7 +31,7 @@ TEST_CASE("tinyrefl api")
             std::unordered_set<std::string> entities;
 
             tinyrefl::visit_class<my_namespace::MyClass>(
-                [&entities, expected_entity_kind](const std::string& name, auto depth, auto entity, auto entity_kind)
+                [&entities, expected_entity_kind](const std::string& name, auto /* depth */, auto /* entity */, auto entity_kind)
             {
                 if(entity_kind == expected_entity_kind)
                 {
@@ -165,9 +165,9 @@ TEST_CASE("tinyrefl api")
             my_namespace::MyClass myObject;
 
             tinyrefl::visit_object(myObject,
-                [&members, expected_kind](const std::string& name, auto depth, auto entity, decltype(expected_kind) kind)
+                [&members, expected_kind](const std::string& name, auto /* depth */, auto /* entity */, decltype(expected_kind) kind)
             {
-                CHECK(kind == expected_kind.get());
+                CHECK((kind == expected_kind.get()));
                 members.insert(name);
             });
 
@@ -182,12 +182,12 @@ TEST_CASE("tinyrefl api")
 
                 return ss.str();
             }());
-            CHECK(members.size() == expected.size());
+            CHECK((members.size() == expected.size()));
 
             for(const auto& member : expected)
             {
                 INFO("Expected " << expected_kind << " \"" << member << "\"");
-                CHECK(members.count(member) == 1);
+                CHECK((members.count(member) == 1));
             }
         };
 
@@ -214,19 +214,19 @@ TEST_CASE("tinyrefl api")
                 return reinterpret_cast<void*>(std::addressof(object));
             };
 
-            tinyrefl::visit_object(myObject, [&myObject, addressof](const std::string& name, auto depth, auto& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+            tinyrefl::visit_object(myObject, [&myObject, addressof](const std::string& name, auto /* depth */, auto& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 if(name == "str")
                 {
-                    CHECK(addressof(member) == addressof(myObject.str));
+                    CHECK((addressof(member) == addressof(myObject.str)));
                 }
                 else if(name == "innerClassInstance")
                 {
-                    CHECK(addressof(member) == addressof(myObject.innerClassInstance));
+                    CHECK((addressof(member) == addressof(myObject.innerClassInstance)));
                 }
                 else if(name == "vector")
                 {
-                    CHECK(addressof(member) == addressof(myObject.vector));
+                    CHECK((addressof(member) == addressof(myObject.vector)));
                 }
             });
         }
@@ -236,15 +236,15 @@ TEST_CASE("tinyrefl api")
             my_namespace::MyClass myObject;
 
             tinyrefl::visit_object(myObject,
-                [](const std::string& name, auto depth, std::string& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+                [](const std::string& /* name */, auto /* depth */, std::string& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 member = "a new string value";
             },
-                [](const std::string& name, auto depth, std::vector<int>& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+                [](const std::string& /* name */, auto /* depth */, std::vector<int>& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 member.assign(42, 42);
             },
-                [](const std::string& name, auto depth, my_namespace::MyClass::InnerClassWithMembers& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+                [](const std::string& /* name */, auto /* depth */, my_namespace::MyClass::InnerClassWithMembers& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 member.a = 42;
                 member.b = 42;
