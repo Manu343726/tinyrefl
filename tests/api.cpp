@@ -264,4 +264,197 @@ TEST_CASE("tinyrefl api")
             CHECK(myObject.innerClassInstance.c == 42);
         }
     }
+
+    SECTION("visit objects")
+    {
+        auto test = [](auto expected_kind, const std::unordered_set<std::string>& expected)
+        {
+            std::unordered_set<std::string> members;
+            my_namespace::MyClass lhs, rhs;
+
+            tinyrefl::visit_objects(lhs, rhs)(
+                [&members, expected_kind](const std::string& name, auto /* depth */, auto /* entity */, decltype(expected_kind) kind)
+            {
+                CHECK((kind == expected_kind.get()));
+                members.insert(name);
+            });
+
+            INFO([members]
+            {
+                std::ostringstream ss;
+
+                for(const auto& member : members)
+                {
+                    ss << " - got member \"" << member << "\"\n";
+                }
+
+                return ss.str();
+            }());
+            CHECK((members.size() == expected.size()));
+
+            for(const auto& member : expected)
+            {
+                INFO("Expected " << expected_kind << " \"" << member << "\"");
+                CHECK((members.count(member) == 1));
+            }
+        };
+
+        SECTION("visit member variables only")
+        {
+            test(CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)(), {
+                "str", "innerClassInstance", "vector"
+            });
+        }
+
+        SECTION("visit subobjects only")
+        {
+            test(CTTI_STATIC_VALUE(tinyrefl::entity::OBJECT)(), {
+                "my_namespace::BaseClass", "my_namespace::Foo"
+            });
+        }
+
+        SECTION("visit returns references to the object members")
+        {
+            my_namespace::MyClass lhs, rhs;
+
+            auto addressof = [](auto& object)
+            {
+                return reinterpret_cast<void*>(std::addressof(object));
+            };
+
+            bool strVisited = false;
+            bool innerClassInstanceVisited = false;
+            bool vectorVisited = false;
+            bool somethingVisited = false;
+
+            tinyrefl::visit_objects(static_cast<my_namespace::MyClass&>(lhs), static_cast<my_namespace::MyClass&>(rhs))
+                ([&lhs, &rhs, addressof, &strVisited, &innerClassInstanceVisited, &vectorVisited, &somethingVisited](const std::string& name, auto /* depth */, auto members, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+            {
+                auto& lhsMember = std::get<0>(members);
+                auto& rhsMember = std::get<1>(members);
+
+                if(name == "str")
+                {
+                    CHECK(addressof(lhsMember) == addressof(lhs.str));
+                    CHECK(addressof(rhsMember) == addressof(rhs.str));
+                    strVisited = true;
+                }
+                else if(name == "innerClassInstance")
+                {
+                    CHECK(addressof(lhsMember) == addressof(lhs.innerClassInstance));
+                    CHECK(addressof(rhsMember) == addressof(rhs.innerClassInstance));
+                    innerClassInstanceVisited = true;
+                }
+                else if(name == "vector")
+                {
+                    CHECK(addressof(lhsMember) == addressof(lhs.vector));
+                    CHECK(addressof(rhsMember) == addressof(rhs.vector));
+                    vectorVisited = true;
+                }
+
+                somethingVisited = true;
+            });
+
+            CHECK(strVisited);
+            CHECK(innerClassInstanceVisited);
+            CHECK(vectorVisited);
+            CHECK(somethingVisited);
+        }
+
+        SECTION("visit returns const references to the const object members")
+        {
+            my_namespace::MyClass lhs, rhs;
+
+            auto addressof = [](const auto& object)
+            {
+                return reinterpret_cast<const void*>(std::addressof(object));
+            };
+
+            bool strVisited = false;
+            bool innerClassInstanceVisited = false;
+            bool vectorVisited = false;
+            bool somethingVisited = false;
+
+            tinyrefl::visit_objects(static_cast<const my_namespace::MyClass&>(lhs), static_cast<const my_namespace::MyClass&>(rhs))
+                ([&lhs, &rhs, addressof, &strVisited, &innerClassInstanceVisited, &vectorVisited, &somethingVisited](const std::string& name, auto /* depth */, auto members, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+            {
+                const auto& lhsMember = std::get<0>(members);
+                const auto& rhsMember = std::get<1>(members);
+
+                if(name == "str")
+                {
+                    CHECK(addressof(lhsMember) == addressof(lhs.str));
+                    CHECK(addressof(rhsMember) == addressof(rhs.str));
+                    strVisited = true;
+                }
+                else if(name == "innerClassInstance")
+                {
+                    CHECK(addressof(lhsMember) == addressof(lhs.innerClassInstance));
+                    CHECK(addressof(rhsMember) == addressof(rhs.innerClassInstance));
+                    innerClassInstanceVisited = true;
+                }
+                else if(name == "vector")
+                {
+                    CHECK(addressof(lhsMember) == addressof(lhs.vector));
+                    CHECK(addressof(rhsMember) == addressof(rhs.vector));
+                    vectorVisited = true;
+                }
+
+                somethingVisited = true;
+            });
+
+            CHECK(strVisited);
+            CHECK(innerClassInstanceVisited);
+            CHECK(vectorVisited);
+            CHECK(somethingVisited);
+        }
+
+        SECTION("assigning values to members in visit changes members of visited object")
+        {
+            my_namespace::MyClass lhs, rhs;
+
+            tinyrefl::visit_objects(lhs, rhs)(
+                [](const std::string& /* name */, auto /* depth */, std::tuple<std::string&, std::string&> members, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+            {
+                std::get<0>(members) = "a new string value";
+                std::get<1>(members) = "a new string value";
+            },
+                [](const std::string& /* name */, auto /* depth */, std::tuple<std::vector<int>&, std::vector<int>&> members, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+            {
+                std::get<0>(members).assign(42, 42);
+                std::get<1>(members).assign(42, 42);
+            },
+                [](const std::string& /* name */, auto /* depth */, std::tuple<my_namespace::MyClass::InnerClassWithMembers&, my_namespace::MyClass::InnerClassWithMembers&> members, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+            {
+                std::get<0>(members).a = 42;
+                std::get<0>(members).b = 42;
+                std::get<0>(members).c = 42;
+                std::get<1>(members).a = 42;
+                std::get<1>(members).b = 42;
+                std::get<1>(members).c = 42;
+            });
+
+            CHECK(lhs.str == "a new string value");
+            CHECK(rhs.str == "a new string value");
+
+            CHECK(lhs.innerClassInstance.a == 42);
+            CHECK(lhs.innerClassInstance.b == 42);
+            CHECK(lhs.innerClassInstance.c == 42);
+            CHECK(rhs.innerClassInstance.a == 42);
+            CHECK(rhs.innerClassInstance.b == 42);
+            CHECK(rhs.innerClassInstance.c == 42);
+
+            REQUIRE(lhs.vector.size() == 42);
+            REQUIRE(rhs.vector.size() == 42);
+
+            for(int e : lhs.vector)
+            {
+                CHECK(e == 42);
+            }
+            for(int e : rhs.vector)
+            {
+                CHECK(e == 42);
+            }
+        }
+    }
 }

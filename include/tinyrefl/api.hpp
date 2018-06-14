@@ -90,7 +90,7 @@ struct overloaded_function<tinyrefl::meta::list<Head>> : public Head
 template<typename... Ts, typename Function, std::size_t... Indices>
 auto tuple_map_impl(const std::tuple<Ts...>& tuple, Function function, tinyrefl::meta::index_sequence<Indices...>)
 {
-    return std::make_tuple(function(std::get<Indices>(tuple))...);
+    return std::forward_as_tuple(function(std::get<Indices>(tuple))...);
 }
 
 template<typename... Ts, typename Function>
@@ -249,28 +249,57 @@ void visit_object(Class& object, Visitors... visitors)
 }
 
 template<typename... Class>
-auto visit_objects(Class&&... objects)
+auto visit_objects(Class&... objects)
 {
-    return [objects = std::make_tuple(std::forward<Class>(objects)...)](auto... visitors)
+    return [objects = std::forward_as_tuple(objects...)](auto... visitors)
     {
         auto visitor = tinyrefl::overloaded_function_default(visitors...);
 
         visit_class<typename std::decay<tinyrefl::meta::pack_head_t<Class...>>::type>(
-            [objects, visitor](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::BASE_CLASS))
+            [&objects, visitor](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::BASE_CLASS))
         {
             visitor(
                 name,
                 depth,
-                tinyrefl::detail::tuple_map(objects, [entity](auto&& object){ return tinyrefl::detail::cast<typename decltype(entity)::type>(object); }),
+                tinyrefl::detail::tuple_map(objects, [entity](auto& object) -> decltype(auto) { return tinyrefl::detail::cast<typename decltype(entity)::type>(object); }),
                 CTTI_STATIC_VALUE(tinyrefl::entity::OBJECT)()
             );
         },
-            [objects, visitor](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+            [&objects, visitor](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
         {
             visitor(
                 name,
                 depth,
-                tinyrefl::detail::tuple_map(objects, [entity](auto&& object){ return entity.get(object); }),
+                tinyrefl::detail::tuple_map(objects, [entity](auto& object) -> decltype(auto) { return entity.get(object); }),
+                CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)()
+            );
+        });
+    };
+}
+
+template<typename... Class>
+auto visit_objects(const Class&... objects)
+{
+    return [objects = std::forward_as_tuple(objects...)](auto... visitors)
+    {
+        auto visitor = tinyrefl::overloaded_function_default(visitors...);
+
+        visit_class<typename std::decay<tinyrefl::meta::pack_head_t<Class...>>::type>(
+            [&objects, visitor](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::BASE_CLASS))
+        {
+            visitor(
+                name,
+                depth,
+                tinyrefl::detail::tuple_map(objects, [entity](const auto& object) -> decltype(auto) { return tinyrefl::detail::cast<typename decltype(entity)::type>(object); }),
+                CTTI_STATIC_VALUE(tinyrefl::entity::OBJECT)()
+            );
+        },
+            [&objects, visitor](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+        {
+            visitor(
+                name,
+                depth,
+                tinyrefl::detail::tuple_map(objects, [entity](const auto& object) -> decltype(auto) { return entity.get(object); }),
                 CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)()
             );
         });
