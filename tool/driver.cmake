@@ -63,20 +63,23 @@ function(tinyrefl_tool)
         list(APPEND definitions "-D${definition}")
     endforeach()
 
+    string(REGEX REPLACE ";" " " header_list "${ARGS_HEADERS}")
+    string(REGEX REPLACE ";" " " includes_list "${includes}")
+    string(REGEX REPLACE ";" " " options_list "${compile_options}")
+    string(REGEX REPLACE ";" " " definitions_list "${definitions}")
+    message(STATUS ">> Tinyrefl driver on ${ARGS_TARGET}: tinyrefl ${header_list} -std=c++${CMAKE_CXX_STANDARD} ${definitions_list} ${includes_list} ${options_list}")
+
     foreach(header ${ARGS_HEADERS})
+        set(command_target_name "tinyrefl_tool_${ARGS_TARGET}_${header}")
+        string(REGEX REPLACE "\\/" "_" command_target_name "${command_target_name}")
+
         add_prebuild_command(TARGET ${ARGS_TARGET}
-            NAME "tinyrefl_tool_${ARGS_TARGET}_${header}"
+            NAME "${command_target_name}"
             COMMAND ${TINYREFL_TOOL_EXECUTABLE} ${header} -std=c++${CMAKE_CXX_STANDARD} ${definitions} ${includes} ${compile_options}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "Generating tinyrefl metadata for ${ARGS_TARGET}/${header}"
             DEPENDS ${TINYREFL_TOOL_TARGET}
         )
     endforeach()
-
-    string(REGEX REPLACE ";" " " header_list "${ARGS_HEADERS}")
-    string(REGEX REPLACE ";" " " includes_list "${includes}")
-    string(REGEX REPLACE ";" " " options_list "${compile_options}")
-    string(REGEX REPLACE ";" " " definitions_list "${definitions}")
-    message(STATUS ">> Tinyrefl driver on ${ARGS_TARGET}: tinyrefl ${header_list} -std=c++${CMAKE_CXX_STANDARD} ${definitions_list} ${includes_list} ${options_list}")
 endfunction()
 
