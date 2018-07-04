@@ -3,6 +3,7 @@
 #include <cppast/cpp_member_variable.hpp>
 #include <cppast/cpp_member_function.hpp>
 #include <cppast/cpp_type.hpp>
+#include <cppast/cpp_type_alias.hpp>
 #include <cppast/libclang_parser.hpp>
 #include <cppast/parser.hpp>
 #include <cppast/visitor.hpp>
@@ -20,6 +21,13 @@
 #include <cppfs/FileHandle.h>
 #include <llvm/Support/CommandLine.h>
 namespace cl = llvm::cl;
+
+struct generator
+{
+    const cppast::cpp_entity_index& index;
+    const cppast::cpp_file& root;
+    std::ostream& out;
+};
 
 bool is_outdated_file(const std::string& file)
 {
@@ -79,9 +87,9 @@ bool is_reflectable(const cppast::cpp_entity& e)
     return cppast::has_attribute(e, "tinyrefl::on").has_value();
 }
 
-void generate_symbol_declaration(std::ostream& os, const std::string& symbol)
+void generate_symbol_declaration(generator& gen, const std::string& symbol)
 {
-    fmt::print(os,
+    fmt::print(gen.out,
 "#ifndef TINYREFL_SYMBOL_{0}_DEFINED\n"
 "#define TINYREFL_SYMBOL_{0}_DEFINED\n"
 "namespace symbols {{\n"
@@ -145,24 +153,41 @@ std::string typelist(const std::vector<std::string>& args)
 
 }
 
+const cppast::cpp_entity& get_root(const cppast::cpp_entity& entity)
+{
+    if(entity.parent())
+    {
+        return get_root(entity.parent().value());
+    }
+    else
+    {
+        return entity;
+    }
+}
+
+bool declared_in_file(const generator& gen, const cppast::cpp_entity& entity)
+{
+    return &gen.root == &get_root(entity);
+}
+
 static std::unordered_set<std::string> string_registry;
 
-void generate_string_definition(std::ostream& os, const std::string& str)
+void generate_string_definition(generator& gen, const std::string& str)
 {
     const auto hash = std::hash<std::string>()(str);
     const auto guard = fmt::format("TINYREFL_DEFINE_STRING_{}", hash);
 
-    os << "#if defined(TINYREFL_DEFINE_STRINGS) && !defined(" << guard << ")\n"
+    gen.out << "#if defined(TINYREFL_DEFINE_STRINGS) && !defined(" << guard << ")\n"
        << "#define " << guard << "\n"
        << "TINYREFL_DEFINE_STRING(" << str << ")\n"
        << "#endif //" << guard << "\n\n";
 }
 
-void generate_string_definitions(std::ostream& os)
+void generate_string_definitions(generator& gen)
 {
     for(const std::string& str : string_registry)
     {
-        generate_string_definition(os, str);
+        generate_string_definition(gen, str);
     }
 }
 
@@ -222,9 +247,9 @@ std::string member_instance(const cppast::cpp_entity& member)
     return member_pointer(member);
 }
 
-void generate_member(std::ostream& os, const cppast::cpp_entity& member)
+void generate_member(generator& gen, const cppast::cpp_entity& member)
 {
-    fmt::print(os, "TINYREFL_REFLECT_MEMBER({})\n", member_pointer(member));
+    fmt::print(gen.out, "TINYREFL_REFLECT_MEMBER({})\n", member_pointer(member));
 }
 
 bool is_unknown_entity(const cppast::cpp_entity& entity)
@@ -253,15 +278,45 @@ bool is_unknown_entity(const cppast::cpp_entity& entity)
     return false;
 }
 
-void generate_class(std::ostream& os, const cppast::cpp_class& class_)
+type_safe::optional_ref<const cppast::cpp_class> get_typedef_struct_declaration(generator& gen, const cppast::cpp_type_alias& alias)
+{
+    if(alias.underlying_type().kind() == cppast::cpp_type_kind::user_defined_t)
+    {
+        const auto& type = static_cast<const cppast::cpp_user_defined_type&>(alias.underlying_type());
+        const auto& entities = type.entity().get(gen.index);
+
+        if(entities.size() == 1 && entities[0]->kind() == cppast::cpp_entity_kind::class_t &&
+           declared_in_file(gen, *entities[0]) /* &&
+           alias.parent() && entities[0]->parent() && &alias.parent().value() == &entities[0]->parent().value() */)
+        {
+            return type_safe::cref(static_cast<const cppast::cpp_class&>(*entities[0]));
+        }
+    }
+
+    return type_safe::nullopt;
+}
+
+void generate_class(generator& gen, const cppast::cpp_class& class_, const type_safe::optional_ref<const cppast::cpp_type_alias>& class_typedef = type_safe::nullopt)
 {
     std::vector<std::string> members;
     std::vector<std::string> base_classes;
     std::vector<std::string> enums;
     std::vector<std::string> classes;
+    std::vector<type_safe::object_ref<const cppast::cpp_class>> member_classes_to_generate;
+    std::unordered_set<std::string> member_typedef_classes;
+    (void)class_typedef;
 
     std::cout << " # " << full_qualified_name(class_) << " [attributes: "
-                << sequence(class_.attributes(), ", ", "\"", "\"") << "]\n";
+                << sequence(class_.attributes(), ", ", "\"", "\"") << "]";
+
+    if(class_typedef)
+    {
+        std::cout << " (class typedef\n)";
+    }
+    else
+    {
+        std::cout << "\n";
+    }
 
 
     cppast::visit(class_, [&](const cppast::cpp_entity& child, const cppast::visitor_info& info)
@@ -283,8 +338,18 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
                 std::cout << "    - (member) " << child.name() << " [attributes: "
                           << sequence(child.attributes(), ", ", "\"", "\"") << "]\n";
                 members.push_back(member_instance(child));
-                generate_member(os, child);
+                generate_member(gen, child);
                 break;
+            }
+            case cppast::cpp_entity_kind::type_alias_t:
+            {
+                const auto& inner_class = get_typedef_struct_declaration(gen, static_cast<const cppast::cpp_type_alias&>(child));
+
+                if(inner_class)
+                {
+                    std::cout << "    - (class typedef) " << child.name() << "\n";
+                    member_typedef_classes.insert(child.name());
+                }
             }
             case cppast::cpp_entity_kind::class_t:
             {
@@ -295,6 +360,11 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
                                   static_cast<const cppast::cpp_class&>(child).is_definition() ? "definition" : "") << ") [attributes: "
                               << sequence(child.attributes(), ", ", "\"", "\"") << "]\n";
                     classes.push_back(full_qualified_name(child));
+
+                    if(member_typedef_classes.count(child.name()) == 1)
+                    {
+                        member_classes_to_generate.push_back(type_safe::cref(static_cast<const cppast::cpp_class&>(child)));
+                    }
                 }
                 break;
             }
@@ -312,14 +382,14 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
 
     for(const auto& base_class : class_.bases())
     {
-        if(!cppast::has_attribute(base_class, ATTRIBUTES_IGNORE))
+        if(!cppast::has_attribute(base_class, ATTRIBUTES_IGNORE) && base_class.kind() == cppast::cpp_entity_kind::class_t)
         {
             std::cout << "    - (base) " << full_qualified_name(base_class) << "\n";
             base_classes.push_back(full_qualified_name(base_class));
         }
     }
 
-    fmt::print(os, "TINYREFL_REFLECT_CLASS({}, \n"
+    fmt::print(gen.out, "TINYREFL_REFLECT_CLASS({}, \n"
 "// Base classes:\n"
 "{},\n"
 "// Members: \n"
@@ -335,14 +405,19 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
         typelist(classes),
         typelist(enums)
     );
+
+    for(const auto& class_ : member_classes_to_generate)
+    {
+        generate_class(gen, *class_);
+    }
 }
 
-void generate_enum_value(std::ostream& os, const cppast::cpp_enum_value& value)
+void generate_enum_value(generator& gen, const cppast::cpp_enum_value& value)
 {
-    fmt::print(os, "TINYREFL_REFLECT_ENUM_VALUE({})\n", enum_value(value));
+    fmt::print(gen.out, "TINYREFL_REFLECT_ENUM_VALUE({})\n", enum_value(value));
 }
 
-void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
+void generate_enum(generator& gen, const cppast::cpp_enum& enum_)
 {
     std::cout << " # " << full_qualified_name(enum_) << " [attributes: "
                 << sequence(enum_.attributes(), ", ", "\"", "\"") << "]\n";
@@ -351,7 +426,7 @@ void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
     {
         std::vector<std::string> values;
 
-        cppast::visit(enum_, [&values, &os](const cppast::cpp_entity& entity, const cppast::visitor_info&)
+        cppast::visit(enum_, [&values, &gen](const cppast::cpp_entity& entity, const cppast::visitor_info&)
         {
             if(entity.kind() == cppast::cpp_enum_value::kind() &&
                !is_unknown_entity(entity))
@@ -360,12 +435,12 @@ void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
 
                 std::cout << "    - (enum value) " << full_qualified_name(entity) << "\n";
 
-                generate_enum_value(os, value);
+                generate_enum_value(gen, value);
                 values.push_back(enum_value(value));
             }
         });
 
-        fmt::print(os, "TINYREFL_REFLECT_ENUM({}, {}, {})\n",
+        fmt::print(gen.out, "TINYREFL_REFLECT_ENUM({}, {}, {})\n",
             string_constant(full_qualified_name(enum_)),
             type_reference(enum_),
             typelist(values)
@@ -373,8 +448,17 @@ void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
     }
 }
 
+void generate_typedef(generator& gen, const cppast::cpp_type_alias& alias)
+{
+    const auto& class_alias = get_typedef_struct_declaration(gen, alias);
 
-void visit_ast_and_generate(const cppast::cpp_file& ast_root, const std::string& filepath)
+    if(class_alias)
+    {
+        generate_class(gen, class_alias.value(), type_safe::cref(alias));
+    }
+}
+
+void visit_ast_and_generate(const cppast::cpp_file& ast_root, const cppast::cpp_entity_index& index, const std::string& filepath)
 {
     std::ofstream os{filepath + ".tinyrefl"};
 
@@ -387,6 +471,7 @@ void visit_ast_and_generate(const cppast::cpp_file& ast_root, const std::string&
        << std::endl;
 
     std::ostringstream body;
+    generator gen{index, ast_root, body};
 
     cppast::visit(ast_root,
         [](const cppast::cpp_entity& e) {
@@ -394,22 +479,31 @@ void visit_ast_and_generate(const cppast::cpp_file& ast_root, const std::string&
                    cppast::is_definition(e) &&
                    !cppast::has_attribute(e, ATTRIBUTES_IGNORE);
         },
-        [&body](const cppast::cpp_entity& e, const cppast::visitor_info& info) {
-            if(info.is_new_entity() && info.access == cppast::cpp_public && !is_unknown_entity(e))
+        [&gen](const cppast::cpp_entity& e, const cppast::visitor_info& info) {
+            if(info.is_new_entity() && info.access == cppast::cpp_public)
             {
                 switch(e.kind())
                 {
                 case cppast::cpp_entity_kind::class_t:
-                    generate_class(body, static_cast<const cppast::cpp_class&>(e)); break;
+                    if(!is_unknown_entity(e))
+                    {
+                        generate_class(gen, static_cast<const cppast::cpp_class&>(e));
+                    }
+                    break;
+                case cppast::cpp_entity_kind::type_alias_t:
+                    generate_typedef(gen, static_cast<const cppast::cpp_type_alias&>(e)); break;
                 case cppast::cpp_entity_kind::enum_t:
-                    generate_enum(body, static_cast<const cppast::cpp_enum&>(e)); break;
+                    if(!is_unknown_entity(e))
+                    {
+                        generate_enum(gen, static_cast<const cppast::cpp_enum&>(e));
+                    }
                 default:
                     break;
                 }
             }
         });
 
-    generate_string_definitions(os);
+    generate_string_definitions(gen);
     os << body.str();
 
     os << "\n#endif // " << include_guard << "\n";
@@ -546,7 +640,7 @@ bool reflect_file(const std::string& filepath, const cppast::cpp_standard cpp_st
 
         if(file.has_value())
         {
-            visit_ast_and_generate(file.value(), filepath);
+            visit_ast_and_generate(file.value(), parser.index(), filepath);
             return true;
         }
         else

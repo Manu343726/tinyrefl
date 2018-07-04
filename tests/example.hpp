@@ -29,6 +29,11 @@ public:
         int a, b, c;
     };
 
+    typedef struct
+    {
+        int a, b;
+    } TypedefStruct;
+
     InnerClassWithMembers innerClassInstance;
 
 private:
