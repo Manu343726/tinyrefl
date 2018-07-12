@@ -99,6 +99,18 @@ auto tuple_map(const std::tuple<Ts...>& tuple, Function function)
     return tuple_map_impl(tuple, function, tinyrefl::meta::make_index_sequence_for<Ts...>());
 }
 
+template<typename... Ts, std::size_t... Indices>
+constexpr auto typelist_to_tuple_impl(tinyrefl::meta::list<Ts...>, tinyrefl::meta::index_sequence<Indices...>)
+{
+    return std::make_tuple(tinyrefl::type_tag<tinyrefl::meta::pack_get_t<Indices, Ts...>>{}...);
+}
+
+template<typename... Ts>
+constexpr auto typelist_to_tuple(tinyrefl::meta::list<Ts...>)
+{
+    return typelist_to_tuple_impl(tinyrefl::meta::list<Ts...>{}, tinyrefl::meta::make_index_sequence_for<Ts...>{});
+}
+
 template<typename Class, typename Visitor, std::size_t Depth, entity ClassKind>
 tinyrefl::meta::enable_if_t<!std::is_class<Class>::value || !has_metadata<Class>::value>
 visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<entity, ClassKind>)
@@ -304,6 +316,112 @@ auto visit_objects(const Class&... objects)
             );
         });
     };
+}
+
+template<typename Class, typename... Visitors>
+void visit_member_variables(const Class& object, Visitors... visitors)
+{
+    visit_object(object, [visitor = overloaded_function(visitors...)](const auto& name, auto /* depth */, const auto& member, CTTI_STATIC_VALUE(entity::MEMBER_VARIABLE))
+    {
+        visitor(name, member);
+    });
+}
+
+template<typename Class, typename... Visitors>
+void visit_member_variables(Class& object, Visitors... visitors)
+{
+    visit_object(object, [visitor = overloaded_function(visitors...)](const auto& name, auto /* depth */, auto& member, CTTI_STATIC_VALUE(entity::MEMBER_VARIABLE))
+    {
+        visitor(name, member);
+    });
+}
+
+template<typename Class>
+auto make_tuple(const Class& object)
+{
+    using variables = typename tinyrefl::metadata<Class>::member_variables;
+
+    return detail::tuple_map(detail::typelist_to_tuple(variables{}), [&object](auto type) -> decltype(auto)
+    {
+        constexpr typename decltype(type)::type member_metadata;
+        return member_metadata.get(object);
+    });
+}
+
+template<typename Class>
+constexpr auto make_tuple(Class& object)
+{
+    using variables = typename tinyrefl::metadata<Class>::member_variables;
+
+    return detail::tuple_map(detail::typelist_to_tuple(variables{}), [&object](auto type) -> decltype(auto)
+    {
+        constexpr typename decltype(type)::type member_metadata;
+        return member_metadata.get(object);
+    });
+}
+
+template<typename Class, typename... Ts>
+Class make_object(const std::tuple<Ts...>& tuple)
+{
+    Class result;
+
+    tinyrefl::meta::foreach<typename tinyrefl::metadata<Class>::member_variables>([&tuple, &result] (auto type, auto index) mutable
+    {
+        constexpr typename decltype(type)::type member_metadata;
+        member_metadata.get(result) = std::get<index>(tuple);
+    });
+
+    return result;
+}
+
+template<typename Enum>
+constexpr auto enum_cast(const std::underlying_type_t<Enum> value) ->
+    std::enable_if_t<
+        std::is_enum<Enum>::value && tinyrefl::has_metadata<Enum>(),
+        Enum
+    >
+{
+    return tinyrefl::metadata<Enum>().get_value(value).value();
+}
+
+template<typename Enum>
+constexpr auto enum_cast(const ctti::detail::cstring name) ->
+    std::enable_if_t<
+        std::is_enum<Enum>::value && tinyrefl::has_metadata<Enum>(),
+        Enum
+    >
+{
+    return tinyrefl::metadata<Enum>().get_value(name).value();
+}
+
+template<typename Enum>
+auto enum_cast(const std::string& name) ->
+    std::enable_if_t<
+        std::is_enum<Enum>::value && tinyrefl::has_metadata<Enum>(),
+        Enum
+    >
+{
+    return enum_cast<Enum>(name.c_str());
+}
+
+template<typename Enum>
+constexpr auto underlying_value(const Enum value) ->
+    std::enable_if_t<
+        std::is_enum<Enum>::value && tinyrefl::has_metadata<Enum>(),
+        std::underlying_type_t<Enum>
+    >
+{
+    return tinyrefl::metadata<Enum>().get_value(value).underlying_value();
+}
+
+template<typename Enum>
+constexpr auto to_string(const Enum value) ->
+    std::enable_if_t<
+        std::is_enum<Enum>::value && tinyrefl::has_metadata<Enum>(),
+        ctti::detail::cstring
+    >
+{
+    return tinyrefl::metadata<Enum>().get_value(value).name();
 }
 
 }

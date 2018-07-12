@@ -167,7 +167,7 @@ TEST_CASE("tinyrefl api")
             tinyrefl::visit_object(myObject,
                 [&members, expected_kind](const std::string& name, auto /* depth */, auto /* entity */, decltype(expected_kind) kind)
             {
-                CHECK((kind == expected_kind.get()));
+                CHECK(kind == expected_kind.get());
                 members.insert(name);
             });
 
@@ -182,12 +182,12 @@ TEST_CASE("tinyrefl api")
 
                 return ss.str();
             }());
-            CHECK((members.size() == expected.size()));
+            CHECK(members.size() == expected.size());
 
             for(const auto& member : expected)
             {
                 INFO("Expected " << expected_kind << " \"" << member << "\"");
-                CHECK((members.count(member) == 1));
+                CHECK(members.count(member) == 1);
             }
         };
 
@@ -218,15 +218,15 @@ TEST_CASE("tinyrefl api")
             {
                 if(name == "str")
                 {
-                    CHECK((addressof(member) == addressof(myObject.str)));
+                    CHECK(addressof(member) == addressof(myObject.str));
                 }
                 else if(name == "innerClassInstance")
                 {
-                    CHECK((addressof(member) == addressof(myObject.innerClassInstance)));
+                    CHECK(addressof(member) == addressof(myObject.innerClassInstance));
                 }
                 else if(name == "vector")
                 {
-                    CHECK((addressof(member) == addressof(myObject.vector)));
+                    CHECK(addressof(member) == addressof(myObject.vector));
                 }
             });
         }
@@ -275,7 +275,7 @@ TEST_CASE("tinyrefl api")
             tinyrefl::visit_objects(lhs, rhs)(
                 [&members, expected_kind](const std::string& name, auto /* depth */, auto /* entity */, decltype(expected_kind) kind)
             {
-                CHECK((kind == expected_kind.get()));
+                CHECK(kind == expected_kind.get());
                 members.insert(name);
             });
 
@@ -290,12 +290,12 @@ TEST_CASE("tinyrefl api")
 
                 return ss.str();
             }());
-            CHECK((members.size() == expected.size()));
+            CHECK(members.size() == expected.size());
 
             for(const auto& member : expected)
             {
                 INFO("Expected " << expected_kind << " \"" << member << "\"");
-                CHECK((members.count(member) == 1));
+                CHECK(members.count(member) == 1);
             }
         };
 
@@ -455,6 +455,135 @@ TEST_CASE("tinyrefl api")
             {
                 CHECK(e == 42);
             }
+        }
+    }
+
+    SECTION("visit members")
+    {
+        auto test = [](const std::unordered_set<std::string>& expected)
+        {
+            std::unordered_set<std::string> members;
+            my_namespace::MyClass myObject;
+
+            tinyrefl::visit_member_variables(myObject,
+                [&members](const std::string& name, auto /* entity */)
+            {
+                members.insert(name);
+            });
+
+            INFO([members]
+            {
+                std::ostringstream ss;
+
+                for(const auto& member : members)
+                {
+                    ss << " - got member \"" << member << "\"\n";
+                }
+
+                return ss.str();
+            }());
+            CHECK(members.size() == expected.size());
+
+            for(const auto& member : expected)
+            {
+                INFO("Expected " << " \"" << member << "\"");
+                CHECK(members.count(member) == 1);
+            }
+        };
+
+        SECTION("visit member variables only")
+        {
+            test({
+                "str", "innerClassInstance", "vector"
+            });
+        }
+
+        SECTION("visit returns references to the object members")
+        {
+            my_namespace::MyClass myObject;
+
+            auto addressof = [](auto& object)
+            {
+                return reinterpret_cast<void*>(std::addressof(object));
+            };
+
+            tinyrefl::visit_member_variables(myObject, [&myObject, addressof](const std::string& name, auto& member)
+            {
+                if(name == "str")
+                {
+                    CHECK(addressof(member) == addressof(myObject.str));
+                }
+                else if(name == "innerClassInstance")
+                {
+                    CHECK(addressof(member) == addressof(myObject.innerClassInstance));
+                }
+                else if(name == "vector")
+                {
+                    CHECK(addressof(member) == addressof(myObject.vector));
+                }
+            });
+        }
+
+        SECTION("assigning values to members in visit changes members of visited object")
+        {
+            my_namespace::MyClass myObject;
+
+            tinyrefl::visit_member_variables(myObject,
+                [](const std::string& /* name */, std::string& member)
+            {
+                member = "a new string value";
+            },
+                [](const std::string& /* name */, std::vector<int>& member)
+            {
+                member.assign(42, 42);
+            },
+                [](const std::string& /* name */, my_namespace::MyClass::InnerClassWithMembers& member)
+            {
+                member.a = 42;
+                member.b = 42;
+                member.c = 42;
+            });
+
+            CHECK(myObject.str == "a new string value");
+            REQUIRE(myObject.vector.size() == 42);
+
+            for(int e : myObject.vector)
+            {
+                CHECK(e == 42);
+            }
+
+            CHECK(myObject.innerClassInstance.a == 42);
+            CHECK(myObject.innerClassInstance.b == 42);
+            CHECK(myObject.innerClassInstance.c == 42);
+        }
+    }
+
+    SECTION("tuple converters")
+    {
+        auto addressof = [](const auto& object)
+        {
+            return reinterpret_cast<const void*>(std::addressof(object));
+        };
+
+        SECTION("make_tuple")
+        {
+            my_namespace::MyClass myObject;
+            auto tuple = tinyrefl::make_tuple(myObject);
+
+            static_assert(std::tuple_size<decltype(tuple)>::value == 2, "Wrong tuple serialization");
+            CHECK(addressof(std::get<0>(tuple)) == addressof(myObject.str));
+            CHECK(addressof(std::get<1>(tuple)) == addressof(myObject.innerClassInstance));
+        }
+
+        SECTION("make_object")
+        {
+            const auto tuple = std::make_tuple("foo str", my_namespace::MyClass::InnerClassWithMembers{1, 2, 3});
+            my_namespace::MyClass object = tinyrefl::make_object<my_namespace::MyClass>(tuple);
+
+            CHECK(object.str == "foo str");
+            CHECK(object.innerClassInstance.a == 1);
+            CHECK(object.innerClassInstance.b == 2);
+            CHECK(object.innerClassInstance.c == 3);
         }
     }
 }
