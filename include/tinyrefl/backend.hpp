@@ -565,6 +565,11 @@ struct enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes> : public m
             return *tinyrefl::backend::find(_attributes, name);
         }
 
+        constexpr operator enum_type() const
+        {
+            return value();
+        }
+
         friend constexpr bool operator==(const value_t& lhs, const ctti::detail::cstring& name)
         {
             return lhs.value_name() == name;
@@ -595,6 +600,11 @@ struct enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes> : public m
             return !(lhs == value);
         }
 
+        inline friend std::ostream& operator<<(std::ostream& os, const value_t value)
+        {
+            return os << value.name();
+        }
+
     private:
         enum_type _value;
         ctti::detail::cstring _name;
@@ -619,7 +629,7 @@ struct enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes> : public m
 
     constexpr const value_t& get_value(const ctti::detail::cstring& name) const
     {
-        return find_value_by_name(name);
+        return get_values()[find_value_index(name)];
     }
 
     constexpr const value_t& get_value(const std::size_t i) const
@@ -632,9 +642,19 @@ struct enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes> : public m
         return get_values()[find_value_index(value)];
     }
 
+    constexpr const value_t& get_value(const underlying_type value) const
+    {
+        return get_value(static_cast<enum_type>(value));
+    }
+
     constexpr bool is_enumerated_value(const underlying_type value) const
     {
         return find_value_index(value) >= 0;
+    }
+
+    constexpr bool is_enumerated_value(const ctti::detail::cstring name) const
+    {
+        return find_value_index(name) >= 0;
     }
 
     constexpr const values_array& get_values() const
@@ -642,14 +662,26 @@ struct enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes> : public m
         return enum_values;
     }
 
+    using const_iterator = typename values_array::const_iterator;
+
+    constexpr const_iterator begin() const
+    {
+        return get_values().begin();
+    }
+
+    constexpr const_iterator end() const
+    {
+        return get_values().end();
+    }
+
 private:
-    constexpr const value_t& find_value_by_name(const ctti::detail::cstring& name, std::size_t i = 0) const
+    constexpr int find_value_index(const ctti::detail::cstring& name, std::size_t i = 0) const
     {
         return (i < count()) ?
             (get_value(i).name() == name ?
-                get_value(i) :
-                find_value_by_name(name, i + 1))
-            : invalid_value;
+                static_cast<int>(i) :
+                find_value_index(name, i + 1))
+            : -1;
     }
 
     constexpr int find_value_index(const underlying_type value, std::size_t i = 0) const

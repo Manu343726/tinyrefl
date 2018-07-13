@@ -1,6 +1,7 @@
 #include "no_reflection.hpp"
 #include <vector>
 #include <string>
+#include <ostream>
 
 namespace my_namespace
 {
@@ -30,9 +31,12 @@ public:
     };
 
     InnerClassWithMembers innerClassInstance;
+    Enum enum_value;
 
 private:
     int _private;
 };
+
+std::ostream& operator<<(std::ostream& os, const MyClass::Enum value);
 
 }

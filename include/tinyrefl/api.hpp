@@ -7,7 +7,8 @@
 #include <tinyrefl/utils/typename.hpp>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
-#include <masquerade.hpp>
+#include <nlohmann/json.hpp>
+#include <cassert>
 
 namespace tinyrefl
 {
@@ -18,11 +19,16 @@ using entity = tinyrefl::backend::entity_kind;
 template<typename T>
 using type_tag = ctti::type_tag<T>;
 
+using json = nlohmann::json;
+
 template<typename T>
 using metadata = typename tinyrefl::backend::metadata_of_type<T>;
 
 template<typename T>
-using has_metadata = tinyrefl::backend::metadata_registered_for_type<T>;
+constexpr bool has_metadata()
+{
+    return tinyrefl::backend::metadata_registered_for_type<T>::value;
+}
 
 template<typename Metadata>
 constexpr bool has_attribute(const Metadata& metadata, const ctti::detail::cstring& attribute)
@@ -32,15 +38,15 @@ constexpr bool has_attribute(const Metadata& metadata, const ctti::detail::cstri
 
 template<typename T>
 constexpr auto has_attribute(const ctti::detail::cstring& attribute) -> tinyrefl::meta::enable_if_t<
-    has_metadata<T>::value, bool
+    has_metadata<T>(), bool
 >
 {
     return tinyrefl::backend::has_attribute(metadata<T>{}, attribute);
 }
 
 template<typename T>
-constexpr auto has_attribute(const ctti::detail::cstring& attribute) -> tinyrefl::meta::enable_if_t<
-    !has_metadata<T>::value, bool
+constexpr auto has_attribute(const ctti::detail::cstring& /* attribute */) -> tinyrefl::meta::enable_if_t<
+    !has_metadata<T>(), bool
 >
 {
     return false;
@@ -112,7 +118,7 @@ constexpr auto typelist_to_tuple(tinyrefl::meta::list<Ts...>)
 }
 
 template<typename Class, typename Visitor, std::size_t Depth, entity ClassKind>
-tinyrefl::meta::enable_if_t<!std::is_class<Class>::value || !has_metadata<Class>::value>
+tinyrefl::meta::enable_if_t<!std::is_class<Class>::value || !has_metadata<Class>()>
 visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<entity, ClassKind>)
 {
     visitor(tinyrefl::utils::type_name<Class>(),
@@ -122,7 +128,7 @@ visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<e
 }
 
 template<typename Class, typename Visitor, std::size_t Depth, entity ClassKind>
-tinyrefl::meta::enable_if_t<std::is_class<Class>::value && has_metadata<Class>::value>
+tinyrefl::meta::enable_if_t<std::is_class<Class>::value && has_metadata<Class>()>
 visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<entity, ClassKind>)
 {
     // visit base classes first (if reflected)
@@ -394,6 +400,16 @@ constexpr auto enum_cast(const ctti::detail::cstring name) ->
     return tinyrefl::metadata<Enum>().get_value(name).value();
 }
 
+template<typename Enum, std::size_t N>
+constexpr auto enum_cast(const char (&name)[N]) ->
+    std::enable_if_t<
+        std::is_enum<Enum>::value && tinyrefl::has_metadata<Enum>(),
+        Enum
+    >
+{
+    return enum_cast<Enum>(ctti::detail::cstring{name});
+}
+
 template<typename Enum>
 auto enum_cast(const std::string& name) ->
     std::enable_if_t<
@@ -401,7 +417,7 @@ auto enum_cast(const std::string& name) ->
         Enum
     >
 {
-    return enum_cast<Enum>(name.c_str());
+    return enum_cast<Enum>(ctti::detail::cstring{name.c_str(), name.size()});
 }
 
 template<typename Enum>
@@ -424,7 +440,118 @@ constexpr auto to_string(const Enum value) ->
     return tinyrefl::metadata<Enum>().get_value(value).name();
 }
 
+template<typename T>
+auto to_json(const T& value) -> std::enable_if_t<
+    !tinyrefl::has_metadata<T>(),
+    const T&
+>
+{
+    return value;
 }
+
+template<typename Class>
+auto to_json(const Class& object) -> std::enable_if_t<
+    tinyrefl::has_metadata<Class>() && std::is_class<Class>::value,
+    json
+>;
+
+template<typename Enum>
+auto to_json(const Enum value) -> std::enable_if_t<
+    tinyrefl::has_metadata<Enum>() && std::is_enum<Enum>::value,
+    json
+>
+{
+    return tinyrefl::to_string(value).str();
+}
+
+template<typename T>
+auto from_json(const json& json) -> std::enable_if_t<
+    !tinyrefl::has_metadata<T>(),
+    T
+>
+{
+    T result;
+    nlohmann::from_json(json, result);
+    return result;
+}
+
+template<typename Enum>
+auto from_json(const json& json) -> std::enable_if_t<
+    tinyrefl::has_metadata<Enum>() && std::is_enum<Enum>::value,
+    Enum
+>
+{
+    assert(json.is_string());
+    return tinyrefl::enum_cast<Enum>(json.get<std::string>());
+}
+
+template<typename Class>
+auto from_json(const json& json) -> std::enable_if_t<
+    tinyrefl::has_metadata<Class>() && std::is_class<Class>::value,
+    Class
+>;
+
+} // namespace tinyrefl
+
+namespace nlohmann
+{
+
+template<typename Class>
+auto to_json(const Class& object) -> std::enable_if_t<
+    tinyrefl::has_metadata<Class>() && std::is_class<Class>::value,
+    json
+>
+{
+    return tinyrefl::to_json(object);
+}
+
+template<typename T>
+auto from_json(const json& json, T& result) -> std::enable_if_t<
+    tinyrefl::has_metadata<T>(),
+    T
+>
+{
+    result = tinyrefl::from_json<T>(json);
+}
+
+} // namespace nlohmann
+
+namespace tinyrefl
+{
+
+template<typename Class>
+auto to_json(const Class& object) -> std::enable_if_t<
+    tinyrefl::has_metadata<Class>() && std::is_class<Class>::value,
+    json
+>
+{
+    auto result = json::object();
+
+    visit_member_variables(object, [&result](const std::string& name, const auto& member)
+    {
+        result[name] = to_json(member);
+    });
+
+    return result;
+}
+
+template<typename Class>
+auto from_json(const json& json) -> std::enable_if_t<
+    tinyrefl::has_metadata<Class>() && std::is_class<Class>::value,
+    Class
+>
+{
+    Class result;
+
+    visit_member_variables(result, [&json](const std::string& name, const auto& member)
+    {
+        member = from_json<std::decay_t<decltype(member)>>(json[name]);
+    });
+
+    return result;
+}
+
+} // namespace tinyrefl
 
 #if !defined(TINYREFL_NO_REFLECTION_OPERATORS)
 #define $(...) ::tinyrefl::metadata<__VA_ARGS__>

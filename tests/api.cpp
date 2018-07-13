@@ -5,6 +5,8 @@
 #include <unordered_set>
 #include <unordered_map>
 
+using namespace std::string_literals;
+
 TEST_CASE("tinyrefl api")
 {
     SECTION("class metadata")
@@ -66,6 +68,7 @@ TEST_CASE("tinyrefl api")
                 {"a", 0},
                 {"b", 0},
                 {"c", 0},
+                {"enum_value", 1},
                 {"innerClassInstance", 1}
             });
         }
@@ -87,6 +90,7 @@ TEST_CASE("tinyrefl api")
                 {"a", 0},
                 {"b", 0},
                 {"c", 0},
+                {"enum_value", 0},
                 {"innerClassInstance", 0}
             });
         }
@@ -109,6 +113,7 @@ TEST_CASE("tinyrefl api")
                 {"a", 0},
                 {"b", 0},
                 {"c", 0},
+                {"enum_value", 0},
                 {"innerClassInstance", 0}
             });
         }
@@ -131,6 +136,7 @@ TEST_CASE("tinyrefl api")
                 {"a", 0},
                 {"b", 0},
                 {"c", 0},
+                {"enum_value", 0},
                 {"innerClassInstance", 0}
             });
         }
@@ -152,6 +158,7 @@ TEST_CASE("tinyrefl api")
                 {"a", 0},
                 {"b", 0},
                 {"c", 0},
+                {"enum_value", 0},
                 {"innerClassInstance", 0}
             });
         }
@@ -194,7 +201,7 @@ TEST_CASE("tinyrefl api")
         SECTION("visit member variables only")
         {
             test(CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)(), {
-                "str", "innerClassInstance", "vector"
+                "str", "innerClassInstance", "vector", "enum_value"
             });
         }
 
@@ -214,21 +221,43 @@ TEST_CASE("tinyrefl api")
                 return reinterpret_cast<void*>(std::addressof(object));
             };
 
-            tinyrefl::visit_object(myObject, [&myObject, addressof](const std::string& name, auto /* depth */, auto& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+            bool strVisited = false;
+            bool innerClassInstanceVisited = false;
+            bool vectorVisited = false;
+            bool enumValueVisited = false;
+            bool somethingVisited = false;
+
+            tinyrefl::visit_object(myObject, [&](const std::string& name, auto /* depth */, auto& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 if(name == "str")
                 {
                     CHECK(addressof(member) == addressof(myObject.str));
+                    strVisited = true;
                 }
                 else if(name == "innerClassInstance")
                 {
                     CHECK(addressof(member) == addressof(myObject.innerClassInstance));
+                    innerClassInstanceVisited = true;
                 }
                 else if(name == "vector")
                 {
                     CHECK(addressof(member) == addressof(myObject.vector));
+                    vectorVisited = true;
                 }
+                else if(name == "enum_value")
+                {
+                    CHECK(addressof(member) == addressof(myObject.enum_value));
+                    enumValueVisited = true;
+                }
+
+                somethingVisited = true;
             });
+
+            CHECK(strVisited);
+            CHECK(innerClassInstanceVisited);
+            CHECK(vectorVisited);
+            CHECK(enumValueVisited);
+            CHECK(somethingVisited);
         }
 
         SECTION("assigning values to members in visit changes members of visited object")
@@ -249,6 +278,10 @@ TEST_CASE("tinyrefl api")
                 member.a = 42;
                 member.b = 42;
                 member.c = 42;
+            },
+                [](const std::string& /* name */, auto /* depth */, my_namespace::MyClass::Enum& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+            {
+                member = my_namespace::MyClass::Enum::C;
             });
 
             CHECK(myObject.str == "a new string value");
@@ -262,6 +295,7 @@ TEST_CASE("tinyrefl api")
             CHECK(myObject.innerClassInstance.a == 42);
             CHECK(myObject.innerClassInstance.b == 42);
             CHECK(myObject.innerClassInstance.c == 42);
+            CHECK(myObject.enum_value == my_namespace::MyClass::Enum::C);
         }
     }
 
@@ -302,7 +336,7 @@ TEST_CASE("tinyrefl api")
         SECTION("visit member variables only")
         {
             test(CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)(), {
-                "str", "innerClassInstance", "vector"
+                "str", "innerClassInstance", "vector", "enum_value"
             });
         }
 
@@ -325,10 +359,11 @@ TEST_CASE("tinyrefl api")
             bool strVisited = false;
             bool innerClassInstanceVisited = false;
             bool vectorVisited = false;
+            bool enumValueVisited = false;
             bool somethingVisited = false;
 
             tinyrefl::visit_objects(static_cast<my_namespace::MyClass&>(lhs), static_cast<my_namespace::MyClass&>(rhs))
-                ([&lhs, &rhs, addressof, &strVisited, &innerClassInstanceVisited, &vectorVisited, &somethingVisited](const std::string& name, auto /* depth */, auto members, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+                ([&lhs, &rhs, addressof, &strVisited, &innerClassInstanceVisited, &vectorVisited, &enumValueVisited, &somethingVisited](const std::string& name, auto /* depth */, auto members, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 auto& lhsMember = std::get<0>(members);
                 auto& rhsMember = std::get<1>(members);
@@ -351,6 +386,12 @@ TEST_CASE("tinyrefl api")
                     CHECK(addressof(rhsMember) == addressof(rhs.vector));
                     vectorVisited = true;
                 }
+                else if(name == "enum_value")
+                {
+                    CHECK(addressof(lhsMember) == addressof(lhs.enum_value));
+                    CHECK(addressof(rhsMember) == addressof(rhs.enum_value));
+                    enumValueVisited = true;
+                }
 
                 somethingVisited = true;
             });
@@ -358,6 +399,7 @@ TEST_CASE("tinyrefl api")
             CHECK(strVisited);
             CHECK(innerClassInstanceVisited);
             CHECK(vectorVisited);
+            CHECK(enumValueVisited);
             CHECK(somethingVisited);
         }
 
@@ -373,10 +415,11 @@ TEST_CASE("tinyrefl api")
             bool strVisited = false;
             bool innerClassInstanceVisited = false;
             bool vectorVisited = false;
+            bool enumValueVisited = false;
             bool somethingVisited = false;
 
             tinyrefl::visit_objects(static_cast<const my_namespace::MyClass&>(lhs), static_cast<const my_namespace::MyClass&>(rhs))
-                ([&lhs, &rhs, addressof, &strVisited, &innerClassInstanceVisited, &vectorVisited, &somethingVisited](const std::string& name, auto /* depth */, auto members, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+                ([&lhs, &rhs, addressof, &strVisited, &innerClassInstanceVisited, &vectorVisited, &enumValueVisited, &somethingVisited](const std::string& name, auto /* depth */, auto members, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 const auto& lhsMember = std::get<0>(members);
                 const auto& rhsMember = std::get<1>(members);
@@ -399,6 +442,12 @@ TEST_CASE("tinyrefl api")
                     CHECK(addressof(rhsMember) == addressof(rhs.vector));
                     vectorVisited = true;
                 }
+                else if(name == "enum_value")
+                {
+                    CHECK(addressof(lhsMember) == addressof(lhs.enum_value));
+                    CHECK(addressof(rhsMember) == addressof(rhs.enum_value));
+                    enumValueVisited = true;
+                }
 
                 somethingVisited = true;
             });
@@ -406,6 +455,7 @@ TEST_CASE("tinyrefl api")
             CHECK(strVisited);
             CHECK(innerClassInstanceVisited);
             CHECK(vectorVisited);
+            CHECK(enumValueVisited);
             CHECK(somethingVisited);
         }
 
@@ -432,6 +482,11 @@ TEST_CASE("tinyrefl api")
                 std::get<1>(members).a = 42;
                 std::get<1>(members).b = 42;
                 std::get<1>(members).c = 42;
+            },
+                [](const std::string& /* name */, auto /* depth */, std::tuple<my_namespace::MyClass::Enum&, my_namespace::MyClass::Enum&> members, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+            {
+                std::get<0>(members) = my_namespace::MyClass::Enum::C;
+                std::get<1>(members) = my_namespace::MyClass::Enum::D;
             });
 
             CHECK(lhs.str == "a new string value");
@@ -455,6 +510,9 @@ TEST_CASE("tinyrefl api")
             {
                 CHECK(e == 42);
             }
+
+            CHECK(lhs.enum_value == my_namespace::MyClass::Enum::C);
+            CHECK(rhs.enum_value == my_namespace::MyClass::Enum::D);
         }
     }
 
@@ -494,7 +552,7 @@ TEST_CASE("tinyrefl api")
         SECTION("visit member variables only")
         {
             test({
-                "str", "innerClassInstance", "vector"
+                "str", "innerClassInstance", "vector", "enum_value"
             });
         }
 
@@ -521,6 +579,10 @@ TEST_CASE("tinyrefl api")
                 {
                     CHECK(addressof(member) == addressof(myObject.vector));
                 }
+                else if(name == "enum_value")
+                {
+                    CHECK(addressof(member) == addressof(myObject.enum_value));
+                }
             });
         }
 
@@ -542,6 +604,9 @@ TEST_CASE("tinyrefl api")
                 member.a = 42;
                 member.b = 42;
                 member.c = 42;
+            }, [](const std::string& /* name */, my_namespace::MyClass::Enum& value)
+            {
+                value = my_namespace::MyClass::Enum::D;
             });
 
             CHECK(myObject.str == "a new string value");
@@ -555,6 +620,8 @@ TEST_CASE("tinyrefl api")
             CHECK(myObject.innerClassInstance.a == 42);
             CHECK(myObject.innerClassInstance.b == 42);
             CHECK(myObject.innerClassInstance.c == 42);
+
+            CHECK(myObject.enum_value == my_namespace::MyClass::Enum::D);
         }
     }
 
@@ -570,20 +637,103 @@ TEST_CASE("tinyrefl api")
             my_namespace::MyClass myObject;
             auto tuple = tinyrefl::make_tuple(myObject);
 
-            static_assert(std::tuple_size<decltype(tuple)>::value == 2, "Wrong tuple serialization");
+            static_assert(std::tuple_size<decltype(tuple)>::value == 3, "Wrong tuple serialization");
             CHECK(addressof(std::get<0>(tuple)) == addressof(myObject.str));
             CHECK(addressof(std::get<1>(tuple)) == addressof(myObject.innerClassInstance));
+            CHECK(addressof(std::get<2>(tuple)) == addressof(myObject.enum_value));
         }
 
         SECTION("make_object")
         {
-            const auto tuple = std::make_tuple("foo str", my_namespace::MyClass::InnerClassWithMembers{1, 2, 3});
+            const auto tuple = std::make_tuple("foo str", my_namespace::MyClass::InnerClassWithMembers{1, 2, 3}, my_namespace::MyClass::Enum::A);
             my_namespace::MyClass object = tinyrefl::make_object<my_namespace::MyClass>(tuple);
 
             CHECK(object.str == "foo str");
             CHECK(object.innerClassInstance.a == 1);
             CHECK(object.innerClassInstance.b == 2);
             CHECK(object.innerClassInstance.c == 3);
+            CHECK(object.enum_value == my_namespace::MyClass::Enum::A);
+        }
+    }
+
+    SECTION("enum converters")
+    {
+        using Enum = my_namespace::MyClass::Enum;
+
+        SECTION("enum_cast(integer)")
+        {
+            CHECK(tinyrefl::enum_cast<Enum>(0) == Enum::A);
+            CHECK(tinyrefl::enum_cast<Enum>(1) == Enum::B);
+            CHECK(tinyrefl::enum_cast<Enum>(2) == Enum::C);
+            CHECK(tinyrefl::enum_cast<Enum>(42) == Enum::D);
+        }
+
+        SECTION("enum_cast(string)")
+        {
+            CHECK(tinyrefl::enum_cast<Enum>("A") == Enum::A);
+            CHECK(tinyrefl::enum_cast<Enum>("B") == Enum::B);
+            CHECK(tinyrefl::enum_cast<Enum>("C") == Enum::C);
+            CHECK(tinyrefl::enum_cast<Enum>("D") == Enum::D);
+        }
+
+        SECTION("enum_cast(std::string)")
+        {
+            CHECK(tinyrefl::enum_cast<Enum>("A"s) == Enum::A);
+            CHECK(tinyrefl::enum_cast<Enum>("B"s) == Enum::B);
+            CHECK(tinyrefl::enum_cast<Enum>("C"s) == Enum::C);
+            CHECK(tinyrefl::enum_cast<Enum>("D"s) == Enum::D);
+        }
+
+        SECTION("to_string()")
+        {
+            CHECK(tinyrefl::to_string(Enum::A) == "A");
+            CHECK(tinyrefl::to_string(Enum::B) == "B");
+            CHECK(tinyrefl::to_string(Enum::C) == "C");
+            CHECK(tinyrefl::to_string(Enum::D) == "D");
+        }
+    }
+
+    SECTION("JSON serialization")
+    {
+        my_namespace::MyClass myObject;
+        myObject.str = "foo";
+        myObject.innerClassInstance.a = 1;
+        myObject.innerClassInstance.b = 2;
+        myObject.innerClassInstance.c = 3;
+        myObject.enum_value = my_namespace::MyClass::Enum::A;
+
+        SECTION("to_json")
+        {
+            auto json = tinyrefl::to_json(myObject);
+
+            REQUIRE(json.is_object());
+
+            REQUIRE(json.count("str") == 1);
+            REQUIRE(json["str"].is_string());
+            CHECK(json["str"] == "foo");
+
+            REQUIRE(json.count("innerClassInstance") == 1);
+            REQUIRE(json["innerClassInstance"].is_object());
+
+            REQUIRE(json["innerClassInstance"].count("a") == 1);
+            REQUIRE(json["innerClassInstance"]["a"].is_number_integer());
+            CHECK(json["innerClassInstance"]["a"] == 1);
+
+            REQUIRE(json["innerClassInstance"].count("b") == 1);
+            REQUIRE(json["innerClassInstance"]["b"].is_number_integer());
+            CHECK(json["innerClassInstance"]["b"] == 2);
+
+            REQUIRE(json["innerClassInstance"].count("c") == 1);
+            REQUIRE(json["innerClassInstance"]["c"].is_number_integer());
+            CHECK(json["innerClassInstance"]["c"] == 3);
+
+            REQUIRE(json.count("vector") == 1);
+            REQUIRE(json["vector"].is_array());
+
+            REQUIRE(json.count("enum_value") == 1);
+            REQUIRE(json["enum_value"].is_string());
+            CHECK(json["enum_value"] == "A");
+            CHECK(json["enum_value"] == my_namespace::MyClass::Enum::A);
         }
     }
 }

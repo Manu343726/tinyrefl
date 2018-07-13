@@ -6,6 +6,7 @@ add_tinyrefl_test(tinyrefl-test
     main.cpp
     api.cpp
     driver_handles_headers_in_different_dirs.cpp
+    example.cpp
 )
 target_link_libraries(tinyrefl-test PRIVATE tinyrefl)
 
