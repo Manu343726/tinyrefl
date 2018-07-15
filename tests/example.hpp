@@ -38,5 +38,6 @@ private:
 };
 
 std::ostream& operator<<(std::ostream& os, const MyClass::Enum value);
+bool operator==(const MyClass& lhs, const MyClass& rhs);
 
 }

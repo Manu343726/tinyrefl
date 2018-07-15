@@ -701,10 +701,12 @@ TEST_CASE("tinyrefl api")
         myObject.innerClassInstance.b = 2;
         myObject.innerClassInstance.c = 3;
         myObject.enum_value = my_namespace::MyClass::Enum::A;
+        myObject.vector = {1, 2, 3, 4};
 
         SECTION("to_json")
         {
             auto json = tinyrefl::to_json(myObject);
+            INFO(json);
 
             REQUIRE(json.is_object());
 
@@ -733,7 +735,49 @@ TEST_CASE("tinyrefl api")
             REQUIRE(json.count("enum_value") == 1);
             REQUIRE(json["enum_value"].is_string());
             CHECK(json["enum_value"] == "A");
-            CHECK(json["enum_value"] == my_namespace::MyClass::Enum::A);
         }
+
+        SECTION("from_json")
+        {
+            auto object = tinyrefl::from_json<my_namespace::MyClass>({
+                {"str", "foo"},
+                {"innerClassInstance", {
+                    {"a", 1},
+                    {"b", 2},
+                    {"c", 3}
+                }},
+                {"vector", {1, 2, 3, 4}},
+                {"enum_value", "A"}
+            });
+
+            CHECK(object.str == "foo");
+            CHECK(object.innerClassInstance.a == 1);
+            CHECK(object.innerClassInstance.b == 2);
+            CHECK(object.innerClassInstance.c == 3);
+            CHECK(object.vector == std::vector<int>{1, 2, 3, 4});
+            CHECK(object.enum_value == my_namespace::MyClass::Enum::A);
+        }
+    }
+
+    SECTION("comparison operators")
+    {
+        my_namespace::MyClass a, b, c, d;
+
+        a.str = "foo";
+        a.innerClassInstance.a = 1;
+        a.innerClassInstance.b = 2;
+        a.innerClassInstance.c = 3;
+        a.enum_value = my_namespace::MyClass::Enum::A;
+        a.vector = {1, 2, 3, 4};
+
+        d = c = b = a;
+
+        d.enum_value = my_namespace::MyClass::Enum::B;
+
+        CHECK(tinyrefl::equal(a, b));
+        CHECK(tinyrefl::equal(b, a));
+        CHECK(tinyrefl::equal(a, c));
+        CHECK(tinyrefl::equal(c, a));
+        CHECK(tinyrefl::not_equal(a, d));
     }
 }

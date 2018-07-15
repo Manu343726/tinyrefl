@@ -9,6 +9,7 @@
 #include <fmt/ostream.h>
 #include <nlohmann/json.hpp>
 #include <cassert>
+#include <algorithm>
 
 namespace tinyrefl
 {
@@ -116,6 +117,44 @@ constexpr auto typelist_to_tuple(tinyrefl::meta::list<Ts...>)
 {
     return typelist_to_tuple_impl(tinyrefl::meta::list<Ts...>{}, tinyrefl::meta::make_index_sequence_for<Ts...>{});
 }
+
+template<typename First, typename Second, typename... Tail, typename Comparator>
+constexpr bool tuple_memberwise_equal(const std::tuple<First, Second, Tail...>& tuple, Comparator comparator)
+{
+    bool equal = true;
+
+    tinyrefl::meta::foreach<tinyrefl::meta::list<Second, Tail...>>([&equal, tuple, comparator](auto /* type */, auto i)
+    {
+        constexpr std::size_t index = decltype(i)::type::value;
+        equal &= comparator(std::get<index>(tuple), std::get<index + 1>(tuple));
+    });
+
+    return equal;
+}
+
+template<typename T, typename Comparator>
+constexpr bool tuple_memberwise_equal(const std::tuple<T>& /* tuple */, Comparator /* comparator */)
+{
+    return true;
+}
+
+template<typename Comparator>
+constexpr bool tuple_memberwise_equal(const std::tuple<>& /* tuple */, Comparator /* comparator */)
+{
+    return true;
+}
+
+template<typename T, typename = void>
+struct is_range : public std::false_type {};
+
+template<typename T>
+struct is_range<T, std::void_t<decltype(std::end(std::declval<T>()) - std::begin(std::declval<T>()))>> : public std::true_type {};
+
+template<typename T, typename = void>
+struct is_comparable : public std::false_type {};
+
+template<typename T>
+struct is_comparable<T, std::void_t<decltype(std::declval<T>() == std::declval<T>())>> : public std::true_type {};
 
 template<typename Class, typename Visitor, std::size_t Depth, entity ClassKind>
 tinyrefl::meta::enable_if_t<!std::is_class<Class>::value || !has_metadata<Class>()>
@@ -266,61 +305,38 @@ void visit_object(Class& object, Visitors... visitors)
     });
 }
 
-template<typename... Class>
-auto visit_objects(Class&... objects)
+template<typename... Class, typename... Visitors>
+auto visit_objects(const std::tuple<Class...>& objects, Visitors... visitors)
 {
-    return [objects = std::forward_as_tuple(objects...)](auto... visitors)
-    {
-        auto visitor = tinyrefl::overloaded_function_default(visitors...);
+    auto visitor = tinyrefl::overloaded_function_default(visitors...);
 
-        visit_class<typename std::decay<tinyrefl::meta::pack_head_t<Class...>>::type>(
-            [&objects, visitor](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::BASE_CLASS))
-        {
-            visitor(
-                name,
-                depth,
-                tinyrefl::detail::tuple_map(objects, [entity](auto& object) -> decltype(auto) { return tinyrefl::detail::cast<typename decltype(entity)::type>(object); }),
-                CTTI_STATIC_VALUE(tinyrefl::entity::OBJECT)()
-            );
-        },
-            [&objects, visitor](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
-        {
-            visitor(
-                name,
-                depth,
-                tinyrefl::detail::tuple_map(objects, [entity](auto& object) -> decltype(auto) { return entity.get(object); }),
-                CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)()
-            );
-        });
-    };
+    visit_class<typename std::decay<tinyrefl::meta::pack_head_t<Class...>>::type>(
+        [&objects, visitor](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::BASE_CLASS))
+    {
+        visitor(
+            name,
+            depth,
+            tinyrefl::detail::tuple_map(objects, [entity](auto&& object) -> decltype(auto) { return tinyrefl::detail::cast<typename decltype(entity)::type>(std::forward<decltype(object)>(object)); }),
+            CTTI_STATIC_VALUE(tinyrefl::entity::OBJECT)()
+        );
+    },
+        [&objects, visitor](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+    {
+        visitor(
+            name,
+            depth,
+            tinyrefl::detail::tuple_map(objects, [entity](auto&& object) -> decltype(auto) { return entity.get(std::forward<decltype(object)>(object)); }),
+            CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)()
+        );
+    });
 }
 
 template<typename... Class>
-auto visit_objects(const Class&... objects)
+auto visit_objects(Class&&... objects)
 {
-    return [objects = std::forward_as_tuple(objects...)](auto... visitors)
+    return [objects = std::forward_as_tuple(std::forward<Class>(objects)...)](auto... visitors)
     {
-        auto visitor = tinyrefl::overloaded_function_default(visitors...);
-
-        visit_class<typename std::decay<tinyrefl::meta::pack_head_t<Class...>>::type>(
-            [&objects, visitor](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::BASE_CLASS))
-        {
-            visitor(
-                name,
-                depth,
-                tinyrefl::detail::tuple_map(objects, [entity](const auto& object) -> decltype(auto) { return tinyrefl::detail::cast<typename decltype(entity)::type>(object); }),
-                CTTI_STATIC_VALUE(tinyrefl::entity::OBJECT)()
-            );
-        },
-            [&objects, visitor](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
-        {
-            visitor(
-                name,
-                depth,
-                tinyrefl::detail::tuple_map(objects, [entity](const auto& object) -> decltype(auto) { return entity.get(object); }),
-                CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)()
-            );
-        });
+        return visit_objects(objects, visitors...);
     };
 }
 
@@ -340,6 +356,18 @@ void visit_member_variables(Class& object, Visitors... visitors)
     {
         visitor(name, member);
     });
+}
+
+template<typename... Class>
+auto visit_objects_member_variables(Class&&... objects)
+{
+    return [objects = std::forward_as_tuple(std::forward<Class>(objects)...)](auto... visitors)
+    {
+        return visit_objects(objects, [visitors](const auto& name, auto /* depth */, auto&& entities, CTTI_STATIC_VALUE(entity::MEMBER_VARIABLE))
+        {
+            visitors(name, entities);
+        }...);
+    };
 }
 
 template<typename Class>
@@ -543,12 +571,93 @@ auto from_json(const json& json) -> std::enable_if_t<
 {
     Class result;
 
-    visit_member_variables(result, [&json](const std::string& name, const auto& member)
+    visit_member_variables(result, [&json](const std::string& name, auto& member)
     {
         member = from_json<std::decay_t<decltype(member)>>(json[name]);
     });
 
     return result;
+}
+
+template<typename Class>
+auto to_string(const Class& object) -> std::enable_if_t<
+    tinyrefl::has_metadata<Class>() && std::is_class<Class>::value,
+    std::string
+>
+{
+    std::ostringstream ss;
+    ss << to_json(object);
+    return ss.str();
+}
+
+template<typename T>
+constexpr auto equal(const T& lhs, const T& rhs) -> std::enable_if_t<
+    detail::is_comparable<T>::value,
+    bool
+>
+{
+    return lhs == rhs;
+}
+
+template<typename Range>
+constexpr auto equal(const Range& lhs, const Range& rhs) -> std::enable_if_t<
+    detail::is_range<Range>::value && !detail::is_comparable<Range>::value,
+    bool
+>
+{
+    using std::begin;
+    using std::end;
+
+    return std::equal(begin(lhs), end(lhs), begin(rhs), end(rhs), [](const auto& lhs, const auto& rhs)
+    {
+        return tinyrefl::equal(lhs, rhs);
+    });
+}
+
+template<typename... Class>
+auto equal(Class&&... objects) -> std::enable_if_t<
+    (!detail::is_comparable<std::decay_t<tinyrefl::meta::pack_head_t<Class...>>>::value && (sizeof...(Class) >= 2)) &&
+    tinyrefl::has_metadata<std::decay_t<tinyrefl::meta::pack_head_t<Class...>>>() &&
+    std::is_class<std::decay_t<tinyrefl::meta::pack_head_t<Class...>>>::value,
+    bool
+>;
+
+template<typename... Class>
+auto memberwise_equal(Class&&... objects) -> std::enable_if_t<
+    (sizeof...(Class) >= 2) &&
+    tinyrefl::has_metadata<std::decay_t<tinyrefl::meta::pack_head_t<Class...>>>() &&
+    std::is_class<std::decay_t<tinyrefl::meta::pack_head_t<Class...>>>::value,
+    bool
+>
+{
+    bool equal = true;
+
+    visit_objects_member_variables(std::forward<Class>(objects)...)([&equal](const auto& /* name */, const auto& entities)
+    {
+        equal &= detail::tuple_memberwise_equal(entities, [](const auto& lhs, const auto& rhs)
+        {
+            return tinyrefl::equal(lhs, rhs);
+        });
+    });
+
+    return equal;
+}
+
+template<typename... Class>
+auto equal(Class&&... objects) -> std::enable_if_t<
+    (!detail::is_comparable<std::decay_t<tinyrefl::meta::pack_head_t<Class...>>>::value && (sizeof...(Class) >= 2)) &&
+    tinyrefl::has_metadata<std::decay_t<tinyrefl::meta::pack_head_t<Class...>>>() &&
+    std::is_class<std::decay_t<tinyrefl::meta::pack_head_t<Class...>>>::value,
+    bool
+>
+{
+    return memberwise_equal(std::forward<Class>(objects)...);
+}
+
+template<typename... Class>
+bool not_equal(Class&&... objects)
+{
+    return !equal(std::forward<Class>(objects)...);
 }
 
 } // namespace tinyrefl
