@@ -2,7 +2,6 @@
 #define TINYREFL_EXAMPLE_HPP
 
 #include <string>
-#include <tinyrefl/api.hpp>
 
 namespace example
 {
@@ -25,10 +24,9 @@ enum class Enum
 
 struct C : public A, public B
 {
-    TINYREFL_GODMODE
 public:
     [[tinyrefl::ignore]] std::string ignore_me;
-    std::string hey_im_here;
+    std::string hey_im_here = "hey, I'm here";
     B subobject;
 
     enum class Enum
@@ -36,11 +34,12 @@ public:
         A, B, C, D, E, F, G
     };
 
-    void method() const {}
-
-private:
-    int _private = 42;
+    Enum e = Enum::A;
 };
+
+std::ostream& operator<<(std::ostream& os, const B& b);
+std::ostream& operator<<(std::ostream& os, const Enum& value);
+std::ostream& operator<<(std::ostream& os, const C::Enum& value);
 
 }
 

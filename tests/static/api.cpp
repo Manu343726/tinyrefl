@@ -4,8 +4,7 @@
 #include CTTI_STATIC_TESTS_HEADER
 
 using check = tinyrefl::test::AssertMetadataAvailableForTemplateParam<foo::Foo>;
-constexpr check triggerCheck;
-
+EXPECT_TRUE(std::is_pointer<check*>::value);
 EXPECT_FALSE(tinyrefl::has_attribute<foo::Foo>("attribute"));
 
 #ifdef __clang__

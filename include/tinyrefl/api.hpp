@@ -316,7 +316,7 @@ auto visit_objects(const std::tuple<Class...>& objects, Visitors... visitors)
         visitor(
             name,
             depth,
-            tinyrefl::detail::tuple_map(objects, [entity](auto&& object) -> decltype(auto) { return tinyrefl::detail::cast<typename decltype(entity)::type>(std::forward<decltype(object)>(object)); }),
+            tinyrefl::detail::tuple_map(objects, [](auto&& object) -> decltype(auto) { return tinyrefl::detail::cast<typename decltype(entity)::type>(std::forward<decltype(object)>(object)); }),
             CTTI_STATIC_VALUE(tinyrefl::entity::OBJECT)()
         );
     },

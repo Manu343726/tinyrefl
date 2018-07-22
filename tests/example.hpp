@@ -32,9 +32,6 @@ public:
 
     InnerClassWithMembers innerClassInstance;
     Enum enum_value;
-
-private:
-    int _private;
 };
 
 std::ostream& operator<<(std::ostream& os, const MyClass::Enum value);

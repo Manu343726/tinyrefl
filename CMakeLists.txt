@@ -12,7 +12,7 @@ endif()
 set(CMAKE_CXX_STANDARD 14)
 
 if(NOT MSVC)
-    set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wno-attributes -Wno-parentheses -Wno-unused-parameter -Wno-noexcept-type")
+    set(CMAKE_CXX_FLAGS "-Wall -Werror -Wno-attributes")
 endif()
 
 set(TINYREFL_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "")

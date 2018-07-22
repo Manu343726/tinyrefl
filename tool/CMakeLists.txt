@@ -28,19 +28,16 @@ else()
         set(CMAKE_CXX_STANDARD 14)
     endif()
 
-    add_subdirectory(external)
-    add_executable(tinyrefl-tool tool.cpp)
 
     # LLVM releases are compiled with old GCC ABI and RTTI disabled
     if(NOT TINYREFL_USE_LOCAL_LLVM)
         if(NOT MSVC)
-            target_compile_definitions(tinyrefl-tool PRIVATE
-                _GLIBCXX_USE_CXX11_ABI=0
-            )
-
-            target_compile_options(tinyrefl-tool PRIVATE -fno-rtti)
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0 -fno-rtti")
         endif()
     endif()
+
+    add_subdirectory(external)
+    add_executable(tinyrefl-tool tool.cpp)
 
     target_include_directories(tinyrefl-tool PRIVATE ${TINYREFL_INCLUDE_DIR})
 
