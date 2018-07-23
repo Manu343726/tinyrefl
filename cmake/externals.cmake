@@ -23,6 +23,8 @@ macro(external_dependency NAME URL COMMIT)
             GIT_TAG "${COMMIT}"
         )
         add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
+        set(${NAME}_SOURCE_DIR "${${NAME}_SOURCE_DIR}" CACHE PATH "")
+        set(${NAME}_BINARY_DIR "${${NAME}_BINARY_DIR}" CACHE PATH "")
         require_target(${NAME})
     else()
         message(STATUS "external dependency ${NAME} already satisfied")
