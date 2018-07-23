@@ -5,8 +5,6 @@
 #include <ctti/type_tag.hpp>
 #include <ctti/detailed_nameof.hpp>
 #include <tinyrefl/utils/typename.hpp>
-#include <fmt/format.h>
-#include <fmt/ostream.h>
 #include <nlohmann/json.hpp>
 #include <cassert>
 #include <algorithm>
@@ -56,7 +54,7 @@ constexpr auto has_attribute(const ctti::detail::cstring& /* attribute */) -> ti
 template<typename T>
 std::string default_object_name(const T& object)
 {
-    return fmt::format("<{} object @{:#x}>", tinyrefl::utils::type_name<T>(), reinterpret_cast<std::uintptr_t>(&object));
+    return "<" << tinyrefl::utils::type_name<T>() << " object @" << &object << ">";
 }
 
 namespace detail

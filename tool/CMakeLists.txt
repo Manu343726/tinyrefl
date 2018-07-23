@@ -1,5 +1,5 @@
 add_subdirectory(external)
-require_targets(cppast fmt cppfs)
+require_targets(cppast fmt-header-only cppfs)
 
 if(TINYREFL_CROSS_BUILDING)
     include(ExternalProject)
@@ -48,7 +48,7 @@ else()
     target_include_directories(tinyrefl-tool PRIVATE ${TINYREFL_INCLUDE_DIR})
 
     find_package(LLVM ${TINYREFL_LLVM_VERSION} REQUIRED EXACT CONFIG PATHS "${LLVM_CMAKE_PATH}" NO_DEFAULT_PATH)
-    target_link_libraries(tinyrefl-tool PRIVATE cppast fmt cppfs LLVMSupport)
+    target_link_libraries(tinyrefl-tool PRIVATE cppast fmt-header-only cppfs LLVMSupport)
 
     set(TINYREFL_TOOL_EXECUTABLE $<TARGET_FILE:tinyrefl-tool> CACHE STRING "")
     set(TINYREFL_TOOL_TARGET tinyrefl-tool CACHE STRING "")

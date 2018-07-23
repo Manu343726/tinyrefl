@@ -61,7 +61,7 @@ if(NOT TINYREFL_CPPFS_VERSION)
     set(TINYREFL_CPPFS_VERSION optional_libSSL2)
 endif()
 
-external_dependency(fmt ${TINYREFL_FMT_REPO_URL} ${TINYREFL_FMT_VERSION})
+external_dependency(fmt-header-only ${TINYREFL_FMT_REPO_URL} ${TINYREFL_FMT_VERSION})
 external_dependency(cppast ${TINYREFL_CPPAST_REPO_URL} ${TINYREFL_CPPAST_VERSION})
 external_dependency(cppfs ${TINYREFL_CPPFS_REPO_URL} ${TINYREFL_CPPFS_VERSION})
 

@@ -7,8 +7,6 @@
 #include <ctti/name.hpp>
 #include <ctti/symbol.hpp>
 #include <ctti/detail/algorithm.hpp>
-#include <fmt/format.h>
-#include <fmt/ostream.h>
 #include <stdexcept>
 #include <initializer_list>
 #include <tinyrefl/utils/typename.hpp>

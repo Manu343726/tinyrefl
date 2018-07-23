@@ -1,11 +1,5 @@
 include(${TINYREFL_SOURCE_DIR}/cmake/externals.cmake)
 
-if(NOT TINYREFL_FMT_REPO_URL)
-    set(TINYREFL_FMT_REPO_URL https://github.com/fmtlib/fmt.git)
-endif()
-if(NOT TINYREFL_FMT_VERSION)
-    set(TINYREFL_FMT_VERSION 5.1.0)
-endif()
 if(NOT TINYREFL_CTTI_REPO_URL)
     set(TINYREFL_CTTI_REPO_URL https://gitlab.com/Manu343726/ctti.git)
 endif()
@@ -21,6 +15,5 @@ endif()
 
 set(JSON_BuildTests OFF CACHE BOOL "")
 
-external_dependency(fmt ${TINYREFL_FMT_REPO_URL} ${TINYREFL_FMT_VERSION})
 external_dependency(ctti ${TINYREFL_CTTI_REPO_URL} ${TINYREFL_CTTI_VERSION})
 external_dependency(nlohmann_json ${TINYREFL_JSON_REPO_URL} ${TINYREFL_JSON_VERSION})
