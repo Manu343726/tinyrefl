@@ -1,3 +1,6 @@
+add_subdirectory(external)
+require_targets(cppast fmt cppfs)
+
 if(TINYREFL_CROSS_BUILDING)
     include(ExternalProject)
 
@@ -16,6 +19,12 @@ if(TINYREFL_CROSS_BUILDING)
             -DTINYREFL_LLVM_VERSION=${TINYREFL_LLVM_VERSION}
             -DTINYREFL_USE_LOCAL_LLVM=${TINYREFL_USE_LOCAL_LLVM}
             -DTINYREFL_LLVM_DOWNLOAD_URL=${TINYREFL_LLVM_DOWNLOAD_URL}
+            -DTINYREFL_CPPAST_REPO_URL=${TINYREFL_CPPAST_REPO_URL}
+            -DTINYREFL_CPPAST_VERSION=${TINYREFL_CPPAST_VERSION}
+            -DTINYREFL_FMT_REPO_URL=${TINYREFL_FMT_REPO_URL}
+            -DTINYREFL_FMT_VERSION=${TINYREFL_FMT_VERSION}
+            -DTINYREFL_CPPFS_REPO_URL=${TINYREFL_CPPFS_REPO_URL}
+            -DTINYREFL_CPPFS_VERSION=${TINYREFL_CPPFS_VERSION}
         INSTALL_COMMAND ""
     )
 
@@ -28,7 +37,6 @@ else()
         set(CMAKE_CXX_STANDARD 14)
     endif()
 
-
     # LLVM releases are compiled with old GCC ABI and RTTI disabled
     if(NOT TINYREFL_USE_LOCAL_LLVM)
         if(NOT MSVC)
@@ -39,8 +47,6 @@ else()
     add_executable(tinyrefl-tool tool.cpp)
     target_include_directories(tinyrefl-tool PRIVATE ${TINYREFL_INCLUDE_DIR})
 
-    add_subdirectory(external)
-    require_targets(cppast fmt cppfs)
     find_package(LLVM ${TINYREFL_LLVM_VERSION} REQUIRED EXACT CONFIG PATHS "${LLVM_CMAKE_PATH}" NO_DEFAULT_PATH)
     target_link_libraries(tinyrefl-tool PRIVATE cppast fmt cppfs LLVMSupport)
 

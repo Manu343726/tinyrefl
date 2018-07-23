@@ -41,6 +41,13 @@ else()
     set(LLVM_DOWNLOAD_URL "${TINYREFL_LLVM_DOWNLOAD_URL}")
 endif()
 
+
+if(NOT TINYREFL_FMT_REPO_URL)
+    set(TINYREFL_FMT_REPO_URL https://github.com/fmtlib/fmt.git)
+endif()
+if(NOT TINYREFL_FMT_VERSION)
+    set(TINYREFL_FMT_VERSION 5.1.0)
+endif()
 if(NOT TINYREFL_CPPAST_REPO_URL)
     set(TINYREFL_CPPAST_REPO_URL https://github.com/Manu343726/cppast.git)
 endif()
@@ -54,6 +61,7 @@ if(NOT TINYREFL_CPPFS_VERSION)
     set(TINYREFL_CPPFS_VERSION optional_libSSL2)
 endif()
 
+external_dependency(fmt ${TINYREFL_FMT_REPO_URL} ${TINYREFL_FMT_VERSION})
 external_dependency(cppast ${TINYREFL_CPPAST_REPO_URL} ${TINYREFL_CPPAST_VERSION})
 external_dependency(cppfs ${TINYREFL_CPPFS_REPO_URL} ${TINYREFL_CPPFS_VERSION})
 
