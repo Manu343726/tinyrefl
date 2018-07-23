@@ -8,7 +8,11 @@ macro(external_dependency NAME URL COMMIT)
             GIT_REPOSITORY "${URL}"
             GIT_TAG "${COMMIT}"
         )
-    add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
+        add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
+
+        if(NOT TARGET ${NAME})
+            message(FATAL_ERROR "Target ${NAME} not found after download")
+        endif()
     else()
         message(STATUS "external dependency ${NAME} already satisfied")
     endif()
