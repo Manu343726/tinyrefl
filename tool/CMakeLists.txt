@@ -36,11 +36,11 @@ else()
         endif()
     endif()
 
-    add_subdirectory(external)
     add_executable(tinyrefl-tool tool.cpp)
-
     target_include_directories(tinyrefl-tool PRIVATE ${TINYREFL_INCLUDE_DIR})
 
+    add_subdirectory(external)
+    require_targets(cppast fmt cppfs)
     find_package(LLVM ${TINYREFL_LLVM_VERSION} REQUIRED EXACT CONFIG PATHS "${LLVM_CMAKE_PATH}" NO_DEFAULT_PATH)
     target_link_libraries(tinyrefl-tool PRIVATE cppast fmt cppfs LLVMSupport)
 

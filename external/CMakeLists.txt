@@ -23,4 +23,4 @@ set(JSON_BuildTests OFF CACHE BOOL "")
 
 external_dependency(fmt ${TINYREFL_FMT_REPO_URL} ${TINYREFL_FMT_VERSION})
 external_dependency(ctti ${TINYREFL_CTTI_REPO_URL} ${TINYREFL_CTTI_VERSION})
-external_dependency(json ${TINYREFL_JSON_REPO_URL} ${TINYREFL_JSON_VERSION})
+external_dependency(nlohmann_json ${TINYREFL_JSON_REPO_URL} ${TINYREFL_JSON_VERSION})
