@@ -148,13 +148,13 @@ template<typename T, typename = void>
 struct is_range : public std::false_type {};
 
 template<typename T>
-struct is_range<T, std::void_t<decltype(std::end(std::declval<T>()) - std::begin(std::declval<T>()))>> : public std::true_type {};
+struct is_range<T, tinyrefl::meta::void_t<decltype(std::end(std::declval<T>()) - std::begin(std::declval<T>()))>> : public std::true_type {};
 
 template<typename T, typename = void>
 struct is_comparable : public std::false_type {};
 
 template<typename T>
-struct is_comparable<T, std::void_t<decltype(std::declval<T>() == std::declval<T>())>> : public std::true_type {};
+struct is_comparable<T, tinyrefl::meta::void_t<decltype(std::declval<T>() == std::declval<T>())>> : public std::true_type {};
 
 template<typename Class, typename Visitor, std::size_t Depth, entity ClassKind>
 tinyrefl::meta::enable_if_t<!std::is_class<Class>::value || !has_metadata<Class>()>
@@ -363,10 +363,15 @@ auto visit_objects_member_variables(Class&&... objects)
 {
     return [objects = std::forward_as_tuple(std::forward<Class>(objects)...)](auto... visitors)
     {
-        return visit_objects(objects, [visitors](const auto& name, auto /* depth */, auto&& entities, CTTI_STATIC_VALUE(entity::MEMBER_VARIABLE))
+        auto make_visitor = [](auto visitor)
         {
-            visitors(name, entities);
-        }...);
+            return [visitor](const auto& name, auto /* depth */, auto&& entities, CTTI_STATIC_VALUE(entity::MEMBER_VARIABLE))
+            {
+                visitor(name, entities);
+            };
+        };
+
+        return visit_objects(objects, make_visitor(visitors)...);
     };
 }
 
