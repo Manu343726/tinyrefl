@@ -1,3 +1,6 @@
+#ifndef TINYREFL_EXAMPLES_HANA_HPP
+#define TINYREFL_EXAMPLES_HANA_HPP
+
 #include <boost/hana.hpp>
 
 #ifndef TINYREFL_PP_UNWRAP
@@ -18,16 +21,4 @@
 #define TINYREFL_REFLECT_CLASS(classname, bases, members, classes, enums) \
     BOOST_HANA_ADAPT_STRUCT(classname, TINYREFL_PP_UNWRAP members);
 
-#include "example.hpp"
-#include "example.hpp.tinyrefl"
-#include <iostream>
-
-int main()
-{
-    example::C c;
-
-    boost::hana::for_each(c, boost::hana::fuse([](auto name, auto member)
-    {
-        std::cout << boost::hana::to<const char*>(name) << ": " << member << std::endl;
-    }));
-}
+#endif // TINYREFL_EXAMPLES_HANA_HPP
