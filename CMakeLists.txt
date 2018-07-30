@@ -1,9 +1,15 @@
 cmake_minimum_required(VERSION 3.0)
 project(tinyrefl)
 
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    set(TINYREFL_IS_ROOT_PROJECT TRUE)
+else()
+    set(TINYREFL_IS_ROOT_PROJECT FALSE)
+endif()
+
 option(TINYREFL_USE_LOCAL_LLVM "Use local LLVM install instead of downloading LLVM" OFF)
-option(TINYREFL_BUILD_TESTS "Build tinyrefl tests" OFF)
-option(TINYREFL_BUILD_EXAMPLES "Build tinyrefl examples" OFF)
+option(TINYREFL_BUILD_TESTS "Build tinyrefl tests" ${TINYREFL_IS_ROOT_PROJECT})
+option(TINYREFL_BUILD_EXAMPLES "Build tinyrefl examples" ${TINYREFL_IS_ROOT_PROJECT})
 
 if(NOT DEFINED TINYREFL_LLVM_VERSION)
     set(TINYREFL_LLVM_VERSION "4.0.0")
@@ -31,7 +37,6 @@ add_subdirectory(external)
 add_subdirectory(src)
 add_subdirectory(tool)
 
-option(TINYREFL_BUILD_TESTS "Build unit tests" OFF)
 if(TINYREFL_BUILD_TESTS)
     include(cmake/ctest_setup.cmake)
     add_subdirectory(tests)
@@ -41,7 +46,7 @@ if(TINYREFL_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+if(TINYREFL_IS_ROOT_PROJECT)
     message(STATUS "Generate vim YCM config file for tinyrefl at ${TINYREFL_SOURCE_DIR} ...")
     configure_file(
         ${TINYREFL_SOURCE_DIR}/.ycm_extra_conf.py.in
