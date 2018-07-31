@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 project(tinyrefl)
 
+include (CheckCXXCompilerFlag)
+
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     set(TINYREFL_IS_ROOT_PROJECT TRUE)
 else()
@@ -18,7 +20,13 @@ endif()
 set(CMAKE_CXX_STANDARD 14)
 
 if(NOT MSVC)
-    set(CMAKE_CXX_FLAGS "-Wall -Werror -Wno-attributes")
+    check_cxx_compiler_flag("-Wnoexcept-type" HAS_NOEXCEPT_ABI_WARNING)
+
+    if(HAS_NOEXCEPT_ABI_WARNING)
+        set(no_noexcept_abi_warning "-Wno-noexcept-type")
+    endif()
+
+    set(CMAKE_CXX_FLAGS "-Wall -Werror -Wno-attributes ${no_noexcept_abi_warning}")
 endif()
 
 set(TINYREFL_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "")
