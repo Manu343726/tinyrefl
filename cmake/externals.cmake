@@ -21,6 +21,7 @@ macro(external_dependency NAME URL COMMIT)
             PROJ "${NAME}"
             GIT_REPOSITORY "${URL}"
             GIT_TAG "${COMMIT}"
+            UPDATE_DISCONNECTED 1
         )
         add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
         set(${NAME}_SOURCE_DIR "${${NAME}_SOURCE_DIR}" CACHE PATH "")
