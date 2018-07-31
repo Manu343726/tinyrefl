@@ -253,15 +253,28 @@ auto overloaded_function(Functions... functions)
     return overloaded_function_t<Functions...>{functions...};
 }
 
+namespace detail
+{
+
+template<typename Function>
+struct function_fallback
+{
+    template<typename... Args>
+    constexpr auto operator()(Args&&... args) const -> std::enable_if_t<
+        !tinyrefl::detail::is_invokable<Function, tinyrefl::meta::list<decltype(std::forward<Args>(args))...>>::value
+    >
+    {}
+};
+
+}
+
 template<typename... Functions>
 auto overloaded_function_default(Functions... functions)
 {
     using overloaded_t = overloaded_function_t<Functions...>;
     return overloaded_function(
         functions...,
-        [](auto&&... args) -> tinyrefl::meta::enable_if_t<
-            !tinyrefl::detail::is_invokable<overloaded_t, tinyrefl::meta::list<decltype(args)...>>::value
-        >{}
+        tinyrefl::detail::function_fallback<overloaded_t>{}
     );
 }
 
