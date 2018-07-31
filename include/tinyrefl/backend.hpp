@@ -610,7 +610,7 @@ struct enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes> : public m
     };
 
     using values_array = std::array<value_t, values::size>;
-    static constexpr values_array enum_values = {value_t{Values{}}...};
+    static constexpr values_array enum_values = {{value_t{Values{}}...}};
     static constexpr value_t invalid_value = value_t{enum_type{}, "invalid enum value", dummy_metadata_with_attributes{}.get_attributes()};
 
     constexpr enum_() = default;
