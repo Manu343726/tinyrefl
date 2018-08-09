@@ -19,6 +19,7 @@
 #include <cppfs/fs.h>
 #include <cppfs/FileHandle.h>
 #include <llvm/Support/CommandLine.h>
+
 namespace cl = llvm::cl;
 
 bool is_outdated_file(const std::string& file)
@@ -480,7 +481,7 @@ std::istream& operator>>(std::istream& is, compile_definition& compile_definitio
     return is;
 }
 
-bool reflect_file(const std::string& filepath, const cppast::cpp_standard cpp_standard, cl::list<std::string>& include_dirs, cl::list<std::string>& definitions, const std::vector<std::string>& custom_flags)
+bool reflect_file(const std::string& filepath, const cppast::cpp_standard cpp_standard, cl::list<std::string>& include_dirs, cl::list<std::string>& definitions, cl::list<std::string>& warnings, const std::vector<std::string>& custom_flags)
 {
     using parser_t = cppast::simple_file_parser<cppast::libclang_parser>;
 
@@ -532,12 +533,24 @@ bool reflect_file(const std::string& filepath, const cppast::cpp_standard cpp_st
         }
     }
 
+    for(const std::string& warning : warnings)
+    {
+        auto warning_flag = "-W" + warning;
+        std::cout << warning_flag << " ";
+        config.add_flag(warning_flag);
+    }
+
     for(const auto& flag : custom_flags)
     {
         std::cout << flag << " ";
         config.add_flag(flag);
     }
 
+
+    // Tell libclang to ignore unknown arguments
+    std::cout << " -Qunused-arguments -Wno-unknown-warning-option";
+    config.add_flag("-Qunused-arguments");
+    config.add_flag("-Wno-unknown-warning-option");
     std::cout << " ...\n";
 
     try
@@ -566,6 +579,7 @@ int main(int argc, char** argv)
     cl::opt<std::string>          filename{cl::Positional, cl::desc("<input header>"), cl::Required};
     cl::list<std::string>         includes{"I", cl::Prefix, cl::ValueOptional, cl::desc("Include directories")};
     cl::list<std::string>         definitions{"D", cl::Prefix, cl::ValueOptional, cl::desc("Compile definitions")};
+    cl::list<std::string>         warnings{"W", cl::Prefix, cl::ValueOptional, cl::desc("Warnings")};
     cl::opt<cppast::cpp_standard> stdversion{"std", cl::desc("C++ standard"), cl::values(
         clEnumValN(cppast::cpp_standard::cpp_98, "c++98", "C++ 1998 standard"),
         clEnumValN(cppast::cpp_standard::cpp_03, "c++03", "C++ 2003 standard"),
@@ -577,7 +591,7 @@ int main(int argc, char** argv)
 
     if(cl::ParseCommandLineOptions(argc, argv, "Tinyrefl codegen tool"))
     {
-        if(reflect_file(filename, stdversion, includes, definitions, custom_flags))
+        if(reflect_file(filename, stdversion, includes, definitions, warnings, custom_flags))
         {
             return 0;
         }
