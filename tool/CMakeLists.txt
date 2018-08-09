@@ -1,9 +1,6 @@
-add_subdirectory(external)
-require_targets(cppast cppfs)
-
-message(STATUS "FMT_SOURCE_DIR: ${fmt-header-only_SOURCE_DIR}")
 
 if(TINYREFL_CROSS_BUILDING)
+    message(STATUS "Cross-building tinyrefl, host-build tinyrefl-tool")
     include(ExternalProject)
 
     set(srcdir ${CMAKE_CURRENT_LIST_DIR})
@@ -38,6 +35,9 @@ else()
         project(tinyrefl-tool)
         set(CMAKE_CXX_STANDARD 14)
     endif()
+
+    add_subdirectory(external)
+    require_targets(cppast cppfs)
 
     # LLVM releases are compiled with old GCC ABI and RTTI disabled
     if(NOT TINYREFL_USE_LOCAL_LLVM)

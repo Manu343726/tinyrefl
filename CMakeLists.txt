@@ -41,16 +41,21 @@ else()
     set(TINYREFL_CROSS_BUILDING OFF CACHE BOOL "")
 endif()
 
+message(STATUS "Configuring tinyrefl external dependencies...")
 add_subdirectory(external)
+message(STATUS "Configuring tinyrefl library...")
 add_subdirectory(src)
+message(STATUS "Configuring tinyrefl tool...")
 add_subdirectory(tool)
 
-if(TINYREFL_BUILD_TESTS)
+if(TINYREFL_BUILD_TESTS AND NOT TINYREFL_CROSS_BUILDING)
     include(cmake/ctest_setup.cmake)
+    message(STATUS "Configuring tinyrefl tests...")
     add_subdirectory(tests)
 endif()
 
 if(TINYREFL_BUILD_EXAMPLES)
+    message(STATUS "Configuring tinyrefl examples...")
     add_subdirectory(examples)
 endif()
 
