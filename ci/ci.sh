@@ -33,5 +33,8 @@ cmake $SOURCE_DIR -G $GENERATOR \
         -DCMAKE_VERBOSE_MAKEFILE=ON
 
 cmake --build .
-ctest . -V
-./examples/tinyrefl-example
+
+if [ "$CROSS_BUILDING" != "YES" ]; then
+    ctest . -V
+    ./examples/tinyrefl-example
+fi
