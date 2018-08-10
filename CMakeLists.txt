@@ -10,6 +10,7 @@ else()
 endif()
 
 option(TINYREFL_USE_LOCAL_LLVM "Use local LLVM install instead of downloading LLVM" OFF)
+option(TINYREFL_LLVM_DOWNLOAD_FROM_OFFICIAL_SERVER "Download LLVM from official LLVM server instead of artifactory" OFF)
 option(TINYREFL_BUILD_TESTS "Build tinyrefl tests" ${TINYREFL_IS_ROOT_PROJECT})
 option(TINYREFL_BUILD_EXAMPLES "Build tinyrefl examples" ${TINYREFL_IS_ROOT_PROJECT})
 
