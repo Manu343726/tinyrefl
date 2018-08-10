@@ -56,6 +56,7 @@ if(TINYREFL_BUILD_TESTS AND NOT TINYREFL_CROSS_BUILDING)
 endif()
 
 if(TINYREFL_BUILD_EXAMPLES)
+    include(cmake/ctest_setup.cmake)
     message(STATUS "Configuring tinyrefl examples...")
     add_subdirectory(examples)
 endif()

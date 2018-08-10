@@ -12,4 +12,8 @@ function(add_tinyrefl_test NAME)
     endif()
 endfunction()
 
+function(add_tinyrefl_example NAME)
+    add_tinyrefl_test(${NAME} ${ARGN})
+endfunction()
+
 enable_testing()

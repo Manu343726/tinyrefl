@@ -36,5 +36,4 @@ cmake --build .
 
 if [ "$CROSS_BUILDING" != "YES" ]; then
     ctest . -V
-    ./examples/tinyrefl-example
 fi
