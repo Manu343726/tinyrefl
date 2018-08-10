@@ -21,7 +21,7 @@ echo LLVM version: $LLVM_VERSION
 echo Generator: $GENERATOR
 
 if [ "$CROSS_BUILDING" == "YES" ]; then
-    toolchain="-DCMAKE_TOOLCHAIN_FILE=\"/usr/share/toolchain.cmake\""
+    toolchain="-DCMAKE_TOOLCHAIN_FILE=/usr/share/toolchain.cmake"
 else
     toolchain=""
 fi
