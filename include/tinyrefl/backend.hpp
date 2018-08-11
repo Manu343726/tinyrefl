@@ -400,7 +400,8 @@ struct constructor<Class(Args...), Attributes> : public metadata_with_attributes
 
 template<
     typename BaseClasses,
-    typename Members,
+    typename MemberFunctions,
+    typename MemberVariables,
     typename Classes,
     typename Enums,
     typename Attributes = tinyrefl::meta::list<>
@@ -421,9 +422,9 @@ private:
 public:
     static constexpr entity_kind kind = entity_kind::CLASS;
     using base_classes = BaseClasses;
-    using members = Members;
-    using member_variables = tinyrefl::meta::filter_t<has_kind<entity_kind::MEMBER_VARIABLE>, members>;
-    using member_functions = tinyrefl::meta::filter_t<has_kind<entity_kind::MEMBER_FUNCTION>, members>;
+    using member_functions = MemberFunctions;
+    using member_variables = MemberVariables;
+    using members = tinyrefl::meta::cat_t<member_functions, member_variables>;
     using classes = Classes;
     using enums = Enums;
 

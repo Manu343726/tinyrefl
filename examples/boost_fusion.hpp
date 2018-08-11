@@ -46,7 +46,7 @@ using member_type_t = typename member_type<MemberPtr>::type;
 #define TINYREFL_ENUM_VALUE(name, fullname, type, value) // we don't care about enums
 #define TINYREFL_REFLECT_ENUM_VALUE(value) // we don't care about enums
 #define TINYREFL_REFLECT_ENUM(name, type, values) // we don't care about enums
-#define TINYREFL_REFLECT_CLASS(classname, bases, members, classes, enums) \
-    BOOST_FUSION_ADAPT_STRUCT(classname, TINYREFL_PP_UNWRAP members);
+#define TINYREFL_REFLECT_CLASS(classname, bases, member_functions, member_variables, classes, enums) \
+    BOOST_FUSION_ADAPT_STRUCT(classname, TINYREFL_PP_UNWRAP member_variables);
 
 #endif // TINYREFL_EXAMPLES_FUSION_HPP

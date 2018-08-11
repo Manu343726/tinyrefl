@@ -35,7 +35,7 @@ bool is_outdated_file(const std::string& file)
 static const std::string ATTRIBUTES_IGNORE = "tinyrefl::ignore";
 
 template<typename Seq>
-std::string sequence(const Seq& elems, const std::string& separator,
+std::string sequence(const Seq& elems, const std::string& separator = ", ",
         const std::string& prefix = "", const std::string& suffix = "")
 {
     std::ostringstream os;
@@ -51,6 +51,33 @@ std::string sequence(const Seq& elems, const std::string& separator,
     }
 
     return os.str();
+}
+
+struct function_signature_t
+{
+    std::string return_type;
+    std::string class_type;
+    std::vector<std::string> arguments;
+    std::string qualifiers;
+
+    bool is_member_function() const
+    {
+        return !class_type.empty();
+    }
+};
+
+std::ostream& operator<<(std::ostream& os, const function_signature_t& function_signature)
+{
+    if(function_signature.is_member_function())
+    {
+        return os << function_signature.return_type << "(" << function_signature.class_type
+                  << "::*)" << sequence(function_signature.arguments) << function_signature.qualifiers;
+    }
+    else
+    {
+        return os << function_signature.return_type
+                  << "(" << sequence(function_signature.arguments) << ")" << function_signature.qualifiers;
+    }
 }
 
 namespace cppast
@@ -256,7 +283,8 @@ bool is_unknown_entity(const cppast::cpp_entity& entity)
 
 void generate_class(std::ostream& os, const cppast::cpp_class& class_)
 {
-    std::vector<std::string> members;
+    std::vector<std::string> member_variables;
+    std::vector<std::string> member_functions;
     std::vector<std::string> base_classes;
     std::vector<std::string> enums;
     std::vector<std::string> classes;
@@ -279,11 +307,18 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
         switch(child.kind())
         {
             case cppast::cpp_entity_kind::member_function_t:
+            {
+                std::cout << "    - (member function) " << child.name() << " [attributes: "
+                          << sequence(child.attributes(), ", ", "\"", "\"") << "]\n";
+                member_functions.push_back(member_instance(child));
+                generate_member(os, child);
+                break;
+            }
             case cppast::cpp_entity_kind::member_variable_t:
             {
-                std::cout << "    - (member) " << child.name() << " [attributes: "
+                std::cout << "    - (member variable) " << child.name() << " [attributes: "
                           << sequence(child.attributes(), ", ", "\"", "\"") << "]\n";
-                members.push_back(member_instance(child));
+                member_variables.push_back(member_instance(child));
                 generate_member(os, child);
                 break;
             }
@@ -323,7 +358,9 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
     fmt::print(os, "TINYREFL_REFLECT_CLASS({}, \n"
 "// Base classes:\n"
 "{},\n"
-"// Members: \n"
+"// Member functions: \n"
+"{},\n"
+"// Member variables: \n"
 "{},\n"
 "// Member classes: \n"
 "{},\n"
@@ -332,7 +369,8 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
 ")\n",
         type_reference(class_),
         typelist(base_classes),
-        typelist(members),
+        typelist(member_functions),
+        typelist(member_variables),
         typelist(classes),
         typelist(enums)
     );
