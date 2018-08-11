@@ -229,10 +229,28 @@ std::string enum_value(const cppast::cpp_enum_value& enum_value)
         type_reference(enum_value.parent().value()), value(string(full_qualified_name(enum_value))));
 }
 
-std::string member_pointer(const cppast::cpp_entity& member)
+std::string member_pointer(const cppast::cpp_entity& member, const std::string& pointer)
 {
     return fmt::format("TINYREFL_MEMBER({}, {}, {}, {})",
-        string_constant(member.name()), string_constant(full_qualified_name(member)), type_reference(member.parent().value()), value(string("&" + full_qualified_name(member))));
+        string_constant(member.name()), string_constant(full_qualified_name(member)), type_reference(member.parent().value()), value(string(pointer)));
+}
+
+std::string member_pointer(const cppast::cpp_entity& member)
+{
+    return member_pointer(member, "&" + full_qualified_name(member));
+}
+
+std::string member_pointer(const cppast::cpp_member_function& function)
+{
+    assert(function.parent().has_value());
+
+    return member_pointer(static_cast<const cppast::cpp_entity&>(function),
+        fmt::format("static_cast<{}({}::*){}>(&{})",
+        cppast::to_string(function.return_type()),
+        full_qualified_name(function.parent().value()),
+        function.signature(),
+        full_qualified_name(function)
+    ));
 }
 
 std::string string_literal(const std::string& str)
@@ -245,12 +263,18 @@ std::string typelist_string(const std::string& str)
     return fmt::format("tinyrefl::meta::string<{}>", sequence(str, ", ", "'", "'"));
 }
 
-std::string member_instance(const cppast::cpp_entity& member)
+std::string member_instance(const cppast::cpp_member_variable& member)
 {
     return member_pointer(member);
 }
 
-void generate_member(std::ostream& os, const cppast::cpp_entity& member)
+std::string member_instance(const cppast::cpp_member_function& function)
+{
+    return member_pointer(function);
+}
+
+template<typename Entity>
+void generate_member(std::ostream& os, const Entity& member)
 {
     fmt::print(os, "TINYREFL_REFLECT_MEMBER({})\n", member_pointer(member));
 }
@@ -308,17 +332,18 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
         {
             case cppast::cpp_entity_kind::member_function_t:
             {
-                std::cout << "    - (member function) " << child.name() << " [attributes: "
+                std::cout << "    - (member function) " << child.name()
+                          << " (signature: " << static_cast<const cppast::cpp_member_function&>(child).signature() << ")" << " [attributes: "
                           << sequence(child.attributes(), ", ", "\"", "\"") << "]\n";
-                member_functions.push_back(member_instance(child));
-                generate_member(os, child);
+                member_functions.push_back(member_instance(static_cast<const cppast::cpp_member_function&>(child)));
+                generate_member(os, static_cast<const cppast::cpp_member_function&>(child));
                 break;
             }
             case cppast::cpp_entity_kind::member_variable_t:
             {
                 std::cout << "    - (member variable) " << child.name() << " [attributes: "
                           << sequence(child.attributes(), ", ", "\"", "\"") << "]\n";
-                member_variables.push_back(member_instance(child));
+                member_variables.push_back(member_instance(static_cast<const cppast::cpp_member_variable&>(child)));
                 generate_member(os, child);
                 break;
             }

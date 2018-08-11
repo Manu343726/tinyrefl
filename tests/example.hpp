@@ -15,6 +15,10 @@ class MyClass : public BaseClass, public my_namespace::Foo
 {
 public:
     void f(int i) {(void)i;}
+    void overloaded() const {};
+    void overloaded() {};
+    void overloaded(int) const {};
+    void overloaded(int) {};
 
     std::string str;
 

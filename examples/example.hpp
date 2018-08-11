@@ -29,6 +29,11 @@ public:
     std::string hey_im_here = "hey, I'm here";
     B subobject;
 
+    void f(int a, int b) const {};
+    void f(int a, int b) {};
+    void f() {};
+    void f() const {};
+
     enum class Enum
     {
         A, B, C, D, E, F, G

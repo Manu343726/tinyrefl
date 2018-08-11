@@ -24,6 +24,15 @@ TEST_CASE("tinyrefl api")
 
         REQUIRE(tinyrefl::meta::get_t<0, Metadata::members>::value == &my_namespace::MyClass::f);
         REQUIRE(!tinyrefl::has_attribute<my_namespace::MyClass>("foo"));
+
+        SECTION("overloaded functions are exposed as different member functions")
+        {
+            static_assert(Metadata::member_functions::size == 5, "Expected 5 member functions (1 'f' and 4 'overloaded'");
+            REQUIRE(tinyrefl::meta::get_t<1, Metadata::member_functions>::value == static_cast<void(my_namespace::MyClass::*)() const>(&my_namespace::MyClass::overloaded));
+            REQUIRE(tinyrefl::meta::get_t<2, Metadata::member_functions>::value == static_cast<void(my_namespace::MyClass::*)()>(&my_namespace::MyClass::overloaded));
+            REQUIRE(tinyrefl::meta::get_t<3, Metadata::member_functions>::value == static_cast<void(my_namespace::MyClass::*)(int) const>(&my_namespace::MyClass::overloaded));
+            REQUIRE(tinyrefl::meta::get_t<4, Metadata::member_functions>::value == static_cast<void(my_namespace::MyClass::*)(int)>(&my_namespace::MyClass::overloaded));
+        }
     }
 
     SECTION("visit class")
