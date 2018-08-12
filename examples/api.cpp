@@ -131,6 +131,24 @@ int main()
     std::cout << "enum to string: " << tinyrefl::metadata<example::Enum>().get_value(example::Enum::A).name() << "\n";
     constexpr example::Enum enum_value_a = tinyrefl::metadata<example::Enum>().get_value("A").value();
     (void)enum_value_a;
+
+    /*
+     * All entities have metadata about user defined attributes
+     * All queries can be done at compile time
+     */
+
+    using f = tinyrefl::static_value<void(example::C::*)(int, int) const, &example::C::f>;
+    using f_metadata = tinyrefl::metadata<f>;
+
+    static_assert(tinyrefl::has_attribute<f>("f"), "Expected [[f]]");
+
+    for(const auto& attribute : f_metadata().get_attributes())
+    {
+        std::cout << "f() was tagged with attribute [[" << attribute.full_attribute << "]]\n";
+    }
+
+    static_assert(tinyrefl::has_attribute<TINYREFL_STATIC_VALUE(example::C::Enum::A)>("A"), "Expected [[A]] attribute");
+    static_assert(tinyrefl::metadata<TINYREFL_STATIC_VALUE(example::C::Enum::A)>().get_attribute(0) == "A", "Expected [[A]] as first attribute");
 }
 
 

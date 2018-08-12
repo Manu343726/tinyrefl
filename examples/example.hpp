@@ -31,19 +31,19 @@ public:
 
     C() = default;
     explicit C(const std::string& str) {}
-    C(int a, int b) {}
+    [[C]] C(int a, int b) {}
 
-    void f(int a, int b) const {};
-    void f(int a, int b) {};
-    void f() {};
-    void f() const {};
+    [[f, f1, f2]] void f(int a, int b) const {};
+    [[f]] void f(int a, int b) {};
+    [[f]] void f() {};
+    [[f]] void f() const {};
 
     enum class Enum
     {
-        A, B, C, D, E, F, G
+        A [[A]], B [[B]], C [[C]], D [[D]], E [[E]], F [[F]], G [[G]]
     };
 
-    Enum e = Enum::A;
+    [[e]] Enum e = Enum::A;
 };
 
 std::ostream& operator<<(std::ostream& os, const B& b);
