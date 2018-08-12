@@ -14,6 +14,10 @@ struct Foo
 class MyClass : public BaseClass, public my_namespace::Foo
 {
 public:
+    MyClass() = default;
+    MyClass(int, int) {}
+    MyClass(std::vector<std::string>) {}
+
     void f(int i) {(void)i;}
     void overloaded() const {};
     void overloaded() {};

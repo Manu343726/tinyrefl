@@ -41,6 +41,13 @@ R"========(
     #define TINYREFL_ENUM_VALUE(...)
 #endif // TINYREFL_ENUM_VALUE
 
+#ifndef TINYREFL_CONSTRUCTOR
+    #warning "The TINYREFL_CONSTRUCTOR(...) macro is not defined. A definition of this macro is required by tinyrefl to model class constructors"
+    #warning "Tinyrefl will define an empty TINYREFL_CONSTRUCTOR() macro for you, but this would mean the metadata of your types could end up being incomplete"
+
+    #define TINYREFL_CONSTRUCTOR(...)
+#endif // TINYREFL_CONSTRUCTOR
+
 #ifndef TINYREFL_MEMBER_FUNCTION
     #warning "The TINYREFL_MEMBER_FUNCTION(...) macro is not defined. A definition of this macro is required by tinyrefl to model member functions"
     #warning "Tinyrefl will define an empty TINYREFL_MEMBER_FUNCTION() macro for you, but this would mean the metadata of your types could end up being incomplete"

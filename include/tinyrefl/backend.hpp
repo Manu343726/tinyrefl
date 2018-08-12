@@ -56,6 +56,7 @@ enum class entity_kind
     MEMBER_VARIABLE,
     MEMBER_CLASS,
     MEMBER_FUNCTION,
+    CONSTRUCTOR,
     MEMBER_ENUM,
     OBJECT
 };
@@ -76,6 +77,8 @@ inline std::ostream& operator<<(std::ostream& os, const entity_kind e)
         return os << "base_class";
     case entity_kind::MEMBER_FUNCTION:
         return os << "member function";
+    case entity_kind::CONSTRUCTOR:
+        return os << "constructor";
     case entity_kind::MEMBER_VARIABLE:
         return os << "member variable";
     case entity_kind::MEMBER_CLASS:
@@ -367,15 +370,18 @@ struct member : public Pointer, public metadata_with_attributes<Attributes>
 template<ctti::detail::hash_t Name, typename Pointer, typename Attributes>
 constexpr ctti::name_t member<Name, Pointer, Attributes>::name;
 
-template<typename Signature, typename Attributes = tinyrefl::meta::list<>>
+template<ctti::detail::hash_t Name, typename Class, typename Args, typename Attributes = tinyrefl::meta::list<>>
 struct constructor;
 
-template<typename Class, typename... Args, typename Attributes>
-struct constructor<Class(Args...), Attributes> : public metadata_with_attributes<Attributes>
+template<ctti::detail::hash_t Name, typename Class, typename... Args, typename Attributes>
+struct constructor<Name, Class, tinyrefl::meta::list<Args...>, Attributes> : public metadata_with_attributes<Attributes>
 {
     using class_type = Class;
     using args = tinyrefl::meta::list<Args...>;
     using decayed_args = tinyrefl::meta::list<tinyrefl::meta::decay_t<Args>...>;
+
+    static constexpr ctti::detail::cstring name = tinyrefl::backend::string_constant<Name>();
+    static constexpr entity_kind kind = entity_kind::CONSTRUCTOR;
 
     constexpr constructor() = default;
 
@@ -398,8 +404,12 @@ struct constructor<Class(Args...), Attributes> : public metadata_with_attributes
     }
 };
 
+template<ctti::detail::hash_t Name, typename Class, typename... Args, typename Attributes>
+constexpr ctti::detail::cstring constructor<Name, Class, tinyrefl::meta::list<Args...>, Attributes>::name;
+
 template<
     typename BaseClasses,
+    typename Constructors,
     typename MemberFunctions,
     typename MemberVariables,
     typename Classes,
@@ -422,6 +432,7 @@ private:
 public:
     static constexpr entity_kind kind = entity_kind::CLASS;
     using base_classes = BaseClasses;
+    using constructors = Constructors;
     using member_functions = MemberFunctions;
     using member_variables = MemberVariables;
     using members = tinyrefl::meta::cat_t<member_functions, member_variables>;
@@ -739,8 +750,9 @@ constexpr typename enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes
 #define TINYREFL_SEQUENCE(elems) ::tinyrefl::meta::list<TINYREFL_PP_UNWRAP elems>
 #define TINYREFL_TYPE(name, fullname) fullname
 #define TINYREFL_VALUE(type, value) ::ctti::static_value<type, value>
-#define TINYREFL_MEMBER_VARIABLE(name, fullname, parent_class_type, value_type, pointer) ::tinyrefl::backend::member<fullname, pointer>
+#define TINYREFL_CONSTRUCTOR(name, fullname, class_type, signature) ::tinyrefl::backend::constructor<name, class_type, signature>
 #define TINYREFL_MEMBER_FUNCTION(name, fullname, parent_class_type, return_type, signature, pointer) ::tinyrefl::backend::member<fullname, pointer>
+#define TINYREFL_MEMBER_VARIABLE(name, fullname, parent_class_type, value_type, pointer) ::tinyrefl::backend::member<fullname, pointer>
 #define TINYREFL_ENUM_VALUE(name, fullname, type, value) ::tinyrefl::backend::enum_value<fullname, value>
 
 #define TINYREFL_REFLECT_MEMBER(member)                  \

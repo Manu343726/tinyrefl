@@ -41,13 +41,14 @@ using member_type_t = typename member_type<MemberPtr>::type;
 #define TINYREFL_STRING(...) __VA_ARGS__
 #define TINYREFL_TYPE(name, fullname) fullname
 #define TINYREFL_VALUE(type, value) // We don't care about values (pointers to members, enums, etc)
+#define TINYREFL_CONSTRUCTOR(name, fullname, class_type, signature) // We don't care about ctors
 #define TINYREFL_MEMBER_FUNCTION(name, fullname, parent_class_type, return_type, signature, pointer) // we don't care about member functions
 #define TINYREFL_MEMBER_VARIABLE(name, fullname, parent_class_type, value_type, pointer) (value_type, name)
 #define TINYREFL_REFLECT_MEMBER(member) // we don't care about per-member metadata
 #define TINYREFL_ENUM_VALUE(name, fullname, type, value) // we don't care about enums
 #define TINYREFL_REFLECT_ENUM_VALUE(value) // we don't care about enums
 #define TINYREFL_REFLECT_ENUM(name, type, values) // we don't care about enums
-#define TINYREFL_REFLECT_CLASS(classname, bases, member_functions, member_variables, classes, enums) \
+#define TINYREFL_REFLECT_CLASS(classname, bases, constructors, member_functions, member_variables, classes, enums) \
     BOOST_FUSION_ADAPT_STRUCT(classname, TINYREFL_PP_UNWRAP member_variables);
 
 #endif // TINYREFL_EXAMPLES_FUSION_HPP

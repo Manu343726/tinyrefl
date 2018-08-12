@@ -29,6 +29,10 @@ public:
     std::string hey_im_here = "hey, I'm here";
     B subobject;
 
+    C() = default;
+    explicit C(const std::string& str) {}
+    C(int a, int b) {}
+
     void f(int a, int b) const {};
     void f(int a, int b) {};
     void f() {};

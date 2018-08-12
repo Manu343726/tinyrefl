@@ -33,6 +33,15 @@ TEST_CASE("tinyrefl api")
             REQUIRE(tinyrefl::meta::get_t<3, Metadata::member_functions>::value == static_cast<void(my_namespace::MyClass::*)(int) const>(&my_namespace::MyClass::overloaded));
             REQUIRE(tinyrefl::meta::get_t<4, Metadata::member_functions>::value == static_cast<void(my_namespace::MyClass::*)(int)>(&my_namespace::MyClass::overloaded));
         }
+
+        SECTION("User declared constructors are reflected")
+        {
+            static_assert(Metadata::constructors::size == 3, "Expected three user declared constructors");
+
+            REQUIRE(tinyrefl::meta::get_t<0, Metadata::constructors>::name == "MyClass()");
+            REQUIRE(tinyrefl::meta::get_t<1, Metadata::constructors>::name == "MyClass(int,int)");
+            REQUIRE(tinyrefl::meta::get_t<2, Metadata::constructors>::name == "MyClass(std::vector<std::string>)");
+        }
     }
 
     SECTION("visit class")

@@ -181,6 +181,16 @@ visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<e
             tinyrefl::type_tag<Class>(),
             CTTI_STATIC_VALUE(ClassKind)());
 
+    tinyrefl::meta::foreach<typename metadata<Class>::constructors>([visitor](auto Ctor, auto /* Index */)
+    {
+        using ctor = typename decltype(Ctor)::type;
+
+        visitor(ctor::name.str(),
+                tinyrefl::meta::size_t<Depth>(),
+                ctor(),
+                CTTI_STATIC_VALUE(entity::CONSTRUCTOR)());
+    });
+
     tinyrefl::meta::foreach<typename metadata<Class>::member_variables>([visitor](auto Member, auto /* Index */)
     {
         using member = typename decltype(Member)::type;

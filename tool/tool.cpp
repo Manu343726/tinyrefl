@@ -372,6 +372,16 @@ bool is_unknown_entity(const cppast::cpp_entity& entity)
     return false;
 }
 
+std::string constructor(const cppast::cpp_constructor& ctor)
+{
+    return fmt::format("TINYREFL_CONSTRUCTOR({}, {}, {}, TINYREFL_SEQUENCE({}))",
+        string_constant(ctor.parent().value().name() + ctor.signature()),
+        string_constant(full_qualified_name(ctor.parent().value()) + ctor.signature()),
+        type_reference(ctor.parent().value()),
+        ctor.signature()
+    );
+}
+
 void generate_class(std::ostream& os, const cppast::cpp_class& class_)
 {
     std::vector<std::string> member_variables;
@@ -379,6 +389,7 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
     std::vector<std::string> base_classes;
     std::vector<std::string> enums;
     std::vector<std::string> classes;
+    std::vector<std::string> constructors;
 
     std::cout << " # " << full_qualified_name(class_) << " [attributes: "
                 << sequence(class_.attributes(), ", ", "\"", "\"") << "]\n";
@@ -433,6 +444,17 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
                 enums.push_back(full_qualified_name(child));
                 break;
             }
+            case cppast::cpp_entity_kind::constructor_t:
+            {
+                const auto& ctor = static_cast<const cppast::cpp_constructor&>(child);
+
+                std::cout << "    - (constructor) "
+                          << " (signature: " << ctor.signature() << ")" << " [attributes: "
+                          << sequence(child.attributes(), ", ", "\"", "\"") << "]\n";
+
+                constructors.push_back(constructor(ctor));
+                break;
+            }
             default:
                 break;
         }
@@ -450,6 +472,8 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
     fmt::print(os, "TINYREFL_REFLECT_CLASS({}, \n"
 "// Base classes:\n"
 "{},\n"
+"// Constructors:\n"
+"{},\n"
 "// Member functions: \n"
 "{},\n"
 "// Member variables: \n"
@@ -461,6 +485,7 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
 ")\n",
         type_reference(class_),
         typelist(base_classes),
+        typelist(constructors),
         typelist(member_functions),
         typelist(member_variables),
         typelist(classes),
