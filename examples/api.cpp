@@ -22,7 +22,7 @@ std::ostream& operator<<(std::ostream& os, const T& object)
 
     // The visitor filters entities on the fly, so there's no direct way to get the total number
     // of entities. Instead, we run a dummy visit first to do the count...
-    tinyrefl::visit_object(object, [&total](const std::string& /* name */, auto /* depth */, auto /* member */, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+    tinyrefl::visit_object(object, [&total](const std::string& /* name */, auto /* depth */, auto /* member */, TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
     {
         total++;
     });
@@ -40,7 +40,7 @@ std::ostream& operator<<(std::ostream& os, const T& object)
      * Since the API uses overload resolution to control the visitor behavior, to support multiple kinds of entities in the same call to visit_object()
      * users just have to pass an overloaded visitor function with different filters.
      */
-    tinyrefl::visit_object(object, [&os, &current, total](const std::string& name, auto /* depth */, auto member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+    tinyrefl::visit_object(object, [&os, &current, total](const std::string& name, auto /* depth */, auto member, TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
     {
         // Since we're using MEMBER_VARIABLE as filter, the entity parameter, 'auto member' here, is
         // a reference to the current member variable of the original object
@@ -80,7 +80,7 @@ bool operator==(const T& lhs, const T& rhs)
      * arbitrary number of objects `first.
      */
     tinyrefl::visit_objects(lhs, rhs)([&equal](const std::string& /* name */, auto /* depth */, auto members,
-        CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+        TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
     {
         equal &= std::get<0>(members) == std::get<1>(members);
     });

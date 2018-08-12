@@ -9,6 +9,8 @@
 #include <cassert>
 #include <algorithm>
 
+#define TINYREFL_STATIC_VALUE(...) CTTI_STATIC_VALUE(__VA_ARGS__)
+
 namespace tinyrefl
 {
 
@@ -161,7 +163,7 @@ visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<e
     visitor(tinyrefl::utils::type_name<Class>(),
             tinyrefl::meta::size_t<Depth>(),
             tinyrefl::type_tag<Class>(),
-            CTTI_STATIC_VALUE(ClassKind)());
+            TINYREFL_STATIC_VALUE(ClassKind)());
 }
 
 template<typename Class, typename Visitor, std::size_t Depth, entity ClassKind>
@@ -173,13 +175,13 @@ visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<e
     {
         using base_class = typename decltype(Base)::type;
 
-        tinyrefl::detail::visit_class<base_class>(visitor, tinyrefl::meta::size_t<Depth + 1>(), CTTI_STATIC_VALUE(entity::BASE_CLASS)());
+        tinyrefl::detail::visit_class<base_class>(visitor, tinyrefl::meta::size_t<Depth + 1>(), TINYREFL_STATIC_VALUE(entity::BASE_CLASS)());
     });
 
     visitor(tinyrefl::utils::type_name<Class>(),
             tinyrefl::meta::size_t<Depth>(),
             tinyrefl::type_tag<Class>(),
-            CTTI_STATIC_VALUE(ClassKind)());
+            TINYREFL_STATIC_VALUE(ClassKind)());
 
     tinyrefl::meta::foreach<typename metadata<Class>::constructors>([visitor](auto Ctor, auto /* Index */)
     {
@@ -188,7 +190,7 @@ visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<e
         visitor(ctor::name.str(),
                 tinyrefl::meta::size_t<Depth>(),
                 ctor(),
-                CTTI_STATIC_VALUE(entity::CONSTRUCTOR)());
+                TINYREFL_STATIC_VALUE(entity::CONSTRUCTOR)());
     });
 
     tinyrefl::meta::foreach<typename metadata<Class>::member_variables>([visitor](auto Member, auto /* Index */)
@@ -198,7 +200,7 @@ visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<e
         visitor(member::name.name().str(),
                 tinyrefl::meta::size_t<Depth>(),
                 member(),
-                CTTI_STATIC_VALUE(entity::MEMBER_VARIABLE)());
+                TINYREFL_STATIC_VALUE(entity::MEMBER_VARIABLE)());
     });
 
     tinyrefl::meta::foreach<typename metadata<Class>::member_functions>([visitor](auto Member, auto /* Index */)
@@ -208,7 +210,7 @@ visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<e
         visitor(member::name.name().str(),
                 tinyrefl::meta::size_t<Depth>(),
                 member(),
-                CTTI_STATIC_VALUE(entity::MEMBER_FUNCTION)());
+                TINYREFL_STATIC_VALUE(entity::MEMBER_FUNCTION)());
     });
 
     tinyrefl::meta::foreach<typename metadata<Class>::classes>([visitor](auto class_, auto /* Index */)
@@ -218,7 +220,7 @@ visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<e
         visitor(ctti::detailed_nameof<class_type>().name().str(),
                 tinyrefl::meta::size_t<Depth>(),
                 class_,
-                CTTI_STATIC_VALUE(entity::MEMBER_CLASS)());
+                TINYREFL_STATIC_VALUE(entity::MEMBER_CLASS)());
     });
 
     tinyrefl::meta::foreach<typename metadata<Class>::enums>([visitor](auto enum_, auto /* Index */)
@@ -228,7 +230,7 @@ visit_class(Visitor visitor, tinyrefl::meta::size_t<Depth>, ctti::static_value<e
         visitor(ctti::detailed_nameof<enum_type>().name().str(),
                 tinyrefl::meta::size_t<Depth>(),
                 enum_,
-                CTTI_STATIC_VALUE(entity::MEMBER_ENUM)());
+                TINYREFL_STATIC_VALUE(entity::MEMBER_ENUM)());
     });
 }
 
@@ -291,7 +293,7 @@ auto overloaded_function_default(Functions... functions)
 template<typename Class, typename... Visitors>
 void visit_class(Visitors... visitors)
 {
-    tinyrefl::detail::visit_class<Class>(tinyrefl::overloaded_function_default(visitors...), tinyrefl::meta::size_t<0>(), CTTI_STATIC_VALUE(entity::CLASS)());
+    tinyrefl::detail::visit_class<Class>(tinyrefl::overloaded_function_default(visitors...), tinyrefl::meta::size_t<0>(), TINYREFL_STATIC_VALUE(entity::CLASS)());
 }
 
 template<typename Class, typename... Visitors>
@@ -300,13 +302,13 @@ void visit_object(const Class& object, Visitors... visitors)
     auto visitor = tinyrefl::overloaded_function_default(visitors...);
 
     visit_class<typename std::decay<Class>::type>(
-        [&](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::BASE_CLASS))
+        [&](const std::string& name, auto depth, auto entity, TINYREFL_STATIC_VALUE(tinyrefl::entity::BASE_CLASS))
     {
-        visitor(name, depth, tinyrefl::detail::cast<typename decltype(entity)::type>(object), CTTI_STATIC_VALUE(tinyrefl::entity::OBJECT)());
+        visitor(name, depth, tinyrefl::detail::cast<typename decltype(entity)::type>(object), TINYREFL_STATIC_VALUE(tinyrefl::entity::OBJECT)());
     },
-        [&](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+        [&](const std::string& name, auto depth, auto entity, TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
     {
-        visitor(name, depth, entity.get(object), CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)());
+        visitor(name, depth, entity.get(object), TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)());
     });
 }
 
@@ -316,13 +318,13 @@ void visit_object(Class& object, Visitors... visitors)
     auto visitor = tinyrefl::overloaded_function_default(visitors...);
 
     visit_class<typename std::decay<Class>::type>(
-        [&](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::BASE_CLASS))
+        [&](const std::string& name, auto depth, auto entity, TINYREFL_STATIC_VALUE(tinyrefl::entity::BASE_CLASS))
     {
-        visitor(name, depth, tinyrefl::detail::cast<typename decltype(entity)::type>(object), CTTI_STATIC_VALUE(tinyrefl::entity::OBJECT)());
+        visitor(name, depth, tinyrefl::detail::cast<typename decltype(entity)::type>(object), TINYREFL_STATIC_VALUE(tinyrefl::entity::OBJECT)());
     },
-        [&](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+        [&](const std::string& name, auto depth, auto entity, TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
     {
-        visitor(name, depth, entity.get(object), CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)());
+        visitor(name, depth, entity.get(object), TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)());
     });
 }
 
@@ -332,22 +334,22 @@ auto visit_objects(const std::tuple<Class...>& objects, Visitors... visitors)
     auto visitor = tinyrefl::overloaded_function_default(visitors...);
 
     visit_class<typename std::decay<tinyrefl::meta::pack_head_t<Class...>>::type>(
-        [&objects, visitor](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::BASE_CLASS))
+        [&objects, visitor](const std::string& name, auto depth, auto entity, TINYREFL_STATIC_VALUE(tinyrefl::entity::BASE_CLASS))
     {
         visitor(
             name,
             depth,
             tinyrefl::detail::tuple_map(objects, [](auto&& object) -> decltype(auto) { return tinyrefl::detail::cast<typename decltype(entity)::type>(std::forward<decltype(object)>(object)); }),
-            CTTI_STATIC_VALUE(tinyrefl::entity::OBJECT)()
+            TINYREFL_STATIC_VALUE(tinyrefl::entity::OBJECT)()
         );
     },
-        [&objects, visitor](const std::string& name, auto depth, auto entity, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+        [&objects, visitor](const std::string& name, auto depth, auto entity, TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
     {
         visitor(
             name,
             depth,
             tinyrefl::detail::tuple_map(objects, [entity](auto&& object) -> decltype(auto) { return entity.get(std::forward<decltype(object)>(object)); }),
-            CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)()
+            TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)()
         );
     });
 }
@@ -364,7 +366,7 @@ auto visit_objects(Class&&... objects)
 template<typename Class, typename... Visitors>
 void visit_member_variables(const Class& object, Visitors... visitors)
 {
-    visit_object(object, [visitor = overloaded_function(visitors...)](const auto& name, auto /* depth */, const auto& member, CTTI_STATIC_VALUE(entity::MEMBER_VARIABLE))
+    visit_object(object, [visitor = overloaded_function(visitors...)](const auto& name, auto /* depth */, const auto& member, TINYREFL_STATIC_VALUE(entity::MEMBER_VARIABLE))
     {
         visitor(name, member);
     });
@@ -373,7 +375,7 @@ void visit_member_variables(const Class& object, Visitors... visitors)
 template<typename Class, typename... Visitors>
 void visit_member_variables(Class& object, Visitors... visitors)
 {
-    visit_object(object, [visitor = overloaded_function(visitors...)](const auto& name, auto /* depth */, auto& member, CTTI_STATIC_VALUE(entity::MEMBER_VARIABLE))
+    visit_object(object, [visitor = overloaded_function(visitors...)](const auto& name, auto /* depth */, auto& member, TINYREFL_STATIC_VALUE(entity::MEMBER_VARIABLE))
     {
         visitor(name, member);
     });
@@ -386,7 +388,7 @@ auto visit_objects_member_variables(Class&&... objects)
     {
         auto make_visitor = [](auto visitor)
         {
-            return [visitor](const auto& name, auto /* depth */, auto&& entities, CTTI_STATIC_VALUE(entity::MEMBER_VARIABLE))
+            return [visitor](const auto& name, auto /* depth */, auto&& entities, TINYREFL_STATIC_VALUE(entity::MEMBER_VARIABLE))
             {
                 visitor(name, entities);
             };
@@ -690,7 +692,7 @@ bool not_equal(Class&&... objects)
 
 #if !defined(TINYREFL_NO_REFLECTION_OPERATORS)
 #define $(...) ::tinyrefl::metadata<__VA_ARGS__>
-#define $$(...) ::tinyrefl::metadata<CTTI_STATIC_VALUE(__VA_ARGS__)>
+#define $$(...) ::tinyrefl::metadata<TINYREFL_STATIC_VALUE(__VA_ARGS__)>
 #endif // TINYREFL_NO_REFLECTION_OPERATORS
 
 #endif // TINYREFL_API_HPP

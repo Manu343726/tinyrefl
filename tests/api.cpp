@@ -218,14 +218,14 @@ TEST_CASE("tinyrefl api")
 
         SECTION("visit member variables only")
         {
-            test(CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)(), {
+            test(TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)(), {
                 "str", "innerClassInstance", "vector", "enum_value"
             });
         }
 
         SECTION("visit subobjects only")
         {
-            test(CTTI_STATIC_VALUE(tinyrefl::entity::OBJECT)(), {
+            test(TINYREFL_STATIC_VALUE(tinyrefl::entity::OBJECT)(), {
                 "my_namespace::BaseClass", "my_namespace::Foo"
             });
         }
@@ -245,7 +245,7 @@ TEST_CASE("tinyrefl api")
             bool enumValueVisited = false;
             bool somethingVisited = false;
 
-            tinyrefl::visit_object(myObject, [&](const std::string& name, auto /* depth */, auto& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+            tinyrefl::visit_object(myObject, [&](const std::string& name, auto /* depth */, auto& member, TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 if(name == "str")
                 {
@@ -283,21 +283,21 @@ TEST_CASE("tinyrefl api")
             my_namespace::MyClass myObject;
 
             tinyrefl::visit_object(myObject,
-                [](const std::string& /* name */, auto /* depth */, std::string& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+                [](const std::string& /* name */, auto /* depth */, std::string& member, TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 member = "a new string value";
             },
-                [](const std::string& /* name */, auto /* depth */, std::vector<int>& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+                [](const std::string& /* name */, auto /* depth */, std::vector<int>& member, TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 member.assign(42, 42);
             },
-                [](const std::string& /* name */, auto /* depth */, my_namespace::MyClass::InnerClassWithMembers& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+                [](const std::string& /* name */, auto /* depth */, my_namespace::MyClass::InnerClassWithMembers& member, TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 member.a = 42;
                 member.b = 42;
                 member.c = 42;
             },
-                [](const std::string& /* name */, auto /* depth */, my_namespace::MyClass::Enum& member, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+                [](const std::string& /* name */, auto /* depth */, my_namespace::MyClass::Enum& member, TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 member = my_namespace::MyClass::Enum::C;
             });
@@ -353,14 +353,14 @@ TEST_CASE("tinyrefl api")
 
         SECTION("visit member variables only")
         {
-            test(CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)(), {
+            test(TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)(), {
                 "str", "innerClassInstance", "vector", "enum_value"
             });
         }
 
         SECTION("visit subobjects only")
         {
-            test(CTTI_STATIC_VALUE(tinyrefl::entity::OBJECT)(), {
+            test(TINYREFL_STATIC_VALUE(tinyrefl::entity::OBJECT)(), {
                 "my_namespace::BaseClass", "my_namespace::Foo"
             });
         }
@@ -381,7 +381,7 @@ TEST_CASE("tinyrefl api")
             bool somethingVisited = false;
 
             tinyrefl::visit_objects(static_cast<my_namespace::MyClass&>(lhs), static_cast<my_namespace::MyClass&>(rhs))
-                ([&lhs, &rhs, addressof, &strVisited, &innerClassInstanceVisited, &vectorVisited, &enumValueVisited, &somethingVisited](const std::string& name, auto /* depth */, auto members, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+                ([&lhs, &rhs, addressof, &strVisited, &innerClassInstanceVisited, &vectorVisited, &enumValueVisited, &somethingVisited](const std::string& name, auto /* depth */, auto members, TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 auto& lhsMember = std::get<0>(members);
                 auto& rhsMember = std::get<1>(members);
@@ -437,7 +437,7 @@ TEST_CASE("tinyrefl api")
             bool somethingVisited = false;
 
             tinyrefl::visit_objects(static_cast<const my_namespace::MyClass&>(lhs), static_cast<const my_namespace::MyClass&>(rhs))
-                ([&lhs, &rhs, addressof, &strVisited, &innerClassInstanceVisited, &vectorVisited, &enumValueVisited, &somethingVisited](const std::string& name, auto /* depth */, auto members, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+                ([&lhs, &rhs, addressof, &strVisited, &innerClassInstanceVisited, &vectorVisited, &enumValueVisited, &somethingVisited](const std::string& name, auto /* depth */, auto members, TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 const auto& lhsMember = std::get<0>(members);
                 const auto& rhsMember = std::get<1>(members);
@@ -482,17 +482,17 @@ TEST_CASE("tinyrefl api")
             my_namespace::MyClass lhs, rhs;
 
             tinyrefl::visit_objects(lhs, rhs)(
-                [](const std::string& /* name */, auto /* depth */, std::tuple<std::string&, std::string&> members, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+                [](const std::string& /* name */, auto /* depth */, std::tuple<std::string&, std::string&> members, TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 std::get<0>(members) = "a new string value";
                 std::get<1>(members) = "a new string value";
             },
-                [](const std::string& /* name */, auto /* depth */, std::tuple<std::vector<int>&, std::vector<int>&> members, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+                [](const std::string& /* name */, auto /* depth */, std::tuple<std::vector<int>&, std::vector<int>&> members, TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 std::get<0>(members).assign(42, 42);
                 std::get<1>(members).assign(42, 42);
             },
-                [](const std::string& /* name */, auto /* depth */, std::tuple<my_namespace::MyClass::InnerClassWithMembers&, my_namespace::MyClass::InnerClassWithMembers&> members, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+                [](const std::string& /* name */, auto /* depth */, std::tuple<my_namespace::MyClass::InnerClassWithMembers&, my_namespace::MyClass::InnerClassWithMembers&> members, TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 std::get<0>(members).a = 42;
                 std::get<0>(members).b = 42;
@@ -501,7 +501,7 @@ TEST_CASE("tinyrefl api")
                 std::get<1>(members).b = 42;
                 std::get<1>(members).c = 42;
             },
-                [](const std::string& /* name */, auto /* depth */, std::tuple<my_namespace::MyClass::Enum&, my_namespace::MyClass::Enum&> members, CTTI_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
+                [](const std::string& /* name */, auto /* depth */, std::tuple<my_namespace::MyClass::Enum&, my_namespace::MyClass::Enum&> members, TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE))
             {
                 std::get<0>(members) = my_namespace::MyClass::Enum::C;
                 std::get<1>(members) = my_namespace::MyClass::Enum::D;
