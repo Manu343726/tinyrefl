@@ -41,12 +41,19 @@ R"========(
     #define TINYREFL_ENUM_VALUE(...)
 #endif // TINYREFL_ENUM_VALUE
 
-#ifndef TINYREFL_MEMBER
-    #warning "The TINYREFL_MEMBER(...) macro is not defined. A definition of this macro is required by tinyrefl to model sequences of metadata"
-    #warning "Tinyrefl will define an empty TINYREFL_MEMBER() macro for you, but this would mean the metadata of your types could end up being incomplete"
+#ifndef TINYREFL_MEMBER_FUNCTION
+    #warning "The TINYREFL_MEMBER_FUNCTION(...) macro is not defined. A definition of this macro is required by tinyrefl to model member functions"
+    #warning "Tinyrefl will define an empty TINYREFL_MEMBER_FUNCTION() macro for you, but this would mean the metadata of your types could end up being incomplete"
 
-    #define TINYREFL_MEMBER(...)
-#endif // TINYREFL_MEMBER
+    #define TINYREFL_MEMBER_FUNCTION(...)
+#endif // TINYREFL_MEMBER_FUNCTION
+
+#ifndef TINYREFL_MEMBER_VARIABLE
+    #warning "The TINYREFL_MEMBER_VARIABLE(...) macro is not defined. A definition of this macro is required by tinyrefl to model member variables"
+    #warning "Tinyrefl will define an empty TINYREFL_MEMBER_VARIABLE() macro for you, but this would mean the metadata of your types could end up being incomplete"
+
+    #define TINYREFL_MEMBER_VARIABLE(...)
+#endif // TINYREFL_MEMBER_VARIABLE
 
 #ifndef TINYREFL_REFLECT_MEMBER
     #warning "The TINYREFL_REFLECT_MEMBER(...) macro is not defined. A definition of this macro is required by tinyrefl to model sequences of metadata"

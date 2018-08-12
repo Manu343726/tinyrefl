@@ -13,7 +13,8 @@
 #define TINYREFL_STRING(...) __VA_ARGS__
 #define TINYREFL_TYPE(name, fullname) fullname
 #define TINYREFL_VALUE(value) // we don't care about values
-#define TINYREFL_MEMBER(name, fullname, type, pointer) name // Just its name
+#define TINYREFL_MEMBER_FUNCTION(name, fullname, parent_class_type, return_type, signature, pointer) // we don't care about member functions
+#define TINYREFL_MEMBER_VARIABLE(name, fullname, parent_class_type, value_type, pointer) name // Just it's name
 #define TINYREFL_REFLECT_MEMBER(member) // we don't care about per-member metadata
 #define TINYREFL_ENUM_VALUE(name, fullname, type, value) // we don't care about enums
 #define TINYREFL_REFLECT_ENUM_VALUE(value) // we don't care about enums

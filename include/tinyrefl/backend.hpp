@@ -738,9 +738,10 @@ constexpr typename enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes
 
 #define TINYREFL_SEQUENCE(elems) ::tinyrefl::meta::list<TINYREFL_PP_UNWRAP elems>
 #define TINYREFL_TYPE(name, fullname) fullname
-#define TINYREFL_VALUE(value) value
-#define TINYREFL_MEMBER(name, fullname, type, pointer) ::tinyrefl::backend::member<fullname, CTTI_STATIC_VALUE(pointer)>
-#define TINYREFL_ENUM_VALUE(name, fullname, type, value) ::tinyrefl::backend::enum_value<fullname, CTTI_STATIC_VALUE(value)>
+#define TINYREFL_VALUE(type, value) ::ctti::static_value<type, value>
+#define TINYREFL_MEMBER_VARIABLE(name, fullname, parent_class_type, value_type, pointer) ::tinyrefl::backend::member<fullname, pointer>
+#define TINYREFL_MEMBER_FUNCTION(name, fullname, parent_class_type, return_type, signature, pointer) ::tinyrefl::backend::member<fullname, pointer>
+#define TINYREFL_ENUM_VALUE(name, fullname, type, value) ::tinyrefl::backend::enum_value<fullname, value>
 
 #define TINYREFL_REFLECT_MEMBER(member)                  \
     namespace tinyrefl { namespace backend {             \
