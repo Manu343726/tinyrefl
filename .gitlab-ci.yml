@@ -42,7 +42,7 @@ linux-gcc5-x86-llvm400:
     image: manu343726/tinyrefl:gcc5-x86
     script: ./ci/ci.sh
 
-linux-gcc5-x86-llvm400:
+linux-gcc5-x86-llvm500:
     stage: test
     tags:
       - linux
