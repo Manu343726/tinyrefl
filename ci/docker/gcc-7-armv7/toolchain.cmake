@@ -1,7 +1,7 @@
 set(CMAKE_SYSTEM_NAME Linux)
 
-set(CMAKE_C_COMPILER /usr/bin/arm-linux-gnueabi-gcc)
-set(CMAKE_CXX_COMPILER /usr/bin/arm-linux-gnueabi-g++)
+set(CMAKE_C_COMPILER /usr/bin/arm-linux-gnueabi-gcc-7)
+set(CMAKE_CXX_COMPILER /usr/bin/arm-linux-gnueabi-g++-7)
 
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)

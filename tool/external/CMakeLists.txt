@@ -44,9 +44,7 @@ else()
     endif()
 
     # LLVM releases are compiled with old GCC ABI
-    if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
-        add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
-    endif()
+    add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
 
     set(LLVM_DOWNLOAD_URL "${TINYREFL_LLVM_DOWNLOAD_URL}")
 endif()
