@@ -8,6 +8,9 @@ RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ trusty multiverse" >> /etc/ap
     apt update && \
     apt install -y libtinfo-dev
 
+# Install Boost for boost backend examples
+RUN apt install -y libboost-all-dev
+
 ENV CC=gcc \
     CXX=g++ \
     CMAKE_C_COMPILER=gcc \

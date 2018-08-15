@@ -8,5 +8,8 @@ RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ trusty multiverse" >> /etc/ap
     apt update && \
     apt install -y libtinfo-dev
 
+# Install Boost for boost backend examples
+RUN apt install -y libboost-all-dev
+
 USER conan
 WORKDIR /home/conan
