@@ -3,6 +3,7 @@
 #include "members.hpp.tinyrefl"
 #include "../example.hpp"
 #include "../example.hpp.tinyrefl"
+#include <tinyrefl/utils/enum_value_attributes.hpp>
 #include CTTI_STATIC_TESTS_HEADER
 
 using check = tinyrefl::test::AssertMetadataAvailableForTemplateParam<foo::Foo>;
@@ -56,17 +57,24 @@ EXPECT_EQ((tinyrefl::metadata<my_namespace::MyClass::Enum>().get_attribute("Enum
 EXPECT_EQ((tinyrefl::metadata<my_namespace::MyClass::Enum>().get_attribute("Enum").full_attribute), "Enum");
 EXPECT_EQ((tinyrefl::metadata<my_namespace::MyClass::Enum>().get_attribute("Enum").namespace_.name()), "");
 EXPECT_EQ((tinyrefl::metadata<my_namespace::MyClass::Enum>().get_attribute("Enum").name.name()), "Enum");
+
+#if TINYREFL_HAS_ENUM_VALUE_ATTRIBUTES
 EXPECT_TRUE(tinyrefl::has_attribute<TINYREFL_STATIC_VALUE(my_namespace::MyClass::Enum::A)>("A"));
 EXPECT_EQ((tinyrefl::metadata<TINYREFL_STATIC_VALUE(my_namespace::MyClass::Enum::A)>().get_attribute("A").args.size()), 0);
 EXPECT_EQ((tinyrefl::metadata<TINYREFL_STATIC_VALUE(my_namespace::MyClass::Enum::A)>().get_attribute("A").full_attribute), "A");
 EXPECT_EQ((tinyrefl::metadata<TINYREFL_STATIC_VALUE(my_namespace::MyClass::Enum::A)>().get_attribute("A").namespace_.name()), "");
 EXPECT_EQ((tinyrefl::metadata<TINYREFL_STATIC_VALUE(my_namespace::MyClass::Enum::A)>().get_attribute("A").name.name()), "A");
+#endif // TINYREFL_HAS_ENUM_VALUE_ATTRIBUTES
+
 EXPECT_TRUE(tinyrefl::has_attribute<my_namespace::MyClass::InnerClassWithMembers>("InnerClassWithMembers"));
 EXPECT_EQ((tinyrefl::metadata<my_namespace::MyClass::InnerClassWithMembers>().get_attribute("InnerClassWithMembers").args.size()), 3);
 EXPECT_EQ((tinyrefl::metadata<my_namespace::MyClass::InnerClassWithMembers>().get_attribute("InnerClassWithMembers").args[0]), "42");
+
+#ifdef TINYREFL_HAS_CONSTEXPR_ARRAY_VIEW_SUBSCRIPT
 EXPECT_EQ((tinyrefl::metadata<my_namespace::MyClass::InnerClassWithMembers>().get_attribute("InnerClassWithMembers").args[1]), ",");
 EXPECT_EQ((tinyrefl::metadata<my_namespace::MyClass::InnerClassWithMembers>().get_attribute("InnerClassWithMembers").args[2]), "\"foo\"");
 EXPECT_EQ((tinyrefl::metadata<my_namespace::MyClass::InnerClassWithMembers>().get_attribute("InnerClassWithMembers").full_attribute), "InnerClassWithMembers(42,\"foo\")");
+#endif // TINYREFL_HAS_CONSTEXPR_ARRAY_VIEW_SUBSCRIPT
 EXPECT_EQ((tinyrefl::metadata<my_namespace::MyClass::InnerClassWithMembers>().get_attribute("InnerClassWithMembers").namespace_.name()), "");
 EXPECT_EQ((tinyrefl::metadata<my_namespace::MyClass::InnerClassWithMembers>().get_attribute("InnerClassWithMembers").name.name()), "InnerClassWithMembers");
 

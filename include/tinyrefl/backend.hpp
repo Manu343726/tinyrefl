@@ -190,7 +190,7 @@ struct array_view
 
     constexpr const T& operator[](std::size_t i) const
     {
-        return *(_begin + i);
+        return _begin[i];
     }
 
 private:
