@@ -68,3 +68,6 @@ if(TINYREFL_IS_ROOT_PROJECT)
         ${TINYREFL_SOURCE_DIR}/.ycm_extra_conf.py
     )
 endif()
+
+# Implicitly add driver for users
+include(${TINYREFL_SOURCE_DIR}/tool/driver.cmake)
