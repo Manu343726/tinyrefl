@@ -4,10 +4,15 @@ tinyrefl [![pipeline status](https://gitlab.com/Manu343726/tinyrefl/badges/maste
 A work in progress minimal C++ static reflection API and codegen tool.
 
 ## Features
-
- - C++14 static reflection API: Convert enum values to strings, get the set of member
+ - **Reflection of classes and enums**:
+     - Class and enum names
+     - User declared constructors
+     - Public member functions
+     - Public Member variables
+     - Enumeration values
+ - **User defined attributes** on all reflected entities
+ - **C++14 static reflection API**: Convert enum values to strings, get the set of member
    functions of a class, check for attributes, visit object members...
-
    ``` cpp
    // foo.h
 
@@ -52,6 +57,8 @@ A work in progress minimal C++ static reflection API and codegen tool.
    }
    ```
 
+   See [the `api.cpp` example](https://gitlab.com/Manu343726/tinyrefl/blob/master/examples/api.cpp) for a full example of usage.
+
  - **API agnostic code generation**: The `tinyrefl-tool` codegen tool included in the project is completely independent from the reflection API, generating 
    macro based C/C++ code to allow users to write their own reflection API:
 
@@ -69,6 +76,8 @@ A work in progress minimal C++ static reflection API and codegen tool.
    #include "foo.h"
    #include "foo.h.tinyrefl"
    ```
+
+   See [`examples/`](https://gitlab.com/Manu343726/tinyrefl/tree/master/examples) for more backend examples.
 
  - **CMake integration**: Both the provided reflection API and codegen tool can be integrated in CMake based projects. To enable reflection,
    the library provides the `tinyrefl_tool()` function:
