@@ -13,6 +13,7 @@ A work in progress minimal C++ static reflection API and codegen tool.
  - **User defined attributes** on all reflected entities
  - **C++14 static reflection API**: Convert enum values to strings, get the set of member
    functions of a class, check for attributes, visit object members...
+
    ``` cpp
    // foo.h
 
