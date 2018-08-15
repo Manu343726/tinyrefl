@@ -6,11 +6,26 @@ if(TINYREFL_CROSS_BUILDING)
     set(srcdir ${CMAKE_CURRENT_LIST_DIR})
     set(bindir ${CMAKE_CURRENT_BINARY_DIR}/tinyrefl_tool_external)
 
+    if(TINYREFL_HOST_CXX_COMPILER)
+        set(cmake_cxx_compiler "-DCMAKE_CXX_COMPILER=\"${TINYREFL_HOST_CXX_COMPILER}\"")
+    endif()
+
+    if(TINYREFL_HOST_C_COMPILER)
+        set(cmake_c_compiler "-DCMAKE_C_COMPILER=\"${TINYREFL_HOST_C_COMPILER}\"")
+    endif()
+
+    if(TINYREFL_HOST_CMAKE_GENERATOR)
+        set(cmake_generator "-G \"${TINYREFL_HOST_CMAKE_GENERATOR}\"")
+    endif()
+
     ExternalProject_Add(tinyrefl_tool_external
         DOWNLOAD_COMMAND ""
         SOURCE_DIR ${srcdir}
         BINARY_DIR ${bindir}
         CMAKE_ARGS
+            ${cmake_generator}
+            ${cmake_cxx_compiler}
+            ${cmake_c_compiler}
             -DTINYREFL_HOST_BUILDING_TOOL=ON
             -DTINYREFL_SOURCE_DIR=${TINYREFL_SOURCE_DIR}
             -DTINYREFL_BINARY_DIR=${TINYREFL_BINARY_DIR}
