@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <ostream>
+#include <tinyrefl/utils/enum_value_attributes.hpp>
 
 namespace my_namespace
 {
@@ -14,26 +15,26 @@ struct Foo
 class MyClass : public BaseClass, public my_namespace::Foo
 {
 public:
-    MyClass() = default;
+    [[ctor]] MyClass() = default;
     MyClass(int, int) {}
     MyClass(std::vector<std::string>) {}
 
-    void f(int i) {(void)i;}
+    [[f]] void f(int i) {(void)i;}
     void overloaded() const {};
     void overloaded() {};
     void overloaded(int) const {};
     void overloaded(int) {};
 
-    std::string str;
+    [[str]] std::string str;
 
-    enum class Enum
+    enum class [[Enum]] Enum
     {
-        A, B, C, D = 42
+        A TINYREFL_ENUM_VALUE_ATTRIBUTE(A), B, C, D = 42
     };
 
-    struct Foo {};
+    struct [[Foo]] Foo {};
 
-    struct InnerClassWithMembers
+    struct [[InnerClassWithMembers(42, "foo")]] InnerClassWithMembers
     {
         int a, b, c;
     };

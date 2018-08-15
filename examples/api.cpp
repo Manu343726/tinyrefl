@@ -147,8 +147,10 @@ int main()
         std::cout << "f() was tagged with attribute [[" << attribute.full_attribute << "]]\n";
     }
 
+#if TINYREFL_HAS_ENUM_VALUE_ATTRIBUTES
     static_assert(tinyrefl::has_attribute<TINYREFL_STATIC_VALUE(example::C::Enum::A)>("A"), "Expected [[A]] attribute");
     static_assert(tinyrefl::metadata<TINYREFL_STATIC_VALUE(example::C::Enum::A)>().get_attribute(0) == "A", "Expected [[A]] as first attribute");
+#endif // TINYREFL_HAS_ENUM_VALUE_ATTRIBUTES
 }
 
 

@@ -300,11 +300,14 @@ std::string attribute(const cppast::cpp_attribute& attribute)
 
     if(attribute.arguments().has_value())
     {
-        for(const auto& argument : attribute.arguments().value())
+        const auto& attribute_arguments = attribute.arguments().value();
+        full_attribute << "(" << attribute_arguments.as_string() << ")";
+
+        for(const auto& argument : attribute_arguments)
         {
             arguments.push_back(string_constant(argument.spelling));
-            full_attribute << argument.spelling;
         }
+
     }
 
     return fmt::format("TINYREFL_ATTRIBUTE({}, {}, {}, {})",

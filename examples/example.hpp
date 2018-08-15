@@ -2,6 +2,7 @@
 #define TINYREFL_EXAMPLE_HPP
 
 #include <string>
+#include <tinyrefl/utils/enum_value_attributes.hpp>
 
 namespace example
 {
@@ -40,7 +41,12 @@ public:
 
     enum class Enum
     {
-        A [[A]], B [[B]], C [[C]], D [[D]], E [[E]], F [[F]], G [[G]]
+        A TINYREFL_ENUM_VALUE_ATTRIBUTE(A),
+        B TINYREFL_ENUM_VALUE_ATTRIBUTE(B),
+        C TINYREFL_ENUM_VALUE_ATTRIBUTE(C),
+        D TINYREFL_ENUM_VALUE_ATTRIBUTE(D),
+        E TINYREFL_ENUM_VALUE_ATTRIBUTE(E),
+        F TINYREFL_ENUM_VALUE_ATTRIBUTE(F)
     };
 
     [[e]] Enum e = Enum::A;

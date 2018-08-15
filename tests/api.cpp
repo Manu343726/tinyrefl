@@ -44,6 +44,15 @@ TEST_CASE("tinyrefl api")
         }
     }
 
+    SECTION("attributes")
+    {
+        REQUIRE(tinyrefl::meta::get_t<0, tinyrefl::metadata<my_namespace::MyClass>::constructors>().has_attribute("ctor"));
+        REQUIRE(tinyrefl::has_attribute<tinyrefl::static_value<void(my_namespace::MyClass::*)(int), &my_namespace::MyClass::f>>("f"));
+        REQUIRE(tinyrefl::has_attribute<TINYREFL_STATIC_VALUE(&my_namespace::MyClass::str)>("str"));
+        REQUIRE(tinyrefl::has_attribute<my_namespace::MyClass::Foo>("Foo"));
+        REQUIRE(tinyrefl::has_attribute<my_namespace::MyClass::Enum>("Enum"));
+    }
+
     SECTION("visit class")
     {
         auto test = [](const tinyrefl::entity expected_entity_kind, const std::unordered_map<std::string, int>& expected_results)

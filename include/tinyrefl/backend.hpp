@@ -21,9 +21,12 @@ namespace backend
 
 using type_hash_t = ctti::detail::hash_t;
 
+template<ctti::detail::hash_t Hash>
+using hash_constant = CTTI_STATIC_VALUE(Hash);
+
 constexpr ctti::detail::cstring default_string_constant = "default tinyrefl string constant";
 
-template<ctti::detail::hash_t Hash>
+template<typename Hash>
 constexpr ctti::detail::cstring string_constant()
 {
     return default_string_constant;
@@ -242,37 +245,37 @@ struct attribute
     }
 };
 
-template<ctti::detail::hash_t Name, ctti::detail::hash_t Namespace, ctti::detail::hash_t FullAttribute, typename Args>
+template<typename Name, typename Namespace, typename FullAttribute, typename Args>
 struct attribute_metadata;
 
-template<ctti::detail::hash_t Name, ctti::detail::hash_t Namespace, ctti::detail::hash_t FullAttribute, ctti::detail::hash_t... Args>
-struct attribute_metadata<Name, Namespace, FullAttribute, tinyrefl::meta::integer_sequence<ctti::detail::hash_t, Args...>>
+template<typename Name, typename Namespace, typename FullAttribute, typename... Args>
+struct attribute_metadata<Name, Namespace, FullAttribute, tinyrefl::meta::list<Args...>>
     : public attribute
 {
     static constexpr ctti::name_t name = tinyrefl::backend::string_constant<Name>();
     static constexpr ctti::name_t namespace_ = tinyrefl::backend::string_constant<Namespace>();
     static constexpr ctti::detail::cstring full_attribute = tinyrefl::backend::string_constant<FullAttribute>();
     static constexpr ctti::detail::cstring args[] = {tinyrefl::backend::string_constant<Args>()..., ""};
-    static constexpr attribute value{name, namespace_, full_attribute, args};
+    static constexpr attribute value{name, namespace_, full_attribute, make_array_view(args).trim(1)};
 
     constexpr attribute_metadata() :
-        attribute{name, namespace_, full_attribute, args}
+        attribute{name, namespace_, full_attribute, make_array_view(args).trim(1)}
     {}
 };
 
-template<ctti::detail::hash_t Name, ctti::detail::hash_t Namespace, ctti::detail::hash_t FullAttribute, ctti::detail::hash_t... Args>
-constexpr ctti::name_t attribute_metadata<Name, Namespace, FullAttribute, tinyrefl::meta::integer_sequence<ctti::detail::hash_t, Args...>>::name;
+template<typename Name, typename Namespace, typename FullAttribute, typename... Args>
+constexpr ctti::name_t attribute_metadata<Name, Namespace, FullAttribute, tinyrefl::meta::list<Args...>>::name;
 
-template<ctti::detail::hash_t Name, ctti::detail::hash_t Namespace, ctti::detail::hash_t FullAttribute, ctti::detail::hash_t... Args>
-constexpr ctti::name_t attribute_metadata<Name, Namespace, FullAttribute, tinyrefl::meta::integer_sequence<ctti::detail::hash_t, Args...>>::namespace_;
+template<typename Name, typename Namespace, typename FullAttribute, typename... Args>
+constexpr ctti::name_t attribute_metadata<Name, Namespace, FullAttribute, tinyrefl::meta::list<Args...>>::namespace_;
 
-template<ctti::detail::hash_t Name, ctti::detail::hash_t Namespace, ctti::detail::hash_t FullAttribute, ctti::detail::hash_t... Args>
-constexpr ctti::detail::cstring attribute_metadata<Name, Namespace, FullAttribute, tinyrefl::meta::integer_sequence<ctti::detail::hash_t, Args...>>::full_attribute;
+template<typename Name, typename Namespace, typename FullAttribute, typename... Args>
+constexpr ctti::detail::cstring attribute_metadata<Name, Namespace, FullAttribute, tinyrefl::meta::list<Args...>>::full_attribute;
 
-template<ctti::detail::hash_t Name, ctti::detail::hash_t Namespace, ctti::detail::hash_t FullAttribute, ctti::detail::hash_t... Args>
-constexpr ctti::detail::cstring attribute_metadata<Name, Namespace, FullAttribute, tinyrefl::meta::integer_sequence<ctti::detail::hash_t, Args...>>::args[];
+template<typename Name, typename Namespace, typename FullAttribute, typename... Args>
+constexpr ctti::detail::cstring attribute_metadata<Name, Namespace, FullAttribute, tinyrefl::meta::list<Args...>>::args[];
 
-using dummy_attribute_metadata = attribute_metadata<0, 0, 0, tinyrefl::meta::integer_sequence<ctti::detail::hash_t>>;
+using dummy_attribute_metadata = attribute_metadata<hash_constant<0>, hash_constant<0>, hash_constant<0>, tinyrefl::meta::list<>>;
 
 template<typename T, typename U>
 constexpr const T* find(const T* begin, const T* end, const U& value)
@@ -338,7 +341,7 @@ constexpr decltype(typelist_to_array<attributes_plus_dummy<Attributes>>::value) 
 
 using dummy_metadata_with_attributes = metadata_with_attributes<tinyrefl::meta::list<>>;
 
-template<ctti::detail::hash_t Name, typename Pointer, typename Attributes>
+template<typename Name, typename Pointer, typename Attributes>
 struct member : public Pointer, public metadata_with_attributes<Attributes>
 {
     using pointer_type = typename Pointer::value_type;
@@ -378,13 +381,13 @@ struct member : public Pointer, public metadata_with_attributes<Attributes>
     }
 };
 
-template<ctti::detail::hash_t Name, typename Pointer, typename Attributes>
+template<typename Name, typename Pointer, typename Attributes>
 constexpr ctti::name_t member<Name, Pointer, Attributes>::name;
 
-template<ctti::detail::hash_t Name, typename Class, typename Args, typename Attributes = tinyrefl::meta::list<>>
+template<typename Name, typename Class, typename Args, typename Attributes = tinyrefl::meta::list<>>
 struct constructor;
 
-template<ctti::detail::hash_t Name, typename Class, typename... Args, typename Attributes>
+template<typename Name, typename Class, typename... Args, typename Attributes>
 struct constructor<Name, Class, tinyrefl::meta::list<Args...>, Attributes> : public metadata_with_attributes<Attributes>
 {
     using class_type = Class;
@@ -415,7 +418,7 @@ struct constructor<Name, Class, tinyrefl::meta::list<Args...>, Attributes> : pub
     }
 };
 
-template<ctti::detail::hash_t Name, typename Class, typename... Args, typename Attributes>
+template<typename Name, typename Class, typename... Args, typename Attributes>
 constexpr ctti::detail::cstring constructor<Name, Class, tinyrefl::meta::list<Args...>, Attributes>::name;
 
 template<
@@ -471,7 +474,7 @@ public:
     using total_members = tinyrefl::meta::size_t<members::size + total_base_members::value>;
 };
 
-template<ctti::detail::hash_t Name, typename Value, typename Attributes = tinyrefl::meta::list<>>
+template<typename Name, typename Value, typename Attributes = tinyrefl::meta::list<>>
 struct enum_value : public Value, public metadata_with_attributes<Attributes>
 {
     using value_type = typename Value::value_type;
@@ -533,13 +536,13 @@ struct enum_value : public Value, public metadata_with_attributes<Attributes>
     }
 };
 
-template<ctti::detail::hash_t Name, typename Value, typename Attributes>
+template<typename Name, typename Value, typename Attributes>
 constexpr ctti::name_t enum_value<Name, Value, Attributes>::name;
 
-template<ctti::detail::hash_t Name, typename Enum, typename Values, typename Attributes = tinyrefl::meta::list<>>
+template<typename Name, typename Enum, typename Values, typename Attributes = tinyrefl::meta::list<>>
 struct enum_;
 
-template<ctti::detail::hash_t Name, typename Enum, typename... Values, typename Attributes>
+template<typename Name, typename Enum, typename... Values, typename Attributes>
 struct enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes> : public metadata_with_attributes<Attributes>
 {
     static constexpr entity_kind kind = entity_kind::ENUM;
@@ -724,11 +727,11 @@ private:
     }
 };
 
-template<ctti::detail::hash_t Name, typename Enum, typename... Values, typename Attributes>
+template<typename Name, typename Enum, typename... Values, typename Attributes>
 constexpr typename enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes>::values_array enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes>::enum_values;
-template<ctti::detail::hash_t Name, typename Enum, typename... Values, typename Attributes>
+template<typename Name, typename Enum, typename... Values, typename Attributes>
 constexpr ctti::name_t enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes>::enum_name;
-template<ctti::detail::hash_t Name, typename Enum, typename... Values, typename Attributes>
+template<typename Name, typename Enum, typename... Values, typename Attributes>
 constexpr typename enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes>::value_t enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes>::invalid_value;
 
 }
@@ -749,11 +752,11 @@ constexpr typename enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes
 #endif // TINYREFL_PP_UNWRAP
 
 #define TINYREFL_DEFINE_STRINGS
-#define TINYREFL_STRING(...) ctti::detail::cstring{TINYREFL_PP_STR(__VA_ARGS__)}.hash()
+#define TINYREFL_STRING(...) CTTI_STATIC_VALUE(ctti::detail::cstring{TINYREFL_PP_STR(__VA_ARGS__)}.hash())
 #define TINYREFL_DEFINE_STRING(...)                                                               \
     namespace tinyrefl { namespace backend {                                                               \
         template<> \
-        constexpr ::ctti::detail::cstring string_constant<ctti::detail::cstring{TINYREFL_PP_STR(__VA_ARGS__)}.hash()>() { \
+        constexpr ::ctti::detail::cstring string_constant<CTTI_STATIC_VALUE(ctti::detail::cstring{TINYREFL_PP_STR(__VA_ARGS__)}.hash())>() { \
             return ::ctti::detail::cstring{TINYREFL_PP_STR(__VA_ARGS__)}; \
         } \
     } /* namespace backend */ } // namespace tinyrefl
@@ -816,11 +819,11 @@ constexpr typename enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes
     friend struct ::tinyrefl::backend::class_;                                                                   \
     template<typename __TinyRefl__GodModeTemplateParam__Type>                                                    \
     friend struct ::tinyrefl::backend::metadata_of;                                                              \
-    template<ctti::detail::hash_t __TinyRefl__GodModeTemplateParam__Name, typename __TinyRefl__GodModeTemplateParam__Pointer, typename __TinyRefl__GodModeTemplateParam__Attributes> \
+    template<typename __TinyRefl__GodModeTemplateParam__Name, typename __TinyRefl__GodModeTemplateParam__Pointer, typename __TinyRefl__GodModeTemplateParam__Attributes> \
     friend struct ::tinyrefl::backend::member;                                                                   \
     template<typename __TinyRefl__GodModeTemplateParam__Signature, typename __TinyRefl__GodModeTemplateParam__Attributes>                                              \
     friend struct ::tinyrefl::backend::constructor;                                                              \
-    template<ctti::detail::hash_t __TinyRefl__GodModeTemplateParam__Name, typename __TinyRefl__GodModeTemplateParam__Enum, typename __TinyRefl__GodModeTemplateParam__Values, typename __TinyRefl__GodModeTemplateParam__Attributes> \
+    template<typename __TinyRefl__GodModeTemplateParam__Name, typename __TinyRefl__GodModeTemplateParam__Enum, typename __TinyRefl__GodModeTemplateParam__Values, typename __TinyRefl__GodModeTemplateParam__Attributes> \
     friend struct ::tinyrefl::backend::enum_;
 
 #endif // TINYREFL_BACKEND_HPP

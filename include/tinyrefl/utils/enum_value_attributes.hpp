@@ -1,0 +1,12 @@
+#ifndef TINYREFL_UTILS_ENUM_VALUE_ATTRIBUTES
+#define TINYREFL_UTILS_ENUM_VALUE_ATTRIBUTES
+
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ <= 5
+    #define TINYREFL_HAS_ENUM_VALUE_ATTRIBUTES false
+    #define TINYREFL_ENUM_VALUE_ATTRIBUTE(...)
+#else
+    #define TINYREFL_HAS_ENUM_VALUE_ATTRIBUTES true
+    #define TINYREFL_ENUM_VALUE_ATTRIBUTE(...) [[__VA_ARGS__]]
+#endif
+
+#endif // TINYREFL_UTILS_ENUM_VALUE_ATTRIBUTES
