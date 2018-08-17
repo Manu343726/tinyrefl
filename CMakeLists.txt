@@ -49,6 +49,9 @@ add_subdirectory(src)
 message(STATUS "Configuring tinyrefl tool...")
 add_subdirectory(tool)
 
+# Implicitly add driver for users
+include(${TINYREFL_SOURCE_DIR}/tool/driver.cmake)
+
 if(TINYREFL_BUILD_TESTS AND NOT TINYREFL_CROSS_BUILDING)
     include(cmake/ctest_setup.cmake)
     message(STATUS "Configuring tinyrefl tests...")
@@ -68,6 +71,3 @@ if(TINYREFL_IS_ROOT_PROJECT)
         ${TINYREFL_SOURCE_DIR}/.ycm_extra_conf.py
     )
 endif()
-
-# Implicitly add driver for users
-include(${TINYREFL_SOURCE_DIR}/tool/driver.cmake)
