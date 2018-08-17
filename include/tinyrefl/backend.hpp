@@ -422,6 +422,8 @@ template<typename Name, typename Class, typename... Args, typename Attributes>
 constexpr ctti::detail::cstring constructor<Name, Class, tinyrefl::meta::list<Args...>, Attributes>::name;
 
 template<
+    typename Name,
+    typename Class,
     typename BaseClasses,
     typename Constructors,
     typename MemberFunctions,
@@ -444,7 +446,9 @@ private:
     };
 
 public:
+    static constexpr ctti::name_t name = tinyrefl::backend::string_constant<Name>();
     static constexpr entity_kind kind = entity_kind::CLASS;
+    using class_type = Class;
     using base_classes = BaseClasses;
     using constructors = Constructors;
     using member_functions = MemberFunctions;
@@ -473,6 +477,19 @@ public:
     using total_base_members = tinyrefl::meta::foldl_t<tinyrefl::meta::defer<accumulate>, tinyrefl::meta::size_t<0>, base_classes>;
     using total_members = tinyrefl::meta::size_t<members::size + total_base_members::value>;
 };
+
+template<
+    typename Name,
+    typename Class,
+    typename BaseClasses,
+    typename Constructors,
+    typename MemberFunctions,
+    typename MemberVariables,
+    typename Classes,
+    typename Enums,
+    typename Attributes
+>
+constexpr ctti::name_t class_<Name, Class, BaseClasses, Constructors, MemberFunctions, MemberVariables, Classes, Enums, Attributes>::name;
 
 template<typename Name, typename Value, typename Attributes = tinyrefl::meta::list<>>
 struct enum_value : public Value, public metadata_with_attributes<Attributes>
@@ -788,12 +805,12 @@ constexpr typename enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes
     };                                                   \
     } /* namespace backend */ } // namespace tinyrefl
 
-#define TINYREFL_REFLECT_CLASS(classname, ...)              \
+#define TINYREFL_REFLECT_CLASS(classname, classtype, bases, ctors, functions, variables, classes, enums, attributes) \
     namespace tinyrefl { namespace backend {               \
     template<>                                             \
-    struct metadata_of<classname> \
+    struct metadata_of<classtype> \
     {                                                      \
-        using type = class_<__VA_ARGS__>;                  \
+        using type = class_<classname, classtype, bases, ctors, functions, variables, classes, enums, attributes>;                  \
     };                                                     \
     } /* namespace backend */ } // namespace tinyrefl
 

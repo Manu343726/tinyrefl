@@ -15,19 +15,14 @@ function(require_targets)
 endfunction()
 
 macro(external_dependency NAME URL COMMIT)
-    if(NOT TARGET ${NAME})
-        message(STATUS "external dependency ${NAME} from ${URL} at ${COMMIT}")
-        download_project(
-            PROJ "${NAME}"
-            GIT_REPOSITORY "${URL}"
-            GIT_TAG "${COMMIT}"
-            UPDATE_DISCONNECTED 1
-        )
-        add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
-        set(${NAME}_SOURCE_DIR "${${NAME}_SOURCE_DIR}" CACHE PATH "")
-        set(${NAME}_BINARY_DIR "${${NAME}_BINARY_DIR}" CACHE PATH "")
-        require_target(${NAME})
-    else()
-        message(STATUS "external dependency ${NAME} already satisfied")
-    endif()
+    message(STATUS "external dependency ${NAME} from ${URL} at ${COMMIT}")
+    download_project(
+        PROJ "${NAME}"
+        GIT_REPOSITORY "${URL}"
+        GIT_TAG "${COMMIT}"
+        UPDATE_DISCONNECTED 1
+    )
+    add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
+    set(${NAME}_SOURCE_DIR "${${NAME}_SOURCE_DIR}" CACHE PATH "")
+    set(${NAME}_BINARY_DIR "${${NAME}_BINARY_DIR}" CACHE PATH "")
 endmacro()

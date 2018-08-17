@@ -529,7 +529,8 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
         }
     }
 
-    fmt::print(os, "TINYREFL_REFLECT_CLASS({}, {}, {}, {}, {}, {}, {}, {})\n",
+    fmt::print(os, "TINYREFL_REFLECT_CLASS({}, {}, {}, {}, {}, {}, {}, {}, {})\n",
+        string_constant(full_qualified_name(class_)),
         type_reference(class_),
         typelist(base_classes),
         typelist(constructors),

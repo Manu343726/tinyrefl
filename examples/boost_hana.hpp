@@ -21,7 +21,7 @@
 #define TINYREFL_REFLECT_MEMBER(member) // We don't care about metadata definitions of members
 #define TINYREFL_REFLECT_ENUM_VALUE(value) // we don't care about enums
 #define TINYREFL_REFLECT_ENUM(name, type, values, attributes) // we don't care about enums
-#define TINYREFL_REFLECT_CLASS(classname, bases, constructors, member_functions, member_variables, classes, enums, attributes) \
+#define TINYREFL_REFLECT_CLASS(classname, classtype, bases, constructors, member_functions, member_variables, classes, enums, attributes) \
     BOOST_HANA_ADAPT_STRUCT(classname, TINYREFL_PP_UNWRAP member_variables);
 
 #endif // TINYREFL_EXAMPLES_HANA_HPP
