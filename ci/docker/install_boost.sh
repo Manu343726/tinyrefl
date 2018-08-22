@@ -20,7 +20,7 @@ wget --no-check-certificate --max-redirect 3 $BOOST_DOWNLOAD_URL
 tar xfz $BOOST_PACKAGE
 rm $BOOST_PACKAGE
 cd $BOOST_SOURCES
-./bootstrap.sh --prefix=/usr/local
+./bootstrap.sh --prefix=/usr
 ./b2 install -j4
 cd ..
 rm -rf $BOOST_SOURCES
