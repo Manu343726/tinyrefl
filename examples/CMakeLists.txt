@@ -1,4 +1,4 @@
-add_subdirectory(external)
+include(external/external.cmake)
 
 add_library(tinyrefl-example-lib example.cpp)
 tinyrefl_tool(TARGET tinyrefl-example-lib HEADERS example.hpp)

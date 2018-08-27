@@ -1,5 +1,10 @@
 include(${TINYREFL_SOURCE_DIR}/cmake/externals.cmake)
+
 find_package(Boost)
+
+if(Boost_FOUND)
+    message(STATUS "Found Boost version ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}")
+endif()
 
 set(BUILD_EXAMPLES OFF CACHE BOOL "disable rttr examples")
 set(BUILD_UNIT_TESTS OFF CACHE BOOL "disable rttr unit tests")
