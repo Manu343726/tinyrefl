@@ -21,6 +21,6 @@ tar xfz $BOOST_PACKAGE
 rm $BOOST_PACKAGE
 cd $BOOST_SOURCES
 ./bootstrap.sh --prefix=/usr
-./b2 install -j4
+./b2 install -j$(nproc --all)
 cd ..
 rm -rf $BOOST_SOURCES
