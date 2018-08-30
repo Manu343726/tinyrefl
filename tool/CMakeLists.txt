@@ -63,6 +63,7 @@ else()
     endif()
 
     add_executable(tinyrefl-tool tool.cpp)
+    define_tinyrefl_version_variables(tinyrefl-tool)
     target_include_directories(tinyrefl-tool PRIVATE ${TINYREFL_INCLUDE_DIR} ${fmt-header-only_SOURCE_DIR}/include)
     target_compile_definitions(tinyrefl-tool PRIVATE -DFMT_HEADER_ONLY)
 

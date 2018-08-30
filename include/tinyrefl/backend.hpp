@@ -778,6 +778,10 @@ constexpr typename enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes
         } \
     } /* namespace backend */ } // namespace tinyrefl
 
+#define TINYREFL_API_CODEGEN_VERSION_MAJOR 0
+#define TINYREFL_API_CODEGEN_VERSION_MINOR 1
+#define TINYREFL_API_CODEGEN_VERSION_FIX   1
+
 #define TINYREFL_SEQUENCE(elems) ::tinyrefl::meta::list<TINYREFL_PP_UNWRAP elems>
 #define TINYREFL_TYPE(name, fullname) fullname
 #define TINYREFL_VALUE(type, value) ::ctti::static_value<type, value>

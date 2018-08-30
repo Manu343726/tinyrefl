@@ -590,6 +590,10 @@ void visit_ast_and_generate(const cppast::cpp_file& ast_root, const std::string&
 
     os << "#ifndef " << include_guard << "\n"
        << "#define " << include_guard << "\n\n"
+       << "#define TINYREFL_TOOL_CODEGEN_VERSION_MAJOR " << TINYREFL_VERSION_MAJOR << "\n"
+       << "#define TINYREFL_TOOL_CODEGEN_VERSION_MINOR " << TINYREFL_VERSION_MINOR << "\n"
+       << "#define TINYREFL_TOOL_CODEGEN_VERSION_FIX " << TINYREFL_VERSION_FIX << "\n"
+       << "#define TINYREFL_TOOL_CODEGEN_VERSION \"" << TINYREFL_VERSION << "\"\n\n"
        <<
 #include "metadata_header.hpp"
        << std::endl;

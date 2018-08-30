@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
-project(tinyrefl)
+include(cmake/git.cmake)
+project(tinyrefl VERSION "${TINYREFL_VERSION}")
 
 include (CheckCXXCompilerFlag)
 

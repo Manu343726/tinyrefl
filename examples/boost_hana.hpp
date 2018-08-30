@@ -7,6 +7,10 @@
 #define TINYREFL_PP_UNWRAP(...) __VA_ARGS__
 #endif // TINYREFL_PP_UNWRAP
 
+#define TINYREFL_API_CODEGEN_VERSION_MAJOR 0
+#define TINYREFL_API_CODEGEN_VERSION_MINOR 1
+#define TINYREFL_API_CODEGEN_VERSION_FIX   1
+
 // Boost Hana backend for tinyrefl metadata
 #define TINYREFL_GODMODE(...) // No Gods here
 #define TINYREFL_SEQUENCE(...) __VA_ARGS__
