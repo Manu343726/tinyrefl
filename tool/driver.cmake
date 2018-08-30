@@ -69,9 +69,21 @@ function(tinyrefl_tool)
     string(REGEX REPLACE ";" " " definitions_list "${definitions}")
     message(STATUS ">> Tinyrefl driver on ${ARGS_TARGET}: tinyrefl ${header_list} -std=c++${CMAKE_CXX_STANDARD} ${definitions_list} ${includes_list} ${options_list}")
 
+    if(NOT TARGET clean-tinyrefl)
+        add_custom_target(clean-tinyrefl)
+    endif()
+
     foreach(header ${ARGS_HEADERS})
-        set(command_target_name "tinyrefl_tool_${ARGS_TARGET}_${header}")
+        set(command_target_name "tinyrefl_tool_${ARGS_TARGET}_${header}.tinyrefl")
         string(REGEX REPLACE "\\/" "_" command_target_name "${command_target_name}")
+        set(clean_target "clean_${command_target_name}")
+
+        add_custom_target(${clean_target}
+            cmake -E remove ${header}.tinyrefl
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        )
+
+        add_dependencies(clean-tinyrefl ${clean_target})
 
         add_prebuild_command(TARGET ${ARGS_TARGET}
             NAME "${command_target_name}"
