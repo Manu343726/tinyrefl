@@ -1,3 +1,4 @@
+include(${TINYREFL_SOURCE_DIR}/cmake/git.cmake)
 
 if(TINYREFL_CROSS_BUILDING)
     message(STATUS "Cross-building tinyrefl, host-build tinyrefl-tool")
