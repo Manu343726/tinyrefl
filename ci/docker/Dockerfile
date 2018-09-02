@@ -7,7 +7,7 @@ USER root
 # Install libtinfo required by LLVM
 RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ trusty multiverse" >> /etc/apt/sources.list && \
     apt update && \
-    apt install -y libtinfo-dev
+    apt install -y libtinfo-dev libz-dev
 
 ADD toolchain.cmake /usr/share/toolchain.cmake
 ADD build_toolchain.sh build_toolchain.sh
