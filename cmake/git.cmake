@@ -5,7 +5,7 @@ function(git_branch RESULT)
         COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
         OUTPUT_VARIABLE stdout
         RESULT_VARIABLE res
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        WORKING_DIRECTORY "${TINYREFL_SOURCE_DIR}"
     )
 
     string(STRIP "${stdout}" stdout)
@@ -22,7 +22,7 @@ function(git_commit_hash RESULT)
         COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
         OUTPUT_VARIABLE stdout
         RESULT_VARIABLE res
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        WORKING_DIRECTORY "${TINYREFL_SOURCE_DIR}"
     )
 
     string(STRIP "${stdout}" stdout)
@@ -40,7 +40,7 @@ function(git_current_checkout_is_tag RESULT)
         OUTPUT_VARIABLE stdout
         ERROR_VARIABLE stderr
         RESULT_VARIABLE res
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        WORKING_DIRECTORY "${TINYREFL_SOURCE_DIR}"
     )
 
     string(STRIP "${stdout}" stdout)
@@ -57,7 +57,7 @@ function(git_last_tag RESULT)
         COMMAND ${GIT_EXECUTABLE} describe --abbrev=0
         OUTPUT_VARIABLE stdout
         RESULT_VARIABLE res
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        WORKING_DIRECTORY "${TINYREFL_SOURCE_DIR}"
     )
 
     string(STRIP "${stdout}" stdout)
