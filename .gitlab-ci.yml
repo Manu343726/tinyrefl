@@ -1,222 +1,332 @@
 variables:
-    GIT_STRATEGY: clone
-    CROSS_BUILDING: "NO"
-
-linux-clang50-x86-llvm400:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:clang50-x86
-    variables:
-        LLVM_VERSION: "4.0.0"
-    script: ./ci/ci.sh
-
-linux-clang50-x86-llvm500:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:clang50-x86
-    variables:
-        LLVM_VERSION: "5.0.0"
-    script: ./ci/ci.sh
-
-linux-clang50-x86-llvm600:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:clang50-x86
-    variables:
-        LLVM_VERSION: "6.0.0"
-    script: ./ci/ci.sh
-
-linux-gcc5-x86-llvm400:
-    stage: test
-    tags:
-      - linux
-      - docker
-    variables:
-        LLVM_VERSION: "4.0.0"
-    image: manu343726/tinyrefl:gcc5-x86
-    script: ./ci/ci.sh
-
-linux-gcc5-x86-llvm500:
-    stage: test
-    tags:
-      - linux
-      - docker
-    variables:
-        LLVM_VERSION: "5.0.0"
-    image: manu343726/tinyrefl:gcc5-x86
-    script: ./ci/ci.sh
-
-linux-gcc5-x86-llvm600:
-    stage: test
-    tags:
-      - linux
-      - docker
-    variables:
-        LLVM_VERSION: "6.0.0"
-    image: manu343726/tinyrefl:gcc5-x86
-    script: ./ci/ci.sh
-
-linux-gcc6-x86-llvm400:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:gcc6-x86
-    variables:
-        LLVM_VERSION: "4.0.0"
-    script: ./ci/ci.sh
-
-linux-gcc6-x86-llvm500:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:gcc6-x86
-    variables:
-        LLVM_VERSION: "5.0.0"
-    script: ./ci/ci.sh
-
-linux-gcc6-x86-llvm600:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:gcc6-x86
-    variables:
-        LLVM_VERSION: "6.0.0"
-    script: ./ci/ci.sh
-
-linux-gcc7-x86-llvm400:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:gcc7-x86
-    variables:
-        LLVM_VERSION: "4.0.0"
-    script: ./ci/ci.sh
-
-linux-gcc7-x86-llvm500:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:gcc7-x86
-    variables:
-        LLVM_VERSION: "5.0.0"
-    script: ./ci/ci.sh
-
-linux-gcc7-x86-llvm600:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:gcc7-x86
-    variables:
-        LLVM_VERSION: "6.0.0"
-    script: ./ci/ci.sh
-
-linux-gcc5-armv7-llvm400:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:gcc5-armv7
-    variables:
-        LLVM_VERSION: "4.0.0"
-        CROSS_BUILDING: "YES"
-    script: ./ci/ci.sh
-
-linux-gcc5-armv7-llvm500:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:gcc5-armv7
-    variables:
-        LLVM_VERSION: "5.0.0"
-        CROSS_BUILDING: "YES"
-    script: ./ci/ci.sh
-
-linux-gcc5-armv7-llvm600:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:gcc5-armv7
-    variables:
-        LLVM_VERSION: "6.0.0"
-        CROSS_BUILDING: "YES"
-    script: ./ci/ci.sh
-
-linux-gcc6-armv7-llvm400:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:gcc6-armv7
-    variables:
-        LLVM_VERSION: "4.0.0"
-        CROSS_BUILDING: "YES"
-    script: ./ci/ci.sh
-
-linux-gcc6-armv7-llvm500:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:gcc6-armv7
-    variables:
-        LLVM_VERSION: "5.0.0"
-        CROSS_BUILDING: "YES"
-    script: ./ci/ci.sh
-
-linux-gcc6-armv7-llvm600:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:gcc6-armv7
-    variables:
-        LLVM_VERSION: "6.0.0"
-        CROSS_BUILDING: "YES"
-    script: ./ci/ci.sh
-
-linux-gcc7-armv7-llvm400:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:gcc7-armv7
-    variables:
-        LLVM_VERSION: "4.0.0"
-        CROSS_BUILDING: "YES"
-    script: ./ci/ci.sh
-
-linux-gcc7-armv7-llvm500:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:gcc7-armv7
-    variables:
-        LLVM_VERSION: "5.0.0"
-        CROSS_BUILDING: "YES"
-    script: ./ci/ci.sh
-
-linux-gcc7-armv7-llvm600:
-    stage: test
-    tags:
-      - linux
-      - docker
-    image: manu343726/tinyrefl:gcc7-armv7
-    variables:
-        LLVM_VERSION: "6.0.0"
-        CROSS_BUILDING: "YES"
-    script: ./ci/ci.sh
+  GIT_STRATEGY: clone
+test-clang40-x86-llvm4.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:clang40-x86
+  variables:
+    LLVM_VERSION: 4.0.0
+  script:
+    - ./ci/ci.sh
+test-clang40-x86-llvm5.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:clang40-x86
+  variables:
+    LLVM_VERSION: 5.0.0
+  script:
+    - ./ci/ci.sh
+test-clang40-x86-llvm6.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:clang40-x86
+  variables:
+    LLVM_VERSION: 6.0.0
+  script:
+    - ./ci/ci.sh
+test-clang50-x86-llvm4.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:clang50-x86
+  variables:
+    LLVM_VERSION: 4.0.0
+  script:
+    - ./ci/ci.sh
+test-clang50-x86-llvm5.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:clang50-x86
+  variables:
+    LLVM_VERSION: 5.0.0
+  script:
+    - ./ci/ci.sh
+test-clang50-x86-llvm6.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:clang50-x86
+  variables:
+    LLVM_VERSION: 6.0.0
+  script:
+    - ./ci/ci.sh
+test-clang60-x86-llvm4.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:clang60-x86
+  variables:
+    LLVM_VERSION: 4.0.0
+  script:
+    - ./ci/ci.sh
+test-clang60-x86-llvm5.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:clang60-x86
+  variables:
+    LLVM_VERSION: 5.0.0
+  script:
+    - ./ci/ci.sh
+test-clang60-x86-llvm6.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:clang60-x86
+  variables:
+    LLVM_VERSION: 6.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc5-armv7-llvm4.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc5-armv7
+  variables:
+    LLVM_VERSION: 4.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc5-armv7-llvm5.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc5-armv7
+  variables:
+    LLVM_VERSION: 5.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc5-armv7-llvm6.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc5-armv7
+  variables:
+    LLVM_VERSION: 6.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc5-x86-llvm4.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc5-x86
+  variables:
+    LLVM_VERSION: 4.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc5-x86-llvm5.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc5-x86
+  variables:
+    LLVM_VERSION: 5.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc5-x86-llvm6.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc5-x86
+  variables:
+    LLVM_VERSION: 6.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc6-armv7-llvm4.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc6-armv7
+  variables:
+    LLVM_VERSION: 4.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc6-armv7-llvm5.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc6-armv7
+  variables:
+    LLVM_VERSION: 5.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc6-armv7-llvm6.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc6-armv7
+  variables:
+    LLVM_VERSION: 6.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc6-x86-llvm4.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc6-x86
+  variables:
+    LLVM_VERSION: 4.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc6-x86-llvm5.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc6-x86
+  variables:
+    LLVM_VERSION: 5.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc6-x86-llvm6.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc6-x86
+  variables:
+    LLVM_VERSION: 6.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc7-armv7-llvm4.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc7-armv7
+  variables:
+    LLVM_VERSION: 4.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc7-armv7-llvm5.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc7-armv7
+  variables:
+    LLVM_VERSION: 5.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc7-armv7-llvm6.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc7-armv7
+  variables:
+    LLVM_VERSION: 6.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc7-x86-llvm4.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc7-x86
+  variables:
+    LLVM_VERSION: 4.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc7-x86-llvm5.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc7-x86
+  variables:
+    LLVM_VERSION: 5.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc7-x86-llvm6.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc7-x86
+  variables:
+    LLVM_VERSION: 6.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc8-armv7-llvm4.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc8-armv7
+  variables:
+    LLVM_VERSION: 4.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc8-armv7-llvm5.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc8-armv7
+  variables:
+    LLVM_VERSION: 5.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc8-armv7-llvm6.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc8-armv7
+  variables:
+    LLVM_VERSION: 6.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc8-x86-llvm4.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc8-x86
+  variables:
+    LLVM_VERSION: 4.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc8-x86-llvm5.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc8-x86
+  variables:
+    LLVM_VERSION: 5.0.0
+  script:
+    - ./ci/ci.sh
+test-gcc8-x86-llvm6.0.0:
+  stage: test
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc8-x86
+  variables:
+    LLVM_VERSION: 6.0.0
+  script:
+    - ./ci/ci.sh

@@ -1,0 +1,29 @@
+docker:
+  repo: manu343726
+  name: tinyrefl
+
+stages:
+  - test
+
+test:
+  tags:
+    - linux
+    - docker
+  toolchains:
+    - clang40-x86
+    - clang50-x86
+    - clang60-x86
+    - gcc5-armv7
+    - gcc5-x86
+    - gcc6-armv7
+    - gcc6-x86
+    - gcc7-armv7
+    - gcc7-x86
+    - gcc8-armv7
+    - gcc8-x86
+  llvm-versions:
+    - 4.0.0
+    - 5.0.0
+    - 6.0.0
+  script:
+    - ./ci/ci.sh
