@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Full path to the ci/ directory, where this script is located
 CI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 SRC_DIR=$CI_DIR/..
@@ -12,6 +14,7 @@ OPTION=$2
 IMAGE_VARIABLE=${JOB_NAME_SANITIZED}_image
 LLVM_VERSION_VARIABLE=${JOB_NAME_SANITIZED}_variables_LLVM_VERSION
 CROSS_BUILDING_VARIABLE=${JOB_NAME_SANITIZED}_variables_CROSS_BUILDING
+SCRIPT_VARIABLE=${JOB_NAME_SANITIZED}_script
 
 
 # Parse Giltab-ci config file
@@ -25,6 +28,7 @@ LLVM_VERSION=${!LLVM_VERSION_VARIABLE}
 LLVM_VERSION=${LLVM_VERSION//\"/}
 CROSS_BUILDING=${!CROSS_BUILDING_VARIABLE}
 CROSS_BUILDING=${CROSS_BUILDING//\"/}
+declare -n SCRIPT=${SCRIPT_VARIABLE}
 
 if [[ -z "$IMAGE" ]]; then
     >&2 echo No valid ci job named \"$JOB_NAME\" found
@@ -56,4 +60,7 @@ echo Using docker image $IMAGE
 echo CROSS_BUILDING=$CROSS_BUILDING
 echo LLVM_VERSION=$LLVM_VERSION
 
-docker run -ti --rm --hostname $JOB_NAME -v $SRC_DIR:/repo -w /repo -e CI_JOB_NAME=$JOB_NAME -e LLVM_VERSION=$LLVM_VERSION $CROSS_BUILDING_FLAG $CLEAN_BUILD_FLAG $IMAGE bash -c "./ci/ci.sh"
+for ((i = 0; i < ${#SCRIPT[@]}; i++)); do
+    script_line=${SCRIPT[$i]}
+    docker run -ti --rm --hostname $JOB_NAME -v $SRC_DIR:/repo -w /repo -e CI_JOB_NAME=$JOB_NAME -e LLVM_VERSION=$LLVM_VERSION $CROSS_BUILDING_FLAG $CLEAN_BUILD_FLAG $IMAGE bash -c "$script_line"
+done
