@@ -36,8 +36,8 @@ using member_type_t = typename member_type<MemberPtr>::type;
 }
 
 #define TINYREFL_API_CODEGEN_VERSION_MAJOR 0
-#define TINYREFL_API_CODEGEN_VERSION_MINOR 1
-#define TINYREFL_API_CODEGEN_VERSION_FIX   1
+#define TINYREFL_API_CODEGEN_VERSION_MINOR 2
+#define TINYREFL_API_CODEGEN_VERSION_FIX   0
 
 // Boost Fusion backend for tinyrefl metadata
 #define TINYREFL_GODMODE(...) // No Gods here
