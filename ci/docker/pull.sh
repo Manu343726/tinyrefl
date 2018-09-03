@@ -14,3 +14,5 @@ docker pull $REPO/$NAME:gcc6-armv7
 docker pull $REPO/$NAME:gcc6-x86
 docker pull $REPO/$NAME:gcc7-armv7
 docker pull $REPO/$NAME:gcc7-x86
+docker pull $REPO/$NAME:gcc8-armv7
+docker pull $REPO/$NAME:gcc8-x86
