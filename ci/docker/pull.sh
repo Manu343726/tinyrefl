@@ -7,7 +7,9 @@ if [[ -z "$NAME" ]]; then
     NAME="tinyrefl"
 fi
 
+docker pull $REPO/$NAME:clang40-x86
 docker pull $REPO/$NAME:clang50-x86
+docker pull $REPO/$NAME:clang60-x86
 docker pull $REPO/$NAME:gcc5-armv7
 docker pull $REPO/$NAME:gcc5-x86
 docker pull $REPO/$NAME:gcc6-armv7
