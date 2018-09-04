@@ -7,6 +7,10 @@ set(CPPAST_BUILD_TOOL OFF CACHE BOOL "disable cppast tool")
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "build cppfs as static lib")
 set(OPTION_BUILD_TESTS OFF CACHE BOOL "disable cppfs tests")
 
+if(NOT ("${TINYREFL_LLVM_VERSION}" STREQUAL "${TINYREFL_LLVM_VERSION_MAJOR}.${TINYREFL_LLVM_VERSION_MINOR}.${TINYREFL_LLVM_VERSION_FIX}"))
+    message(FATAL_ERROR "WTF????")
+endif()
+
 if(TINYREFL_USE_LOCAL_LLVM)
     find_program(llvm-config NAMES llvm-config llvm-config-${TINYREFL_LLVM_VERSION_MAJOR}.${TINYREFL_LLVM_VERSION_MINOR})
 
@@ -45,6 +49,7 @@ else()
     add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
 
     set(LLVM_DOWNLOAD_URL "${TINYREFL_LLVM_DOWNLOAD_URL}")
+    message(STATUS "Using LLVM download URL: ${TINYREFL_LLVM_DOWNLOAD_URL}")
 endif()
 
 

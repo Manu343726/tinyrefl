@@ -1,4 +1,7 @@
 include(${TINYREFL_SOURCE_DIR}/cmake/git.cmake)
+include(${TINYREFL_SOURCE_DIR}/cmake/utils.cmake)
+
+parse_version_number(${TINYREFL_LLVM_VERSION} TINYREFL_LLVM_VERSION_MAJOR TINYREFL_LLVM_VERSION_MINOR TINYREFL_LLVM_VERSION_FIX)
 
 if(TINYREFL_CROSS_BUILDING)
     message(STATUS "Cross-building tinyrefl, host-build tinyrefl-tool")
