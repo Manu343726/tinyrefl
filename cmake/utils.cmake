@@ -447,3 +447,21 @@ ${footer}"
         endif()
     endforeach()
 endfunction()
+
+function(add_variable_compile_definition TARGET VARIABLE)
+    cmake_parse_arguments(
+        PREFIX
+        "STRING"
+        "PREFIX;SUFFIX"
+        ""
+        ${ARGN}
+    )
+
+    message(STATUS "TARGET ${TARGET} compile definition ${VARIABLE}=${${VARIABLE}}")
+
+    if(PREFIX_STRING)
+        target_compile_definitions(${TARGET} PUBLIC ${PREFIX_PREFIX}${VARIABLE}${PREFIX_SUFFIX}="${${VARIABLE}}")
+    else()
+        target_compile_definitions(${TARGET} PUBLIC ${PREFIX_PREFIX}${VARIABLE}${PREFIX_SUFFIX}=${${VARIABLE}})
+    endif()
+endfunction()

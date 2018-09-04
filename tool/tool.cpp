@@ -825,6 +825,22 @@ bool reflect_file(const std::string& filepath, const cppast::cpp_standard cpp_st
     return false;
 }
 
+template<typename Stream>
+void print_version(Stream& out)
+{
+    out << "tinyrefl-tool v" << TINYREFL_VERSION << "\n\n"
+        << "tinyrefl commit: " << TINYREFL_GIT_COMMIT << "\n"
+        << "tinyrefl branch: " << TINYREFL_GIT_BRANCH << "\n"
+        << "tinyrefl version: " << TINYREFL_VERSION << "\n"
+        << "tinyrefl version major: " << TINYREFL_VERSION_MAJOR_STRING << "\n"
+        << "tinyrefl version minor: " << TINYREFL_VERSION_MINOR_STRING << "\n"
+        << "tinyrefl version fix:   " << TINYREFL_VERSION_FIX_STRING << "\n\n"
+        << "Compiled with LLVM  version: " << TINYREFL_LLVM_VERSION << "\n"
+        << "Compiled with cppast version: " << CPPAST_VERSION_STRING << "\n\n"
+        << "This tool is part of tinyrefl, a C++ static reflection system\n"
+        << "See https://gitlab.com/Manu343726/tinyrefl for docs and issues\n";
+}
+
 int main(int argc, char** argv)
 {
     cl::opt<std::string>          filename{cl::Positional, cl::desc("<input header>"), cl::Required};
@@ -839,18 +855,18 @@ int main(int argc, char** argv)
         clEnumValN(cppast::cpp_standard::cpp_1z, "c++17", "C++ 2017 standard")
     )};
     cl::list<std::string> custom_flags{cl::Sink, cl::desc("Custom compiler flags")};
+
+#if TINYREFL_LLVM_VERSION_MAJOR >= 6
+    cl::SetVersionPrinter([](llvm::raw_ostream& out)
+    {
+        print_version(out);
+    });
+#else
     cl::SetVersionPrinter(+[]
     {
-        std::cout << "tinyrefl-tool v" << TINYREFL_VERSION << "\n\n"
-                  << "tinyrefl commit: " << TINYREFL_GIT_COMMIT << "\n"
-                  << "tinyrefl branch: " << TINYREFL_GIT_BRANCH << "\n"
-                  << "tinyrefl version: " << TINYREFL_VERSION << "\n"
-                  << "tinyrefl version major: " << TINYREFL_VERSION_MAJOR << "\n"
-                  << "tinyrefl version minor: " << TINYREFL_VERSION_MINOR << "\n"
-                  << "tinyrefl version fix:   " << TINYREFL_VERSION_FIX << "\n\n"
-                  << "This tool is part of tinyrefl, a C++ static reflection system\n"
-                  << "See https://gitlab.com/Manu343726/tinyrefl for docs and issues\n";
+        print_version(std::cout);
     });
+#endif // TINYREFL_LLVM_VERSION_MAJOR
 
     if(cl::ParseCommandLineOptions(argc, argv, "Tinyrefl codegen tool"))
     {

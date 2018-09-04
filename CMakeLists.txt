@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.0)
+
+set(TINYREFL_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "")
+set(TINYREFL_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "")
+set(TINYREFL_INCLUDE_DIR "${TINYREFL_SOURCE_DIR}/include" CACHE PATH "")
+
 include(cmake/git.cmake)
+include(cmake/utils.cmake)
 project(tinyrefl VERSION "${TINYREFL_VERSION}")
 
 include (CheckCXXCompilerFlag)
@@ -18,6 +24,7 @@ option(TINYREFL_BUILD_EXAMPLES "Build tinyrefl examples" ${TINYREFL_IS_ROOT_PROJ
 if(NOT DEFINED TINYREFL_LLVM_VERSION)
     set(TINYREFL_LLVM_VERSION "4.0.0")
 endif()
+parse_version_number(${TINYREFL_LLVM_VERSION} TINYREFL_LLVM_VERSION_MAJOR TINYREFL_LLVM_VERSION_MINOR TINYREFL_LLVM_VERSION_FIX)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -30,10 +37,6 @@ if(NOT MSVC)
 
     set(CMAKE_CXX_FLAGS "-Wall -Werror -Wno-attributes ${no_noexcept_abi_warning}")
 endif()
-
-set(TINYREFL_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "")
-set(TINYREFL_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "")
-set(TINYREFL_INCLUDE_DIR "${TINYREFL_SOURCE_DIR}/include" CACHE PATH "")
 
 if(CMAKE_TOOLCHAIN_FILE OR TINYREFL_CROSS_BUILDING)
     message(STATUS "Tinyrefl cross building")

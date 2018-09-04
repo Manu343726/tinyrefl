@@ -1,3 +1,5 @@
+include(${TINYREFL_SOURCE_DIR}/cmake/utils.cmake)
+
 find_package(Git REQUIRED)
 
 function(git_branch RESULT)
@@ -70,7 +72,7 @@ function(git_last_tag RESULT)
 endfunction()
 
 git_branch(TINYREFL_GIT_BRANCH)
-git_commit_hash(TINYREFL_GIT_COMMIT_HASH)
+git_commit_hash(TINYREFL_GIT_COMMIT)
 git_current_checkout_is_tag(TINYREFL_GIT_AT_TAG)
 git_last_tag(TINYREFL_GIT_LAST_TAG)
 
@@ -88,17 +90,18 @@ message(STATUS "Tinyrefl version fix: ${TINYREFL_VERSION_FIX}")
 set(TINYREFL_VERSION "${TINYREFL_VERSION_MAJOR}.${TINYREFL_VERSION_MINOR}.${TINYREFL_VERSION_FIX}")
 message(STATUS "Tinyrefl version ${TINYREFL_VERSION}")
 message(STATUS "Tinyrefl git branch: ${TINYREFL_GIT_BRANCH}")
-message(STATUS "Tinyrefl git commit: ${TINYREFL_GIT_COMMIT_HASH}")
+message(STATUS "Tinyrefl git commit: ${TINYREFL_GIT_COMMIT}")
 message(STATUS "Tinyrefl at git tag: ${TINYREFL_GIT_AT_TAG}")
 message(STATUS "Tinyrefl latest git tag: ${TINYREFL_GIT_LAST_TAG}")
 
 function(define_tinyrefl_version_variables TARGET)
-    target_compile_definitions(${TARGET} PUBLIC
-        TINYREFL_VERSION="${TINYREFL_VERSION}"
-        TINYREFL_VERSION_MAJOR=${TINYREFL_VERSION_MAJOR}
-        TINYREFL_VERSION_MINOR=${TINYREFL_VERSION_MINOR}
-        TINYREFL_VERSION_FIX=${TINYREFL_VERSION_FIX}
-        TINYREFL_GIT_COMMIT="${TINYREFL_GIT_COMMIT_HASH}"
-        TINYREFL_GIT_BRANCH="${TINYREFL_GIT_BRANCH}"
-    )
+    add_variable_compile_definition(${TARGET} TINYREFL_VERSION STRING)
+    add_variable_compile_definition(${TARGET} TINYREFL_VERSION_MAJOR)
+    add_variable_compile_definition(${TARGET} TINYREFL_VERSION_MINOR)
+    add_variable_compile_definition(${TARGET} TINYREFL_VERSION_FIX)
+    add_variable_compile_definition(${TARGET} TINYREFL_VERSION_MAJOR SUFFIX _STRING STRING)
+    add_variable_compile_definition(${TARGET} TINYREFL_VERSION_MINOR SUFFIX _STRING STRING)
+    add_variable_compile_definition(${TARGET} TINYREFL_VERSION_FIX SUFFIX _STRING STRING)
+    add_variable_compile_definition(${TARGET} TINYREFL_GIT_COMMIT STRING)
+    add_variable_compile_definition(${TARGET} TINYREFL_GIT_BRANCH STRING)
 endfunction()

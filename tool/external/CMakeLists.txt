@@ -7,8 +7,6 @@ set(CPPAST_BUILD_TOOL OFF CACHE BOOL "disable cppast tool")
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "build cppfs as static lib")
 set(OPTION_BUILD_TESTS OFF CACHE BOOL "disable cppfs tests")
 
-parse_version_number(${TINYREFL_LLVM_VERSION} TINYREFL_LLVM_VERSION_MAJOR TINYREFL_LLVM_VERSION_MINOR TINYREFL_LLVM_VERSION_FIX)
-
 if(TINYREFL_USE_LOCAL_LLVM)
     find_program(llvm-config NAMES llvm-config llvm-config-${TINYREFL_LLVM_VERSION_MAJOR}.${TINYREFL_LLVM_VERSION_MINOR})
 
@@ -86,3 +84,13 @@ set(CLANG_CMAKE_PATH "${stdout}/cmake/clang" CACHE PATH "")
 
 message(STATUS "llvm cmake path: ${LLVM_CMAKE_PATH}")
 message(STATUS "clang cmake path: ${CLANG_CMAKE_PATH}")
+
+function(define_llvm_version_variables TARGET)
+    add_variable_compile_definition(${TARGET} TINYREFL_LLVM_VERSION STRING)
+    add_variable_compile_definition(${TARGET} TINYREFL_LLVM_VERSION_MAJOR)
+    add_variable_compile_definition(${TARGET} TINYREFL_LLVM_VERSION_MINOR)
+    add_variable_compile_definition(${TARGET} TINYREFL_LLVM_VERSION_FIX)
+    add_variable_compile_definition(${TARGET} TINYREFL_LLVM_VERSION_MAJOR SUFFIX _STRING STRING)
+    add_variable_compile_definition(${TARGET} TINYREFL_LLVM_VERSION_MINOR SUFFIX _STRING STRING)
+    add_variable_compile_definition(${TARGET} TINYREFL_LLVM_VERSION_FIX SUFFIX _STRING STRING)
+endfunction()
