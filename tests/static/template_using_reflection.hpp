@@ -12,11 +12,11 @@ namespace test
 template<typename T>
 struct AssertMetadataAvailableForTemplateParam
 {
-    static_assert(tinyrefl::has_metadata<T>(), "Expected metadata available inside class template");
+    static_assert(
+        tinyrefl::has_metadata<T>(),
+        "Expected metadata available inside class template");
 };
-
 }
-
 }
 
 #endif // TINYREFL_TESTS_STATIC_TEMPLATEUSINGREFLECTION_H

@@ -1,8 +1,8 @@
 #ifndef USERAPI_H
 #define USERAPI_H
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace userapi
 {
@@ -14,14 +14,14 @@ public:
     {
         enum class UserCredentials
         {
-            READ=1,
-            WRITE=2
+            READ  = 1,
+            WRITE = 2
         };
 
-        std::string url;
-        int port;
-        std::string user;
-        UserCredentials userCredentials;
+        std::string              url;
+        int                      port;
+        std::string              user;
+        UserCredentials          userCredentials;
         std::vector<std::string> tags;
 
         std::string to_string() const;
@@ -36,7 +36,6 @@ public:
 private:
     SessionData _sessionData;
 };
-
 }
 
 #endif // USERAPI_H

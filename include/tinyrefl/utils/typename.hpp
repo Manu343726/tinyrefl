@@ -18,14 +18,12 @@ const std::string& type_name()
     static std::string name{ctti::nameof<T>().str()};
     return name;
 }
-
 }
-
 }
 
 #else
-#include <type_info>
 #include <tinyrefl/utils/demangle.hpp>
+#include <type_info>
 
 namespace tinyrefl
 {
@@ -39,9 +37,7 @@ const std::string& type_name()
     static std::string name{tinyrefl::utils::demangle(typeid(T).name())};
     return name;
 }
-
 }
-
 }
 #endif // CTTI_HAS_CONSTEXPR_PRETTY_FUNCTION
 

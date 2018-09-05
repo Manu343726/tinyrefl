@@ -1,5 +1,5 @@
-#include <tinyrefl/api.hpp>
 #include "example.hpp"
+#include <tinyrefl/api.hpp>
 #include "example.hpp.tinyrefl"
 
 namespace my_namespace
@@ -7,7 +7,7 @@ namespace my_namespace
 
 std::ostream& operator<<(std::ostream& os, const MyClass::Enum value)
 {
-    switch(value)
+    switch (value)
     {
     case MyClass::Enum::A:
         return os << "A";
@@ -26,5 +26,4 @@ bool operator==(const MyClass& lhs, const MyClass& rhs)
 {
     return tinyrefl::memberwise_equal(lhs, rhs);
 }
-
 }

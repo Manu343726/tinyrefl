@@ -1,15 +1,13 @@
 #include "boost_fusion.hpp"
-#include <boost/fusion/include/algorithm.hpp>
 #include "example.hpp"
-#include "example.hpp.tinyrefl"
+#include <boost/fusion/include/algorithm.hpp>
 #include <iostream>
+#include "example.hpp.tinyrefl"
 
 int main()
 {
     example::C c;
 
-    boost::fusion::for_each(c, [](const auto& member)
-    {
-        std::cout << member << std::endl;
-    });
+    boost::fusion::for_each(
+        c, [](const auto& member) { std::cout << member << std::endl; });
 }

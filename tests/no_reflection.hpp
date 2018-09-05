@@ -1,9 +1,11 @@
 
 namespace my_namespace
 {
-    struct BaseClass
+struct BaseClass
+{
+    int  baseMember;
+    void baseFunction()
     {
-        int baseMember;
-        void baseFunction() {}
-    };
+    }
+};
 }
