@@ -68,7 +68,7 @@ std::ostream& operator<<(std::ostream& os, const T& object)
             // a reference to the current member variable of the original object
             os << "\"" << name << "\": " << member;
 
-            if (current < total - 1)
+            if(current < total - 1)
             {
                 os << ", ";
             }
@@ -156,7 +156,7 @@ int main()
      * In case of enum types, this constexpr metaobject implements an intuitive
      * API to introspect enumeration values
      */
-    for (std::size_t i = 0; i < $(example::Enum)().count(); ++i)
+    for(std::size_t i = 0; i < $(example::Enum)().count(); ++i)
     {
         const auto& value = $(example::Enum)().get_value(i);
 
@@ -187,7 +187,7 @@ int main()
 
     static_assert(tinyrefl::has_attribute<f>("f"), "Expected [[f]]");
 
-    for (const auto& attribute : f_metadata().get_attributes())
+    for(const auto& attribute : f_metadata().get_attributes())
     {
         std::cout << "f() was tagged with attribute [["
                   << attribute.full_attribute << "]]\n";

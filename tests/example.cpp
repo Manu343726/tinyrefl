@@ -7,7 +7,7 @@ namespace my_namespace
 
 std::ostream& operator<<(std::ostream& os, const MyClass::Enum value)
 {
-    switch (value)
+    switch(value)
     {
     case MyClass::Enum::A:
         return os << "A";

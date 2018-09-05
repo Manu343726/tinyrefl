@@ -104,13 +104,13 @@ TEST_CASE("tinyrefl api")
                     auto /* depth */,
                     auto /* entity */,
                     auto entity_kind) {
-                    if (entity_kind == expected_entity_kind)
+                    if(entity_kind == expected_entity_kind)
                     {
                         entities.insert(name);
                     }
                 });
 
-            for (const auto& key_value : expected_results)
+            for(const auto& key_value : expected_results)
             {
                 const auto& entity_name    = key_value.first;
                 const auto& expected_count = key_value.second;
@@ -258,7 +258,7 @@ TEST_CASE("tinyrefl api")
             INFO([members] {
                 std::ostringstream ss;
 
-                for (const auto& member : members)
+                for(const auto& member : members)
                 {
                     ss << " - got member \"" << member << "\"\n";
                 }
@@ -267,7 +267,7 @@ TEST_CASE("tinyrefl api")
             }());
             CHECK(members.size() == expected.size());
 
-            for (const auto& member : expected)
+            for(const auto& member : expected)
             {
                 INFO("Expected " << expected_kind << " \"" << member << "\"");
                 CHECK(members.count(member) == 1);
@@ -308,24 +308,24 @@ TEST_CASE("tinyrefl api")
                     auto /* depth */,
                     auto& member,
                     TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)) {
-                    if (name == "str")
+                    if(name == "str")
                     {
                         CHECK(addressof(member) == addressof(myObject.str));
                         strVisited = true;
                     }
-                    else if (name == "innerClassInstance")
+                    else if(name == "innerClassInstance")
                     {
                         CHECK(
                             addressof(member) ==
                             addressof(myObject.innerClassInstance));
                         innerClassInstanceVisited = true;
                     }
-                    else if (name == "vector")
+                    else if(name == "vector")
                     {
                         CHECK(addressof(member) == addressof(myObject.vector));
                         vectorVisited = true;
                     }
-                    else if (name == "enum_value")
+                    else if(name == "enum_value")
                     {
                         CHECK(
                             addressof(member) ==
@@ -380,7 +380,7 @@ TEST_CASE("tinyrefl api")
             CHECK(myObject.str == "a new string value");
             REQUIRE(myObject.vector.size() == 42);
 
-            for (int e : myObject.vector)
+            for(int e : myObject.vector)
             {
                 CHECK(e == 42);
             }
@@ -412,7 +412,7 @@ TEST_CASE("tinyrefl api")
             INFO([members] {
                 std::ostringstream ss;
 
-                for (const auto& member : members)
+                for(const auto& member : members)
                 {
                     ss << " - got member \"" << member << "\"\n";
                 }
@@ -421,7 +421,7 @@ TEST_CASE("tinyrefl api")
             }());
             CHECK(members.size() == expected.size());
 
-            for (const auto& member : expected)
+            for(const auto& member : expected)
             {
                 INFO("Expected " << expected_kind << " \"" << member << "\"");
                 CHECK(members.count(member) == 1);
@@ -474,13 +474,13 @@ TEST_CASE("tinyrefl api")
                     auto& lhsMember = std::get<0>(members);
                     auto& rhsMember = std::get<1>(members);
 
-                    if (name == "str")
+                    if(name == "str")
                     {
                         CHECK(addressof(lhsMember) == addressof(lhs.str));
                         CHECK(addressof(rhsMember) == addressof(rhs.str));
                         strVisited = true;
                     }
-                    else if (name == "innerClassInstance")
+                    else if(name == "innerClassInstance")
                     {
                         CHECK(
                             addressof(lhsMember) ==
@@ -490,13 +490,13 @@ TEST_CASE("tinyrefl api")
                             addressof(rhs.innerClassInstance));
                         innerClassInstanceVisited = true;
                     }
-                    else if (name == "vector")
+                    else if(name == "vector")
                     {
                         CHECK(addressof(lhsMember) == addressof(lhs.vector));
                         CHECK(addressof(rhsMember) == addressof(rhs.vector));
                         vectorVisited = true;
                     }
-                    else if (name == "enum_value")
+                    else if(name == "enum_value")
                     {
                         CHECK(
                             addressof(lhsMember) == addressof(lhs.enum_value));
@@ -547,13 +547,13 @@ TEST_CASE("tinyrefl api")
                     const auto& lhsMember = std::get<0>(members);
                     const auto& rhsMember = std::get<1>(members);
 
-                    if (name == "str")
+                    if(name == "str")
                     {
                         CHECK(addressof(lhsMember) == addressof(lhs.str));
                         CHECK(addressof(rhsMember) == addressof(rhs.str));
                         strVisited = true;
                     }
-                    else if (name == "innerClassInstance")
+                    else if(name == "innerClassInstance")
                     {
                         CHECK(
                             addressof(lhsMember) ==
@@ -563,13 +563,13 @@ TEST_CASE("tinyrefl api")
                             addressof(rhs.innerClassInstance));
                         innerClassInstanceVisited = true;
                     }
-                    else if (name == "vector")
+                    else if(name == "vector")
                     {
                         CHECK(addressof(lhsMember) == addressof(lhs.vector));
                         CHECK(addressof(rhsMember) == addressof(rhs.vector));
                         vectorVisited = true;
                     }
-                    else if (name == "enum_value")
+                    else if(name == "enum_value")
                     {
                         CHECK(
                             addressof(lhsMember) == addressof(lhs.enum_value));
@@ -644,11 +644,11 @@ TEST_CASE("tinyrefl api")
             REQUIRE(lhs.vector.size() == 42);
             REQUIRE(rhs.vector.size() == 42);
 
-            for (int e : lhs.vector)
+            for(int e : lhs.vector)
             {
                 CHECK(e == 42);
             }
-            for (int e : rhs.vector)
+            for(int e : rhs.vector)
             {
                 CHECK(e == 42);
             }
@@ -673,7 +673,7 @@ TEST_CASE("tinyrefl api")
             INFO([members] {
                 std::ostringstream ss;
 
-                for (const auto& member : members)
+                for(const auto& member : members)
                 {
                     ss << " - got member \"" << member << "\"\n";
                 }
@@ -682,7 +682,7 @@ TEST_CASE("tinyrefl api")
             }());
             CHECK(members.size() == expected.size());
 
-            for (const auto& member : expected)
+            for(const auto& member : expected)
             {
                 INFO(
                     "Expected "
@@ -709,21 +709,21 @@ TEST_CASE("tinyrefl api")
             tinyrefl::visit_member_variables(
                 myObject,
                 [&myObject, addressof](const std::string& name, auto& member) {
-                    if (name == "str")
+                    if(name == "str")
                     {
                         CHECK(addressof(member) == addressof(myObject.str));
                     }
-                    else if (name == "innerClassInstance")
+                    else if(name == "innerClassInstance")
                     {
                         CHECK(
                             addressof(member) ==
                             addressof(myObject.innerClassInstance));
                     }
-                    else if (name == "vector")
+                    else if(name == "vector")
                     {
                         CHECK(addressof(member) == addressof(myObject.vector));
                     }
-                    else if (name == "enum_value")
+                    else if(name == "enum_value")
                     {
                         CHECK(
                             addressof(member) ==
@@ -759,7 +759,7 @@ TEST_CASE("tinyrefl api")
             CHECK(myObject.str == "a new string value");
             REQUIRE(myObject.vector.size() == 42);
 
-            for (int e : myObject.vector)
+            for(int e : myObject.vector)
             {
                 CHECK(e == 42);
             }

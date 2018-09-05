@@ -35,6 +35,7 @@ MaxEmptyLinesToKeep: '3'
 NamespaceIndentation: None
 PointerAlignment: Left
 SpaceAfterTemplateKeyword: 'false'
+SpaceBeforeParens: Never
 TabWidth: '4'
 UseTab: Never
 

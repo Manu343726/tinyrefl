@@ -15,11 +15,11 @@ std::string demangle(const std::string& name)
 {
     char output_buffer[UNDECORATED_NAME_LENGHT];
 
-    if (!FAILED(UnDecorateSymbolName(
-            name.c_str(),
-            output_buffer,
-            UNDECORATED_NAME_LENGHT,
-            UNDNAME_COMPLETE)))
+    if(!FAILED(UnDecorateSymbolName(
+           name.c_str(),
+           output_buffer,
+           UNDECORATED_NAME_LENGHT,
+           UNDNAME_COMPLETE)))
     {
         return std::string(output_buffer);
     }
@@ -44,7 +44,7 @@ std::string demangle(const std::string& name)
 
     char* demangled_name = abi::__cxa_demangle(name.c_str(), 0, 0, &status);
 
-    if (status != 0)
+    if(status != 0)
         throw;
 
     std::string result{demangled_name};

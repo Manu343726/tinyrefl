@@ -70,7 +70,7 @@ enum class entity_kind
 
 inline std::ostream& operator<<(std::ostream& os, const entity_kind e)
 {
-    switch (e)
+    switch(e)
     {
     case entity_kind::NAMESPACE:
         return os << "namespace";
@@ -509,12 +509,12 @@ struct constructor<Name, Class, tinyrefl::meta::list<Args...>, Attributes>
 
     void inplace_construct(void* where, Args... args) const
     {
-        new (where) Class{std::forward<Args>(args)...};
+        new(where) Class{std::forward<Args>(args)...};
     }
 
     void inplace_construct(Class* where, Args... args) const
     {
-        new (where) Class{std::move(args)...};
+        new(where) Class{std::move(args)...};
     }
 };
 

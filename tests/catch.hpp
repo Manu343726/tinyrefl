@@ -173,7 +173,7 @@
 // handled by it.
 // Otherwise all supported compilers support COUNTER macro,
 // but user still might want to turn it off
-#if (!defined(__JETBRAINS_IDE__) || __JETBRAINS_IDE__ >= 20170300L)
+#if(!defined(__JETBRAINS_IDE__) || __JETBRAINS_IDE__ >= 20170300L)
 #define CATCH_INTERNAL_CONFIG_COUNTER
 #endif
 
@@ -451,7 +451,7 @@ auto makeTestInvoker(void (*testAsFunction)()) noexcept -> ITestInvoker*;
 template<typename C>
 auto makeTestInvoker(void (C::*testAsMethod)()) noexcept -> ITestInvoker*
 {
-    return new (std::nothrow) TestInvokerAsMethod<C>(testAsMethod);
+    return new(std::nothrow) TestInvokerAsMethod<C>(testAsMethod);
 }
 
 struct NameAndTags
@@ -589,7 +589,7 @@ inline void arcSafeRelease(NSObject* obj)
 }
 inline id performOptionalSelector(id obj, SEL sel)
 {
-    if ([obj respondsToSelector:sel])
+    if([obj respondsToSelector:sel])
         return [obj performSelector:sel];
     return nil;
 }
@@ -605,7 +605,7 @@ inline id performOptionalSelector(id obj, SEL sel)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 #endif
-    if ([obj respondsToSelector:sel])
+    if([obj respondsToSelector:sel])
         return [obj performSelector:sel];
 #ifdef __clang__
 #pragma clang diagnostic pop
@@ -839,7 +839,7 @@ struct StringMaker<T*>
     template<typename U>
     static std::string convert(U* p)
     {
-        if (p)
+        if(p)
         {
             return ::Catch::Detail::rawMemoryToString(p);
         }
@@ -855,7 +855,7 @@ struct StringMaker<R C::*>
 {
     static std::string convert(R C::*p)
     {
-        if (p)
+        if(p)
         {
             return ::Catch::Detail::rawMemoryToString(p);
         }
@@ -873,10 +873,10 @@ std::string rangeToString(InputIterator first, InputIterator last)
 {
     std::ostringstream oss;
     oss << "{ ";
-    if (first != last)
+    if(first != last)
     {
         oss << ::Catch::Detail::stringify(*first);
-        for (++first; first != last; ++first)
+        for(++first; first != last; ++first)
             oss << ", " << ::Catch::Detail::stringify(*first);
     }
     oss << " }";
@@ -909,7 +909,7 @@ struct StringMaker<NSString*>
 {
     static std::string convert(NSString* nsstring)
     {
-        if (!nsstring)
+        if(!nsstring)
             return "nil";
         return std::string("@") + [nsstring UTF8String];
     }
@@ -1709,7 +1709,7 @@ extern "C" __declspec(dllimport) void __stdcall DebugBreak();
 
 #ifdef CATCH_TRAP
 #define CATCH_BREAK_INTO_DEBUGGER() \
-    if (Catch::isDebuggerActive())  \
+    if(Catch::isDebuggerActive())   \
     {                               \
         CATCH_TRAP();               \
     }
@@ -1750,13 +1750,13 @@ extern "C" __declspec(dllimport) void __stdcall DebugBreak();
 // This needs to be done as a macro so the debugger will stop in the user
 // source code rather than in Catch library code
 #define INTERNAL_CATCH_REACT(handler) \
-    if (handler.shouldDebugBreak())   \
+    if(handler.shouldDebugBreak())    \
         CATCH_BREAK_INTO_DEBUGGER();  \
     handler.reactWithoutDebugBreak();
 
 #define INTERNAL_CATCH_TRY(capturer) try
 #define INTERNAL_CATCH_CATCH(capturer) \
-    catch (...)                        \
+    catch(...)                         \
     {                                  \
         capturer.useActiveException(); \
     }
@@ -1780,7 +1780,7 @@ extern "C" __declspec(dllimport) void __stdcall DebugBreak();
         }                                                                     \
         INTERNAL_CATCH_CATCH(catchAssertionHandler)                           \
         INTERNAL_CATCH_REACT(catchAssertionHandler)                           \
-    } while (Catch::isTrue(                                                   \
+    } while(Catch::isTrue(                                                    \
         false &&                                                              \
         static_cast<bool>(!!(__VA_ARGS__)))) // the expression here is
                                              // never evaluated at
@@ -1793,12 +1793,12 @@ extern "C" __declspec(dllimport) void __stdcall DebugBreak();
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_CATCH_IF(macroName, resultDisposition, ...)        \
     INTERNAL_CATCH_TEST(macroName, resultDisposition, __VA_ARGS__); \
-    if (Catch::getResultCapture().lastAssertionPassed())
+    if(Catch::getResultCapture().lastAssertionPassed())
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_CATCH_ELSE(macroName, resultDisposition, ...)      \
     INTERNAL_CATCH_TEST(macroName, resultDisposition, __VA_ARGS__); \
-    if (!Catch::getResultCapture().lastAssertionPassed())
+    if(!Catch::getResultCapture().lastAssertionPassed())
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_CATCH_NO_THROW(macroName, resultDisposition, ...) \
@@ -1814,12 +1814,12 @@ extern "C" __declspec(dllimport) void __stdcall DebugBreak();
             static_cast<void>(__VA_ARGS__);                        \
             catchAssertionHandler.handle(Catch::ResultWas::Ok);    \
         }                                                          \
-        catch (...)                                                \
+        catch(...)                                                 \
         {                                                          \
             catchAssertionHandler.useActiveException();            \
         }                                                          \
         INTERNAL_CATCH_REACT(catchAssertionHandler)                \
-    } while (Catch::alwaysFalse())
+    } while(Catch::alwaysFalse())
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_CATCH_THROWS(macroName, resultDisposition, ...)    \
@@ -1830,21 +1830,21 @@ extern "C" __declspec(dllimport) void __stdcall DebugBreak();
             CATCH_INTERNAL_LINEINFO,                                \
             CATCH_INTERNAL_STRINGIFY(__VA_ARGS__),                  \
             resultDisposition);                                     \
-        if (catchAssertionHandler.allowThrows())                    \
+        if(catchAssertionHandler.allowThrows())                     \
             try                                                     \
             {                                                       \
                 static_cast<void>(__VA_ARGS__);                     \
                 catchAssertionHandler.handle(                       \
                     Catch::ResultWas::DidntThrowException);         \
             }                                                       \
-            catch (...)                                             \
+            catch(...)                                              \
             {                                                       \
                 catchAssertionHandler.handle(Catch::ResultWas::Ok); \
             }                                                       \
         else                                                        \
             catchAssertionHandler.handle(Catch::ResultWas::Ok);     \
         INTERNAL_CATCH_REACT(catchAssertionHandler)                 \
-    } while (Catch::alwaysFalse())
+    } while(Catch::alwaysFalse())
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_CATCH_THROWS_AS(                                         \
@@ -1857,25 +1857,25 @@ extern "C" __declspec(dllimport) void __stdcall DebugBreak();
             CATCH_INTERNAL_STRINGIFY(expr) ", " CATCH_INTERNAL_STRINGIFY( \
                 exceptionType),                                           \
             resultDisposition);                                           \
-        if (catchAssertionHandler.allowThrows())                          \
+        if(catchAssertionHandler.allowThrows())                           \
             try                                                           \
             {                                                             \
                 static_cast<void>(expr);                                  \
                 catchAssertionHandler.handle(                             \
                     Catch::ResultWas::DidntThrowException);               \
             }                                                             \
-            catch (exceptionType const&)                                  \
+            catch(exceptionType const&)                                   \
             {                                                             \
                 catchAssertionHandler.handle(Catch::ResultWas::Ok);       \
             }                                                             \
-            catch (...)                                                   \
+            catch(...)                                                    \
             {                                                             \
                 catchAssertionHandler.useActiveException();               \
             }                                                             \
         else                                                              \
             catchAssertionHandler.handle(Catch::ResultWas::Ok);           \
         INTERNAL_CATCH_REACT(catchAssertionHandler)                       \
-    } while (Catch::alwaysFalse())
+    } while(Catch::alwaysFalse())
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_CATCH_MSG(macroName, messageType, resultDisposition, ...)     \
@@ -1888,7 +1888,7 @@ extern "C" __declspec(dllimport) void __stdcall DebugBreak();
             (Catch::MessageStream() << __VA_ARGS__ + ::Catch::StreamEndStop()) \
                 .m_stream.str());                                              \
         INTERNAL_CATCH_REACT(catchAssertionHandler)                            \
-    } while (Catch::alwaysFalse())
+    } while(Catch::alwaysFalse())
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_CATCH_INFO(macroName, log)                             \
@@ -1909,14 +1909,14 @@ extern "C" __declspec(dllimport) void __stdcall DebugBreak();
             CATCH_INTERNAL_STRINGIFY(                                \
                 __VA_ARGS__) ", " CATCH_INTERNAL_STRINGIFY(matcher), \
             resultDisposition);                                      \
-        if (catchAssertionHandler.allowThrows())                     \
+        if(catchAssertionHandler.allowThrows())                      \
             try                                                      \
             {                                                        \
                 static_cast<void>(__VA_ARGS__);                      \
                 catchAssertionHandler.handle(                        \
                     Catch::ResultWas::DidntThrowException);          \
             }                                                        \
-            catch (...)                                              \
+            catch(...)                                               \
             {                                                        \
                 handleExceptionMatchExpr(                            \
                     catchAssertionHandler, matcher, #matcher);       \
@@ -1924,7 +1924,7 @@ extern "C" __declspec(dllimport) void __stdcall DebugBreak();
         else                                                         \
             catchAssertionHandler.handle(Catch::ResultWas::Ok);      \
         INTERNAL_CATCH_REACT(catchAssertionHandler)                  \
-    } while (Catch::alwaysFalse())
+    } while(Catch::alwaysFalse())
 
 #endif // CATCH_CONFIG_DISABLE
 
@@ -2050,10 +2050,10 @@ private:
 
 } // end namespace Catch
 
-#define INTERNAL_CATCH_SECTION(...)                       \
-    if (Catch::Section const& INTERNAL_CATCH_UNIQUE_NAME( \
-            catch_internal_Section) =                     \
-            Catch::SectionInfo(CATCH_INTERNAL_LINEINFO, __VA_ARGS__))
+#define INTERNAL_CATCH_SECTION(...)                      \
+    if(Catch::Section const& INTERNAL_CATCH_UNIQUE_NAME( \
+           catch_internal_Section) =                     \
+           Catch::SectionInfo(CATCH_INTERNAL_LINEINFO, __VA_ARGS__))
 
 // end catch_section.h
 // start catch_benchmark.h
@@ -2086,7 +2086,7 @@ public:
 
     explicit operator bool()
     {
-        if (m_count < m_iterationsToRun)
+        if(m_count < m_iterationsToRun)
             return true;
         return needsMoreIterations();
     }
@@ -2103,7 +2103,7 @@ public:
 } // end namespace Catch
 
 #define BENCHMARK(name) \
-    for (Catch::BenchmarkLooper looper(name); looper; looper.increment())
+    for(Catch::BenchmarkLooper looper(name); looper; looper.increment())
 
 // end catch_benchmark.h
 // start catch_interfaces_exception.h
@@ -2212,12 +2212,12 @@ class ExceptionTranslatorRegistrar
         {
             try
             {
-                if (it == itEnd)
+                if(it == itEnd)
                     std::rethrow_exception(std::current_exception());
                 else
                     return (*it)->translate(it + 1, itEnd);
             }
-            catch (T& ex)
+            catch(T& ex)
             {
                 return m_translateFunction(ex);
             }
@@ -2270,9 +2270,9 @@ public:
 #define CATCH_ENFORCE(condition, msg) \
     do                                \
     {                                 \
-        if (!(condition))             \
+        if(!(condition))              \
             CATCH_ERROR(msg);         \
-    } while (false)
+    } while(false)
 
 // end catch_enforce.h
 #include <type_traits>
@@ -2542,9 +2542,9 @@ struct MatchAllOf : MatcherBase<ArgT>
 {
     bool match(ArgT const& arg) const override
     {
-        for (auto matcher : m_matchers)
+        for(auto matcher : m_matchers)
         {
-            if (!matcher->match(arg))
+            if(!matcher->match(arg))
                 return false;
         }
         return true;
@@ -2555,9 +2555,9 @@ struct MatchAllOf : MatcherBase<ArgT>
         description.reserve(4 + m_matchers.size() * 32);
         description += "( ";
         bool first = true;
-        for (auto matcher : m_matchers)
+        for(auto matcher : m_matchers)
         {
-            if (first)
+            if(first)
                 first = false;
             else
                 description += " and ";
@@ -2581,9 +2581,9 @@ struct MatchAnyOf : MatcherBase<ArgT>
 
     bool match(ArgT const& arg) const override
     {
-        for (auto matcher : m_matchers)
+        for(auto matcher : m_matchers)
         {
-            if (matcher->match(arg))
+            if(matcher->match(arg))
                 return true;
         }
         return false;
@@ -2594,9 +2594,9 @@ struct MatchAnyOf : MatcherBase<ArgT>
         description.reserve(4 + m_matchers.size() * 32);
         description += "( ";
         bool first = true;
-        for (auto matcher : m_matchers)
+        for(auto matcher : m_matchers)
         {
-            if (first)
+            if(first)
                 first = false;
             else
                 description += " or ";
@@ -2759,9 +2759,9 @@ struct ContainsElementMatcher : MatcherBase<std::vector<T>, T>
 
     bool match(std::vector<T> const& v) const override
     {
-        for (auto const& el : v)
+        for(auto const& el : v)
         {
-            if (el == m_comparator)
+            if(el == m_comparator)
             {
                 return true;
             }
@@ -2788,20 +2788,20 @@ struct ContainsMatcher : MatcherBase<std::vector<T>, std::vector<T>>
     bool match(std::vector<T> const& v) const override
     {
         // !TBD: see note in EqualsMatcher
-        if (m_comparator.size() > v.size())
+        if(m_comparator.size() > v.size())
             return false;
-        for (auto const& comparator : m_comparator)
+        for(auto const& comparator : m_comparator)
         {
             auto present = false;
-            for (const auto& el : v)
+            for(const auto& el : v)
             {
-                if (el == comparator)
+                if(el == comparator)
                 {
                     present = true;
                     break;
                 }
             }
-            if (!present)
+            if(!present)
             {
                 return false;
             }
@@ -2831,10 +2831,10 @@ struct EqualsMatcher : MatcherBase<std::vector<T>, std::vector<T>>
         // defaults
         // to using !=. but could be specialised for, e.g. std::vector<T> etc
         // - then just call that directly
-        if (m_comparator.size() != v.size())
+        if(m_comparator.size() != v.size())
             return false;
-        for (std::size_t i = 0; i < v.size(); ++i)
-            if (m_comparator[i] != v[i])
+        for(std::size_t i = 0; i < v.size(); ++i)
+            if(m_comparator[i] != v[i])
                 return false;
         return true;
     }
@@ -2905,7 +2905,7 @@ public:
     {
         auto matcherAsString = m_matcher.toString();
         os << Catch::Detail::stringify(m_arg) << ' ';
-        if (matcherAsString == Detail::unprintableString)
+        if(matcherAsString == Detail::unprintableString)
             os << m_matcherString;
         else
             os << matcherAsString;
@@ -2946,7 +2946,7 @@ auto makeMatchExpr(
         }                                                                \
         INTERNAL_CATCH_CATCH(catchAssertionHandler)                      \
         INTERNAL_CATCH_REACT(catchAssertionHandler)                      \
-    } while (Catch::alwaysFalse())
+    } while(Catch::alwaysFalse())
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_CATCH_THROWS_MATCHES(                                           \
@@ -2959,26 +2959,26 @@ auto makeMatchExpr(
             CATCH_INTERNAL_STRINGIFY(__VA_ARGS__) ", " CATCH_INTERNAL_STRINGIFY( \
                 exceptionType) ", " CATCH_INTERNAL_STRINGIFY(matcher),           \
             resultDisposition);                                                  \
-        if (catchAssertionHandler.allowThrows())                                 \
+        if(catchAssertionHandler.allowThrows())                                  \
             try                                                                  \
             {                                                                    \
                 static_cast<void>(__VA_ARGS__);                                  \
                 catchAssertionHandler.handle(                                    \
                     Catch::ResultWas::DidntThrowException);                      \
             }                                                                    \
-            catch (exceptionType const& ex)                                      \
+            catch(exceptionType const& ex)                                       \
             {                                                                    \
                 catchAssertionHandler.handle(                                    \
                     Catch::makeMatchExpr(ex, matcher, #matcher));                \
             }                                                                    \
-            catch (...)                                                          \
+            catch(...)                                                           \
             {                                                                    \
                 catchAssertionHandler.useActiveException();                      \
             }                                                                    \
         else                                                                     \
             catchAssertionHandler.handle(Catch::ResultWas::Ok);                  \
         INTERNAL_CATCH_REACT(catchAssertionHandler)                              \
-    } while (Catch::alwaysFalse())
+    } while(Catch::alwaysFalse())
 
 // end catch_capture_matchers.h
 #endif
@@ -3153,7 +3153,7 @@ inline std::string getAnnotation(
     SEL sel = NSSelectorFromString(selStr);
     arcSafeRelease(selStr);
     id value = performOptionalSelector(cls, sel);
-    if (value)
+    if(value)
         return [(NSString*)value UTF8String];
     return "";
 }
@@ -3168,17 +3168,17 @@ inline std::size_t registerTestMethods()
         (CATCH_UNSAFE_UNRETAINED Class*)malloc(sizeof(Class) * noClasses);
     objc_getClassList(classes, noClasses);
 
-    for (int c = 0; c < noClasses; c++)
+    for(int c = 0; c < noClasses; c++)
     {
         Class cls = classes[c];
         {
             u_int   count;
             Method* methods = class_copyMethodList(cls, &count);
-            for (u_int m = 0; m < count; m++)
+            for(u_int m = 0; m < count; m++)
             {
                 SEL         selector   = method_getName(methods[m]);
                 std::string methodName = sel_getName(selector);
-                if (startsWith(methodName, "Catch_TestCase_"))
+                if(startsWith(methodName, "Catch_TestCase_"))
                 {
                     std::string testCaseName = methodName.substr(15);
                     std::string name =
@@ -3538,19 +3538,19 @@ private:
     void addPattern()
     {
         std::string token = subString();
-        for (std::size_t i = 0; i < m_escapeChars.size(); ++i)
+        for(std::size_t i = 0; i < m_escapeChars.size(); ++i)
             token = token.substr(0, m_escapeChars[i] - m_start - i) +
                     token.substr(m_escapeChars[i] - m_start - i + 1);
         m_escapeChars.clear();
-        if (startsWith(token, "exclude:"))
+        if(startsWith(token, "exclude:"))
         {
             m_exclusion = true;
             token       = token.substr(8);
         }
-        if (!token.empty())
+        if(!token.empty())
         {
             TestSpec::PatternPtr pattern = std::make_shared<T>(token);
-            if (m_exclusion)
+            if(m_exclusion)
                 pattern = std::make_shared<TestSpec::ExcludedPattern>(pattern);
             m_currentFilter.m_patterns.push_back(pattern);
         }
@@ -3898,11 +3898,11 @@ public:
     Option() : nullableValue(nullptr)
     {
     }
-    Option(T const& _value) : nullableValue(new (storage) T(_value))
+    Option(T const& _value) : nullableValue(new(storage) T(_value))
     {
     }
     Option(Option const& _other)
-        : nullableValue(_other ? new (storage) T(*_other) : nullptr)
+        : nullableValue(_other ? new(storage) T(*_other) : nullptr)
     {
     }
 
@@ -3913,24 +3913,24 @@ public:
 
     Option& operator=(Option const& _other)
     {
-        if (&_other != this)
+        if(&_other != this)
         {
             reset();
-            if (_other)
-                nullableValue = new (storage) T(*_other);
+            if(_other)
+                nullableValue = new(storage) T(*_other);
         }
         return *this;
     }
     Option& operator=(T const& _value)
     {
         reset();
-        nullableValue = new (storage) T(_value);
+        nullableValue = new(storage) T(_value);
         return *this;
     }
 
     void reset()
     {
-        if (nullableValue)
+        if(nullableValue)
             nullableValue->~T();
         nullableValue = nullptr;
     }
@@ -4422,9 +4422,9 @@ struct CumulativeReporterBase : IStreamingReporter
     {
         SectionStats incompleteStats(sectionInfo, Counts(), 0, false);
         std::shared_ptr<SectionNode> node;
-        if (m_sectionStack.empty())
+        if(m_sectionStack.empty())
         {
-            if (!m_rootSection)
+            if(!m_rootSection)
                 m_rootSection = std::make_shared<SectionNode>(incompleteStats);
             node              = m_rootSection;
         }
@@ -4435,7 +4435,7 @@ struct CumulativeReporterBase : IStreamingReporter
                 parentNode.childSections.begin(),
                 parentNode.childSections.end(),
                 BySectionInfo(sectionInfo));
-            if (it == parentNode.childSections.end())
+            if(it == parentNode.childSections.end())
             {
                 node = std::make_shared<SectionNode>(incompleteStats);
                 parentNode.childSections.push_back(node);
@@ -4522,7 +4522,7 @@ template<char C>
 char const*   getLineOfChars()
 {
     static char line[CATCH_CONFIG_CONSOLE_WIDTH] = {0};
-    if (!*line)
+    if(!*line)
     {
         std::memset(line, C, CATCH_CONFIG_CONSOLE_WIDTH - 1);
         line[CATCH_CONFIG_CONSOLE_WIDTH - 1] = 0;
@@ -5038,13 +5038,13 @@ LazyExpression::operator bool() const
 auto operator<<(std::ostream& os, LazyExpression const& lazyExpr)
     -> std::ostream&
 {
-    if (lazyExpr.m_isNegated)
+    if(lazyExpr.m_isNegated)
         os << "!";
 
-    if (lazyExpr)
+    if(lazyExpr)
     {
-        if (lazyExpr.m_isNegated &&
-            lazyExpr.m_transientExpression->isBinaryExpression())
+        if(lazyExpr.m_isNegated &&
+           lazyExpr.m_transientExpression->isBinaryExpression())
             os << "(" << *lazyExpr.m_transientExpression << ")";
         else
             os << *lazyExpr.m_transientExpression;
@@ -5068,7 +5068,7 @@ AssertionHandler::AssertionHandler(
 }
 AssertionHandler::~AssertionHandler()
 {
-    if (m_inExceptionGuard)
+    if(m_inExceptionGuard)
     {
         handle(
             ResultWas::ThrewException,
@@ -5116,7 +5116,7 @@ void AssertionHandler::handle(
 
     getResultCapture().assertionEnded(assertionResult);
 
-    if (!assertionResult.isOk())
+    if(!assertionResult.isOk())
     {
         m_shouldDebugBreak =
             getCurrentContext().getConfig()->shouldDebugBreak();
@@ -5137,7 +5137,7 @@ auto AssertionHandler::shouldDebugBreak() const -> bool
 }
 void AssertionHandler::reactWithDebugBreak() const
 {
-    if (m_shouldDebugBreak)
+    if(m_shouldDebugBreak)
     {
         ///////////////////////////////////////////////////////////////////
         // To inspect the state during test, you need to go one level up the
@@ -5151,7 +5151,7 @@ void AssertionHandler::reactWithDebugBreak() const
 }
 void AssertionHandler::reactWithoutDebugBreak() const
 {
-    if (m_shouldThrow)
+    if(m_shouldThrow)
         throw Catch::TestFailureException();
 }
 
@@ -5196,9 +5196,9 @@ AssertionResultData::AssertionResultData(
 std::string AssertionResultData::reconstructExpression() const
 {
 
-    if (reconstructedExpression.empty())
+    if(reconstructedExpression.empty())
     {
-        if (lazyExpression)
+        if(lazyExpression)
         {
             // !TBD Use stringstream for now, but rework above to pass stream in
             std::ostringstream oss;
@@ -5245,7 +5245,7 @@ bool AssertionResult::hasMessage() const
 
 std::string AssertionResult::getExpression() const
 {
-    if (isFalseTest(m_info.resultDisposition))
+    if(isFalseTest(m_info.resultDisposition))
         return "!(" + std::string(m_info.capturedExpression) + ")";
     else
         return m_info.capturedExpression;
@@ -5254,7 +5254,7 @@ std::string AssertionResult::getExpression() const
 std::string AssertionResult::getExpressionInMacro() const
 {
     std::string expr;
-    if (m_info.macroName[0] == 0)
+    if(m_info.macroName[0] == 0)
         expr = m_info.capturedExpression;
     else
     {
@@ -5316,7 +5316,7 @@ auto BenchmarkLooper::needsMoreIterations() -> bool
 
     // Exponentially increasing iterations until we're confident in our timer
     // resolution
-    if (elapsed < m_resolution)
+    if(elapsed < m_resolution)
     {
         m_iterationsToRun *= 10;
         return true;
@@ -5483,22 +5483,22 @@ public:
             m_suffix   = false;
             auto width = m_column.m_width - indent();
             m_end      = m_pos;
-            while (m_end < line().size() && line()[m_end] != '\n')
+            while(m_end < line().size() && line()[m_end] != '\n')
                 ++m_end;
 
-            if (m_end < m_pos + width)
+            if(m_end < m_pos + width)
             {
                 m_len = m_end - m_pos;
             }
             else
             {
                 size_t len = width;
-                while (len > 0 && !isBoundary(m_pos + len))
+                while(len > 0 && !isBoundary(m_pos + len))
                     --len;
-                while (len > 0 && isWhitespace(line()[m_pos + len - 1]))
+                while(len > 0 && isWhitespace(line()[m_pos + len - 1]))
                     --len;
 
-                if (len > 0)
+                if(len > 0)
                 {
                     m_len = len;
                 }
@@ -5532,7 +5532,7 @@ public:
                 m_column.m_initialIndent == std::string::npos ||
                 m_column.m_width > m_column.m_initialIndent);
             calcLength();
-            if (m_len == 0)
+            if(m_len == 0)
                 m_stringIndex++; // Empty string
         }
 
@@ -5540,7 +5540,7 @@ public:
         {
             assert(m_stringIndex < m_column.m_strings.size());
             assert(m_pos <= m_end);
-            if (m_pos + m_column.m_width < m_end)
+            if(m_pos + m_column.m_width < m_end)
                 return addIndentAndSuffix(line().substr(m_pos, m_len));
             else
                 return addIndentAndSuffix(line().substr(m_pos, m_end - m_pos));
@@ -5549,18 +5549,18 @@ public:
         auto operator++() -> iterator&
         {
             m_pos += m_len;
-            if (m_pos < line().size() && line()[m_pos] == '\n')
+            if(m_pos < line().size() && line()[m_pos] == '\n')
                 m_pos += 1;
             else
-                while (m_pos < line().size() && isWhitespace(line()[m_pos]))
+                while(m_pos < line().size() && isWhitespace(line()[m_pos]))
                     ++m_pos;
 
-            if (m_pos == line().size())
+            if(m_pos == line().size())
             {
                 m_pos = 0;
                 ++m_stringIndex;
             }
-            if (m_stringIndex < m_column.m_strings.size())
+            if(m_stringIndex < m_column.m_strings.size())
                 calcLength();
             return *this;
         }
@@ -5622,9 +5622,9 @@ public:
     inline friend std::ostream& operator<<(std::ostream& os, Column const& col)
     {
         bool first = true;
-        for (auto line : col)
+        for(auto line : col)
         {
-            if (first)
+            if(first)
                 first = false;
             else
                 os << "\n";
@@ -5674,7 +5674,7 @@ public:
         {
             m_iterators.reserve(m_columns.size());
 
-            for (auto const& col : m_columns)
+            for(auto const& col : m_columns)
                 m_iterators.push_back(col.end());
         }
 
@@ -5684,7 +5684,7 @@ public:
         {
             m_iterators.reserve(m_columns.size());
 
-            for (auto const& col : m_columns)
+            for(auto const& col : m_columns)
                 m_iterators.push_back(col.begin());
         }
 
@@ -5700,14 +5700,14 @@ public:
         {
             std::string row, padding;
 
-            for (size_t i = 0; i < m_columns.size(); ++i)
+            for(size_t i = 0; i < m_columns.size(); ++i)
             {
                 auto width = m_columns[i].width();
-                if (m_iterators[i] != m_columns[i].end())
+                if(m_iterators[i] != m_columns[i].end())
                 {
                     std::string col = *m_iterators[i];
                     row += padding + col;
-                    if (col.size() < width)
+                    if(col.size() < width)
                         padding = std::string(width - col.size(), ' ');
                     else
                         padding = "";
@@ -5721,9 +5721,9 @@ public:
         }
         auto operator++() -> iterator&
         {
-            for (size_t i = 0; i < m_columns.size(); ++i)
+            for(size_t i = 0; i < m_columns.size(); ++i)
             {
-                if (m_iterators[i] != m_columns[i].end())
+                if(m_iterators[i] != m_columns[i].end())
                     ++m_iterators[i];
             }
             return *this;
@@ -5763,9 +5763,9 @@ public:
     {
 
         bool first = true;
-        for (auto line : cols)
+        for(auto line : cols)
         {
-            if (first)
+            if(first)
                 first = false;
             else
                 os << "\n";
@@ -5850,7 +5850,7 @@ public:
     Args(int argc, char* argv[])
     {
         m_exeName = argv[0];
-        for (int i = 1; i < argc; ++i)
+        for(int i = 1; i < argc; ++i)
             m_args.push_back(argv[i]);
     }
 
@@ -5902,16 +5902,16 @@ class TokenStream
         m_tokenBuffer.resize(0);
 
         // Skip any empty strings
-        while (it != itEnd && it->empty())
+        while(it != itEnd && it->empty())
             ++it;
 
-        if (it != itEnd)
+        if(it != itEnd)
         {
             auto const& next = *it;
-            if (isOptPrefix(next[0]))
+            if(isOptPrefix(next[0]))
             {
                 auto delimiterPos = next.find_first_of(" :=");
-                if (delimiterPos != std::string::npos)
+                if(delimiterPos != std::string::npos)
                 {
                     m_tokenBuffer.push_back(
                         {TokenType::Option, next.substr(0, delimiterPos)});
@@ -5920,10 +5920,10 @@ class TokenStream
                 }
                 else
                 {
-                    if (next[1] != '-' && next.size() > 2)
+                    if(next[1] != '-' && next.size() > 2)
                     {
                         std::string opt = "- ";
-                        for (size_t i = 1; i < next.size(); ++i)
+                        for(size_t i = 1; i < next.size(); ++i)
                         {
                             opt[1] = next[i];
                             m_tokenBuffer.push_back({TokenType::Option, opt});
@@ -5977,13 +5977,13 @@ public:
 
     auto operator++() -> TokenStream&
     {
-        if (m_tokenBuffer.size() >= 2)
+        if(m_tokenBuffer.size() >= 2)
         {
             m_tokenBuffer.erase(m_tokenBuffer.begin());
         }
         else
         {
-            if (it != itEnd)
+            if(it != itEnd)
                 ++it;
             loadBuffer();
         }
@@ -6029,28 +6029,28 @@ protected:
 
     ResultValueBase(ResultValueBase const& other) : ResultBase(other)
     {
-        if (m_type == ResultBase::Ok)
-            new (&m_value) T(other.m_value);
+        if(m_type == ResultBase::Ok)
+            new(&m_value) T(other.m_value);
     }
 
     ResultValueBase(Type, T const& value) : ResultBase(Ok)
     {
-        new (&m_value) T(value);
+        new(&m_value) T(value);
     }
 
     auto operator=(ResultValueBase const& other) -> ResultValueBase&
     {
-        if (m_type == ResultBase::Ok)
+        if(m_type == ResultBase::Ok)
             m_value.~T();
         ResultBase::operator=(other);
-        if (m_type == ResultBase::Ok)
-            new (&m_value) T(other.m_value);
+        if(m_type == ResultBase::Ok)
+            new(&m_value) T(other.m_value);
         return *this;
     }
 
     ~ResultValueBase()
     {
-        if (m_type == Ok)
+        if(m_type == Ok)
             m_value.~T();
     }
 
@@ -6112,7 +6112,7 @@ protected:
     virtual void enforceOk() const
     {
         // !TBD: If no exceptions, std::terminate here or something
-        switch (m_type)
+        switch(m_type)
         {
         case ResultBase::LogicError:
             throw std::logic_error(m_errorMessage);
@@ -6181,7 +6181,7 @@ inline auto convertInto(std::string const& source, T& target) -> ParserResult
     std::stringstream ss;
     ss << source;
     ss >> target;
-    if (ss.fail())
+    if(ss.fail())
         return ParserResult::runtimeError(
             "Unable to convert '" + source + "' to destination type");
     else
@@ -6199,10 +6199,10 @@ inline auto convertInto(std::string const& source, bool& target) -> ParserResult
     std::transform(srcLC.begin(), srcLC.end(), srcLC.begin(), [](char c) {
         return static_cast<char>(::tolower(c));
     });
-    if (srcLC == "y" || srcLC == "1" || srcLC == "true" || srcLC == "yes" ||
-        srcLC == "on")
+    if(srcLC == "y" || srcLC == "1" || srcLC == "true" || srcLC == "yes" ||
+       srcLC == "on")
         target = true;
-    else if (
+    else if(
         srcLC == "n" || srcLC == "0" || srcLC == "false" || srcLC == "no" ||
         srcLC == "off")
         target = false;
@@ -6256,7 +6256,7 @@ struct BoundFlagRefBase : BoundRefBase
     {
         bool flag;
         auto result = convertInto(arg, flag);
-        if (result)
+        if(result)
             setFlag(flag);
         return result;
     }
@@ -6295,7 +6295,7 @@ struct BoundRef<std::vector<T>> : BoundValueRefBase
     {
         T    temp;
         auto result = convertInto(arg, temp);
-        if (result)
+        if(result)
             m_ref.push_back(temp);
         return result;
     }
@@ -6485,7 +6485,7 @@ public:
 
     auto cardinality() const -> size_t override
     {
-        if (m_ref->isContainer())
+        if(m_ref->isContainer())
             return 0;
         else
             return 1;
@@ -6546,7 +6546,7 @@ public:
                             : newName.substr(lastSlash + 1);
 
         *m_name = filename;
-        if (m_ref)
+        if(m_ref)
             return m_ref->setValue(filename);
         else
             return ParserResult::ok(ParseResultType::Matched);
@@ -6562,17 +6562,17 @@ public:
         -> InternalParseResult override
     {
         auto validationResult = validate();
-        if (!validationResult)
+        if(!validationResult)
             return InternalParseResult(validationResult);
 
         auto        remainingTokens = tokens;
         auto const& token           = *remainingTokens;
-        if (token.type != TokenType::Argument)
+        if(token.type != TokenType::Argument)
             return InternalParseResult::ok(
                 ParseState(ParseResultType::NoMatch, remainingTokens));
 
         auto result = m_ref->setValue(remainingTokens->token);
-        if (!result)
+        if(!result)
             return InternalParseResult(result);
         else
             return InternalParseResult::ok(
@@ -6583,7 +6583,7 @@ public:
 inline auto normaliseOpt(std::string const& optName) -> std::string
 {
 #ifdef CATCH_PLATFORM_WINDOWS
-    if (optName[0] == '/')
+    if(optName[0] == '/')
         return "-" + optName.substr(1);
     else
 #endif
@@ -6626,15 +6626,15 @@ public:
     {
         std::ostringstream oss;
         bool               first = true;
-        for (auto const& opt : m_optNames)
+        for(auto const& opt : m_optNames)
         {
-            if (first)
+            if(first)
                 first = false;
             else
                 oss << ", ";
             oss << opt;
         }
-        if (!m_hint.empty())
+        if(!m_hint.empty())
             oss << " <" << m_hint << ">";
         return {{oss.str(), m_description}};
     }
@@ -6642,9 +6642,9 @@ public:
     auto isMatch(std::string const& optToken) const -> bool
     {
         auto normalisedToken = normaliseOpt(optToken);
-        for (auto const& name : m_optNames)
+        for(auto const& name : m_optNames)
         {
-            if (normaliseOpt(name) == normalisedToken)
+            if(normaliseOpt(name) == normalisedToken)
                 return true;
         }
         return false;
@@ -6656,38 +6656,38 @@ public:
         -> InternalParseResult override
     {
         auto validationResult = validate();
-        if (!validationResult)
+        if(!validationResult)
             return InternalParseResult(validationResult);
 
         auto remainingTokens = tokens;
-        if (remainingTokens && remainingTokens->type == TokenType::Option)
+        if(remainingTokens && remainingTokens->type == TokenType::Option)
         {
             auto const& token = *remainingTokens;
-            if (isMatch(token.token))
+            if(isMatch(token.token))
             {
-                if (m_ref->isFlag())
+                if(m_ref->isFlag())
                 {
                     auto result = m_ref->setFlag(true);
-                    if (!result)
+                    if(!result)
                         return InternalParseResult(result);
-                    if (result.value() == ParseResultType::ShortCircuitAll)
+                    if(result.value() == ParseResultType::ShortCircuitAll)
                         return InternalParseResult::ok(
                             ParseState(result.value(), remainingTokens));
                 }
                 else
                 {
                     ++remainingTokens;
-                    if (!remainingTokens)
+                    if(!remainingTokens)
                         return InternalParseResult::runtimeError(
                             "Expected argument following " + token.token);
                     auto const& argToken = *remainingTokens;
-                    if (argToken.type != TokenType::Argument)
+                    if(argToken.type != TokenType::Argument)
                         return InternalParseResult::runtimeError(
                             "Expected argument following " + token.token);
                     auto result = m_ref->setValue(argToken.token);
-                    if (!result)
+                    if(!result)
                         return InternalParseResult(result);
-                    if (result.value() == ParseResultType::ShortCircuitAll)
+                    if(result.value() == ParseResultType::ShortCircuitAll)
                         return InternalParseResult::ok(
                             ParseState(result.value(), remainingTokens));
                 }
@@ -6701,18 +6701,18 @@ public:
 
     auto validate() const -> Result override
     {
-        if (m_optNames.empty())
+        if(m_optNames.empty())
             return Result::logicError("No options supplied to Opt");
-        for (auto const& name : m_optNames)
+        for(auto const& name : m_optNames)
         {
-            if (name.empty())
+            if(name.empty())
                 return Result::logicError("Option name cannot be empty");
 #ifdef CATCH_PLATFORM_WINDOWS
-            if (name[0] != '-' && name[0] != '/')
+            if(name[0] != '-' && name[0] != '/')
                 return Result::logicError(
                     "Option name must begin with '-' or '/'");
 #else
-            if (name[0] != '-')
+            if(name[0] != '-')
                 return Result::logicError("Option name must begin with '-'");
 #endif
         }
@@ -6776,7 +6776,7 @@ struct Parser : ParserBase
     auto getHelpColumns() const -> std::vector<HelpColumns>
     {
         std::vector<HelpColumns> cols;
-        for (auto const& o : m_options)
+        for(auto const& o : m_options)
         {
             auto childCols = o.getHelpColumns();
             cols.insert(cols.end(), childCols.begin(), childCols.end());
@@ -6786,29 +6786,29 @@ struct Parser : ParserBase
 
     void writeToStream(std::ostream& os) const
     {
-        if (!m_exeName.name().empty())
+        if(!m_exeName.name().empty())
         {
             os << "usage:\n"
                << "  " << m_exeName.name() << " ";
             bool required = true, first = true;
-            for (auto const& arg : m_args)
+            for(auto const& arg : m_args)
             {
-                if (first)
+                if(first)
                     first = false;
                 else
                     os << " ";
-                if (arg.isOptional() && required)
+                if(arg.isOptional() && required)
                 {
                     os << "[";
                     required = false;
                 }
                 os << "<" << arg.hint() << ">";
-                if (arg.cardinality() == 0)
+                if(arg.cardinality() == 0)
                     os << " ... ";
             }
-            if (!required)
+            if(!required)
                 os << "]";
-            if (!m_options.empty())
+            if(!m_options.empty())
                 os << " options";
             os << "\n\nwhere options are:" << std::endl;
         }
@@ -6816,10 +6816,10 @@ struct Parser : ParserBase
         auto   rows         = getHelpColumns();
         size_t consoleWidth = CATCH_CLARA_CONFIG_CONSOLE_WIDTH;
         size_t optWidth     = 0;
-        for (auto const& cols : rows)
+        for(auto const& cols : rows)
             optWidth = (std::max)(optWidth, cols.left.size() + 2);
 
-        for (auto const& cols : rows)
+        for(auto const& cols : rows)
         {
             auto row =
                 TextFlow::Column(cols.left).width(optWidth).indent(2) +
@@ -6838,16 +6838,16 @@ struct Parser : ParserBase
 
     auto validate() const -> Result override
     {
-        for (auto const& opt : m_options)
+        for(auto const& opt : m_options)
         {
             auto result = opt.validate();
-            if (!result)
+            if(!result)
                 return result;
         }
-        for (auto const& arg : m_args)
+        for(auto const& arg : m_args)
         {
             auto result = arg.validate();
-            if (!result)
+            if(!result)
                 return result;
         }
         return Result::ok();
@@ -6872,9 +6872,9 @@ struct Parser : ParserBase
 
         {
             size_t i = 0;
-            for (auto const& opt : m_options)
+            for(auto const& opt : m_options)
                 parseInfos[i++].parser = &opt;
-            for (auto const& arg : m_args)
+            for(auto const& arg : m_args)
                 parseInfos[i++].parser = &arg;
         }
 
@@ -6882,21 +6882,21 @@ struct Parser : ParserBase
 
         auto result = InternalParseResult::ok(
             ParseState(ParseResultType::NoMatch, tokens));
-        while (result.value().remainingTokens())
+        while(result.value().remainingTokens())
         {
             bool tokenParsed = false;
 
-            for (size_t i = 0; i < totalParsers; ++i)
+            for(size_t i = 0; i < totalParsers; ++i)
             {
                 auto& parseInfo = parseInfos[i];
-                if (parseInfo.parser->cardinality() == 0 ||
-                    parseInfo.count < parseInfo.parser->cardinality())
+                if(parseInfo.parser->cardinality() == 0 ||
+                   parseInfo.count < parseInfo.parser->cardinality())
                 {
                     result = parseInfo.parser->parse(
                         exeName, result.value().remainingTokens());
-                    if (!result)
+                    if(!result)
                         return result;
-                    if (result.value().type() != ParseResultType::NoMatch)
+                    if(result.value().type() != ParseResultType::NoMatch)
                     {
                         tokenParsed = true;
                         ++parseInfo.count;
@@ -6905,9 +6905,9 @@ struct Parser : ParserBase
                 }
             }
 
-            if (result.value().type() == ParseResultType::ShortCircuitAll)
+            if(result.value().type() == ParseResultType::ShortCircuitAll)
                 return result;
-            if (!tokenParsed)
+            if(!tokenParsed)
                 return InternalParseResult::runtimeError(
                     "Unrecognised token: " +
                     result.value().remainingTokens()->token);
@@ -6984,7 +6984,7 @@ clara::Parser makeCommandLineParser(ConfigData& config)
     using namespace clara;
 
     auto const setWarning = [&](std::string const& warning) {
-        if (warning != "NoAssertions")
+        if(warning != "NoAssertions")
             return ParserResult::runtimeError(
                 "Unrecognised warning: '" + warning + "'");
         config.warnings = static_cast<WarnAbout::What>(
@@ -6993,17 +6993,17 @@ clara::Parser makeCommandLineParser(ConfigData& config)
     };
     auto const loadTestNamesFromFile = [&](std::string const& filename) {
         std::ifstream f(filename.c_str());
-        if (!f.is_open())
+        if(!f.is_open())
             return ParserResult::runtimeError(
                 "Unable to load input file: '" + filename + "'");
 
         std::string line;
-        while (std::getline(f, line))
+        while(std::getline(f, line))
         {
             line = trim(line);
-            if (!line.empty() && !startsWith(line, '#'))
+            if(!line.empty() && !startsWith(line, '#'))
             {
-                if (!startsWith(line, '"'))
+                if(!startsWith(line, '"'))
                     line = '"' + line + '"';
                 config.testsOrTags.push_back(line + ',');
             }
@@ -7011,11 +7011,11 @@ clara::Parser makeCommandLineParser(ConfigData& config)
         return ParserResult::ok(ParseResultType::Matched);
     };
     auto const setTestOrder = [&](std::string const& order) {
-        if (startsWith("declared", order))
+        if(startsWith("declared", order))
             config.runOrder = RunTests::InDeclarationOrder;
-        else if (startsWith("lexical", order))
+        else if(startsWith("lexical", order))
             config.runOrder = RunTests::InLexicographicalOrder;
-        else if (startsWith("random", order))
+        else if(startsWith("random", order))
             config.runOrder = RunTests::InRandomOrder;
         else
             return clara::ParserResult::runtimeError(
@@ -7023,7 +7023,7 @@ clara::Parser makeCommandLineParser(ConfigData& config)
         return ParserResult::ok(ParseResultType::Matched);
     };
     auto const setRngSeed = [&](std::string const& seed) {
-        if (seed != "time")
+        if(seed != "time")
             return clara::detail::convertInto(seed, config.rngSeed);
         config.rngSeed = static_cast<unsigned int>(std::time(nullptr));
         return ParserResult::ok(ParseResultType::Matched);
@@ -7031,11 +7031,11 @@ clara::Parser makeCommandLineParser(ConfigData& config)
     auto const setColourUsage = [&](std::string const& useColour) {
         auto mode = toLower(useColour);
 
-        if (mode == "yes")
+        if(mode == "yes")
             config.useColour = UseColour::Yes;
-        else if (mode == "no")
+        else if(mode == "no")
             config.useColour = UseColour::No;
-        else if (mode == "auto")
+        else if(mode == "auto")
             config.useColour = UseColour::Auto;
         else
             return ParserResult::runtimeError(
@@ -7045,11 +7045,11 @@ clara::Parser makeCommandLineParser(ConfigData& config)
     };
     auto const setWaitForKeypress = [&](std::string const& keypress) {
         auto keypressLc = toLower(keypress);
-        if (keypressLc == "start")
+        if(keypressLc == "start")
             config.waitForKeypress = WaitForKeypress::BeforeStart;
-        else if (keypressLc == "exit")
+        else if(keypressLc == "exit")
             config.waitForKeypress = WaitForKeypress::BeforeExit;
-        else if (keypressLc == "both")
+        else if(keypressLc == "both")
             config.waitForKeypress = WaitForKeypress::BeforeStartAndExit;
         else
             return ParserResult::runtimeError(
@@ -7059,11 +7059,11 @@ clara::Parser makeCommandLineParser(ConfigData& config)
     };
     auto const setVerbosity = [&](std::string const& verbosity) {
         auto lcVerbosity = toLower(verbosity);
-        if (lcVerbosity == "quiet")
+        if(lcVerbosity == "quiet")
             config.verbosity = Verbosity::Quiet;
-        else if (lcVerbosity == "normal")
+        else if(lcVerbosity == "normal")
             config.verbosity = Verbosity::Normal;
-        else if (lcVerbosity == "high")
+        else if(lcVerbosity == "high")
             config.verbosity = Verbosity::High;
         else
             return ParserResult::runtimeError(
@@ -7198,10 +7198,10 @@ namespace Catch
 
 Config::Config(ConfigData const& data) : m_data(data), m_stream(openStream())
 {
-    if (!data.testsOrTags.empty())
+    if(!data.testsOrTags.empty())
     {
         TestSpecParser parser(ITagAliasRegistry::get());
-        for (auto const& testOrTags : data.testsOrTags)
+        for(auto const& testOrTags : data.testsOrTags)
             parser.parse(testOrTags);
         m_testSpec = parser.testSpec();
     }
@@ -7313,11 +7313,11 @@ Verbosity Config::verbosity() const
 
 IStream const* Config::openStream()
 {
-    if (m_data.outputFilename.empty())
+    if(m_data.outputFilename.empty())
         return new CoutStream();
-    else if (m_data.outputFilename[0] == '%')
+    else if(m_data.outputFilename[0] == '%')
     {
-        if (m_data.outputFilename == "%debug")
+        if(m_data.outputFilename == "%debug")
             return new DebugOutStream();
         else
             CATCH_ERROR(
@@ -7448,7 +7448,7 @@ public:
 
     virtual void use(Colour::Code _colourCode) override
     {
-        switch (_colourCode)
+        switch(_colourCode)
         {
         case Colour::None:
             return setTextAttribute(originalForegroundAttributes);
@@ -7502,7 +7502,7 @@ IColourImpl* platformColourInstance()
     IConfigPtr         config = getCurrentContext().getConfig();
     UseColour::YesOrNo colourMode =
         config ? config->useColour() : UseColour::Auto;
-    if (colourMode == UseColour::Auto)
+    if(colourMode == UseColour::Auto)
         colourMode = UseColour::Yes;
     return colourMode == UseColour::Yes ? &s_instance
                                         : NoColourImpl::instance();
@@ -7529,7 +7529,7 @@ class PosixColourImpl : public IColourImpl
 public:
     virtual void use(Colour::Code _colourCode) override
     {
-        switch (_colourCode)
+        switch(_colourCode)
         {
         case Colour::None:
         case Colour::White:
@@ -7587,7 +7587,7 @@ IColourImpl* platformColourInstance()
     IConfigPtr         config = getCurrentContext().getConfig();
     UseColour::YesOrNo colourMode =
         config ? config->useColour() : UseColour::Auto;
-    if (colourMode == UseColour::Auto)
+    if(colourMode == UseColour::Auto)
         colourMode = useColourOnPlatform() ? UseColour::Yes : UseColour::No;
     return colourMode == UseColour::Yes ? PosixColourImpl::instance()
                                         : NoColourImpl::instance();
@@ -7631,7 +7631,7 @@ Colour& Colour::operator=(Colour&& rhs) noexcept
 
 Colour::~Colour()
 {
-    if (!m_moved)
+    if(!m_moved)
         use(None);
 }
 
@@ -7706,7 +7706,7 @@ Context* currentContext = nullptr;
 }
 IMutableContext& getCurrentMutableContext()
 {
-    if (!currentContext)
+    if(!currentContext)
         currentContext = new Context();
     return *currentContext;
 }
@@ -7798,7 +7798,7 @@ bool isDebuggerActive()
     // Call sysctl.
 
     size = sizeof(info);
-    if (sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, nullptr, 0) != 0)
+    if(sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, nullptr, 0) != 0)
     {
         Catch::cerr()
             << "\n** Call to sysctl failed - unable to determine if debugger is active **\n"
@@ -7831,10 +7831,10 @@ bool isDebuggerActive()
     // This way our users can properly assert over errno values
     ErrnoGuard    guard;
     std::ifstream in("/proc/self/status");
-    for (std::string line; std::getline(in, line);)
+    for(std::string line; std::getline(in, line);)
     {
         static const int PREFIX_LEN = 11;
-        if (line.compare(0, PREFIX_LEN, "TracerPid:\t") == 0)
+        if(line.compare(0, PREFIX_LEN, "TracerPid:\t") == 0)
         {
             // We're traced if the PID is not 0 and no other PID starts
             // with 0 digit, so it's enough to check for just a single
@@ -7887,8 +7887,8 @@ void formatReconstructedExpression(
     StringRef          op,
     std::string const& rhs)
 {
-    if (lhs.size() + rhs.size() < 40 && lhs.find('\n') == std::string::npos &&
-        rhs.find('\n') == std::string::npos)
+    if(lhs.size() + rhs.size() < 40 && lhs.find('\n') == std::string::npos &&
+       rhs.find('\n') == std::string::npos)
         os << lhs << " " << op << " " << rhs;
     else
         os << lhs << "\n" << op << "\n" << rhs;
@@ -7963,7 +7963,7 @@ std::string ExceptionTranslatorRegistry::translateActiveException() const
         {
             return tryTranslators();
         }
-        @catch (NSException* exception)
+        @catch(NSException* exception)
         {
             return Catch::Detail::stringify([exception description]);
         }
@@ -7971,23 +7971,23 @@ std::string ExceptionTranslatorRegistry::translateActiveException() const
         return tryTranslators();
 #endif
     }
-    catch (TestFailureException&)
+    catch(TestFailureException&)
     {
         std::rethrow_exception(std::current_exception());
     }
-    catch (std::exception& ex)
+    catch(std::exception& ex)
     {
         return ex.what();
     }
-    catch (std::string& msg)
+    catch(std::string& msg)
     {
         return msg;
     }
-    catch (const char* msg)
+    catch(const char* msg)
     {
         return msg;
     }
-    catch (...)
+    catch(...)
     {
         return "Unknown exception";
     }
@@ -7995,7 +7995,7 @@ std::string ExceptionTranslatorRegistry::translateActiveException() const
 
 std::string ExceptionTranslatorRegistry::tryTranslators() const
 {
-    if (m_translators.empty())
+    if(m_translators.empty())
         std::rethrow_exception(std::current_exception());
     else
         return m_translators[0]->translate(
@@ -8131,9 +8131,9 @@ static SignalDefs signalDefs[] = {
 LONG CALLBACK FatalConditionHandler::handleVectoredException(
     PEXCEPTION_POINTERS ExceptionInfo)
 {
-    for (auto const& def : signalDefs)
+    for(auto const& def : signalDefs)
     {
-        if (ExceptionInfo->ExceptionRecord->ExceptionCode == def.id)
+        if(ExceptionInfo->ExceptionRecord->ExceptionCode == def.id)
         {
             reportFatal(def.name);
         }
@@ -8159,7 +8159,7 @@ FatalConditionHandler::FatalConditionHandler()
 
 void FatalConditionHandler::reset()
 {
-    if (isSet)
+    if(isSet)
     {
         // Unregister handler and restore the old guarantee
         RemoveVectoredExceptionHandler(exceptionHandlerHandle);
@@ -8216,9 +8216,9 @@ static SignalDefs signalDefs[] = {
 void FatalConditionHandler::handleSignal(int sig)
 {
     char const* name = "<unknown signal>";
-    for (auto const& def : signalDefs)
+    for(auto const& def : signalDefs)
     {
-        if (sig == def.id)
+        if(sig == def.id)
         {
             name = def.name;
             break;
@@ -8241,7 +8241,7 @@ FatalConditionHandler::FatalConditionHandler()
 
     sa.sa_handler = handleSignal;
     sa.sa_flags   = SA_ONSTACK;
-    for (std::size_t i = 0; i < sizeof(signalDefs) / sizeof(SignalDefs); ++i)
+    for(std::size_t i = 0; i < sizeof(signalDefs) / sizeof(SignalDefs); ++i)
     {
         sigaction(signalDefs[i].id, &sa, &oldSigActions[i]);
     }
@@ -8254,12 +8254,11 @@ FatalConditionHandler::~FatalConditionHandler()
 
 void FatalConditionHandler::reset()
 {
-    if (isSet)
+    if(isSet)
     {
         // Set signals back to previous values -- hopefully nobody overwrote
         // them in the meantime
-        for (std::size_t i = 0; i < sizeof(signalDefs) / sizeof(SignalDefs);
-             ++i)
+        for(std::size_t i = 0; i < sizeof(signalDefs) / sizeof(SignalDefs); ++i)
         {
             sigaction(signalDefs[i].id, &oldSigActions[i], nullptr);
         }
@@ -8400,7 +8399,7 @@ AssertionStats::AssertionStats(
     assertionResult.m_resultData.lazyExpression.m_transientExpression =
         _assertionResult.m_resultData.lazyExpression.m_transientExpression;
 
-    if (assertionResult.hasMessage())
+    if(assertionResult.hasMessage())
     {
         // Copy message into messages list.
         // !TBD This should have been done earlier, somewhere
@@ -8484,7 +8483,7 @@ void addReporter(
     IStreamingReporterPtr&& additionalReporter)
 {
 
-    if (!existingReporter)
+    if(!existingReporter)
     {
         existingReporter = std::move(additionalReporter);
         return;
@@ -8492,7 +8491,7 @@ void addReporter(
 
     MultipleReporters* multi = nullptr;
 
-    if (existingReporter->isMulti())
+    if(existingReporter->isMulti())
     {
         multi = static_cast<MultipleReporters*>(existingReporter.get());
     }
@@ -8602,7 +8601,7 @@ namespace Catch
 std::size_t listTests(Config const& config)
 {
     TestSpec testSpec = config.testSpec();
-    if (config.testSpec().hasFilters())
+    if(config.testSpec().hasFilters())
         Catch::cout() << "Matching test cases:\n";
     else
     {
@@ -8613,7 +8612,7 @@ std::size_t listTests(Config const& config)
 
     auto matchedTestCases =
         filterTests(getAllTestCasesSorted(config), testSpec, config);
-    for (auto const& testCaseInfo : matchedTestCases)
+    for(auto const& testCaseInfo : matchedTestCases)
     {
         Colour::Code colour =
             testCaseInfo.isHidden() ? Colour::SecondaryText : Colour::None;
@@ -8621,23 +8620,23 @@ std::size_t listTests(Config const& config)
 
         Catch::cout() << Column(testCaseInfo.name).initialIndent(2).indent(4)
                       << "\n";
-        if (config.verbosity() >= Verbosity::High)
+        if(config.verbosity() >= Verbosity::High)
         {
             Catch::cout() << Column(Catch::Detail::stringify(
                                         testCaseInfo.lineInfo))
                                  .indent(4)
                           << std::endl;
             std::string description = testCaseInfo.description;
-            if (description.empty())
+            if(description.empty())
                 description = "(NO DESCRIPTION)";
             Catch::cout() << Column(description).indent(4) << std::endl;
         }
-        if (!testCaseInfo.tags.empty())
+        if(!testCaseInfo.tags.empty())
             Catch::cout() << Column(testCaseInfo.tagsAsString()).indent(6)
                           << "\n";
     }
 
-    if (!config.testSpec().hasFilters())
+    if(!config.testSpec().hasFilters())
         Catch::cout() << pluralise(matchedTestCases.size(), "test case") << '\n'
                       << std::endl;
     else
@@ -8651,20 +8650,20 @@ std::size_t listTests(Config const& config)
 std::size_t listTestsNamesOnly(Config const& config)
 {
     TestSpec testSpec = config.testSpec();
-    if (!config.testSpec().hasFilters())
+    if(!config.testSpec().hasFilters())
         testSpec =
             TestSpecParser(ITagAliasRegistry::get()).parse("*").testSpec();
     std::size_t           matchedTests = 0;
     std::vector<TestCase> matchedTestCases =
         filterTests(getAllTestCasesSorted(config), testSpec, config);
-    for (auto const& testCaseInfo : matchedTestCases)
+    for(auto const& testCaseInfo : matchedTestCases)
     {
         matchedTests++;
-        if (startsWith(testCaseInfo.name, '#'))
+        if(startsWith(testCaseInfo.name, '#'))
             Catch::cout() << '"' << testCaseInfo.name << '"';
         else
             Catch::cout() << testCaseInfo.name;
-        if (config.verbosity() >= Verbosity::High)
+        if(config.verbosity() >= Verbosity::High)
             Catch::cout() << "\t@" << testCaseInfo.lineInfo;
         Catch::cout() << std::endl;
     }
@@ -8680,7 +8679,7 @@ void TagInfo::add(std::string const& spelling)
 std::string TagInfo::all() const
 {
     std::string out;
-    for (auto const& spelling : spellings)
+    for(auto const& spelling : spellings)
         out += "[" + spelling + "]";
     return out;
 }
@@ -8688,7 +8687,7 @@ std::string TagInfo::all() const
 std::size_t listTags(Config const& config)
 {
     TestSpec testSpec = config.testSpec();
-    if (config.testSpec().hasFilters())
+    if(config.testSpec().hasFilters())
         Catch::cout() << "Tags for matching test cases:\n";
     else
     {
@@ -8701,13 +8700,13 @@ std::size_t listTags(Config const& config)
 
     std::vector<TestCase> matchedTestCases =
         filterTests(getAllTestCasesSorted(config), testSpec, config);
-    for (auto const& testCase : matchedTestCases)
+    for(auto const& testCase : matchedTestCases)
     {
-        for (auto const& tagName : testCase.getTestCaseInfo().tags)
+        for(auto const& tagName : testCase.getTestCaseInfo().tags)
         {
             std::string lcaseTagName = toLower(tagName);
             auto        countIt      = tagCounts.find(lcaseTagName);
-            if (countIt == tagCounts.end())
+            if(countIt == tagCounts.end())
                 countIt =
                     tagCounts.insert(std::make_pair(lcaseTagName, TagInfo()))
                         .first;
@@ -8715,7 +8714,7 @@ std::size_t listTags(Config const& config)
         }
     }
 
-    for (auto const& tagCount : tagCounts)
+    for(auto const& tagCount : tagCounts)
     {
         std::ostringstream oss;
         oss << "  " << std::setw(2) << tagCount.second.count << "  ";
@@ -8735,10 +8734,10 @@ std::size_t listReporters(Config const& /*config*/)
     IReporterRegistry::FactoryMap const& factories =
         getRegistryHub().getReporterRegistry().getFactories();
     std::size_t maxNameLen = 0;
-    for (auto const& factoryKvp : factories)
+    for(auto const& factoryKvp : factories)
         maxNameLen = (std::max)(maxNameLen, factoryKvp.first.size());
 
-    for (auto const& factoryKvp : factories)
+    for(auto const& factoryKvp : factories)
     {
         Catch::cout()
             << Column(factoryKvp.first + ":").indent(2).width(5 + maxNameLen) +
@@ -8755,13 +8754,13 @@ std::size_t listReporters(Config const& /*config*/)
 Option<std::size_t> list(Config const& config)
 {
     Option<std::size_t> listedCount;
-    if (config.listTests())
+    if(config.listTests())
         listedCount = listedCount.valueOr(0) + listTests(config);
-    if (config.listTestNamesOnly())
+    if(config.listTestNamesOnly())
         listedCount = listedCount.valueOr(0) + listTestsNamesOnly(config);
-    if (config.listTags())
+    if(config.listTags())
         listedCount = listedCount.valueOr(0) + listTags(config);
-    if (config.listReporters())
+    if(config.listReporters())
         listedCount = listedCount.valueOr(0) + listReporters(config);
     return listedCount;
 }
@@ -8779,7 +8778,7 @@ namespace Impl
 
 std::string MatcherUntypedBase::toString() const
 {
-    if (m_cachedToString.empty())
+    if(m_cachedToString.empty())
         m_cachedToString = describe();
     return m_cachedToString;
 }
@@ -8959,7 +8958,7 @@ ScopedMessage::ScopedMessage(MessageBuilder const& builder)
 
 ScopedMessage::~ScopedMessage()
 {
-    if (!std::uncaught_exception())
+    if(!std::uncaught_exception())
     {
         getResultCapture().popScopedMessage(m_info);
     }
@@ -9015,7 +9014,7 @@ namespace Catch
 
 void seedRng(IConfig const& config)
 {
-    if (config.rngSeed() != 0)
+    if(config.rngSeed() != 0)
         std::srand(config.rngSeed());
 }
 unsigned int rngSeed()
@@ -9272,7 +9271,7 @@ private:
 RegistryHub*& getTheRegistryHub()
 {
     static RegistryHub* theRegistryHub = nullptr;
-    if (!theRegistryHub)
+    if(!theRegistryHub)
         theRegistryHub = new RegistryHub();
     return theRegistryHub;
 }
@@ -9312,7 +9311,7 @@ IStreamingReporterPtr ReporterRegistry::create(
     std::string const& name, IConfigPtr const& config) const
 {
     auto it = m_factories.find(name);
-    if (it == m_factories.end())
+    if(it == m_factories.end())
         return nullptr;
     return it->second->create(ReporterConfig(config));
 }
@@ -9607,10 +9606,10 @@ Totals RunContext::runTest(TestCase const& testCase)
             TestCaseTracking::NameAndLocation(
                 testInfo.name, testInfo.lineInfo));
         runCurrentTest(redirectedCout, redirectedCerr);
-    } while (!m_testCaseTracker->isSuccessfullyCompleted() && !aborting());
+    } while(!m_testCaseTracker->isSuccessfullyCompleted() && !aborting());
 
     Totals deltaTotals = m_totals.delta(prevTotals);
-    if (testInfo.expectedToFail() && deltaTotals.testCases.passed > 0)
+    if(testInfo.expectedToFail() && deltaTotals.testCases.passed > 0)
     {
         deltaTotals.assertions.failed++;
         deltaTotals.testCases.passed--;
@@ -9642,13 +9641,13 @@ void RunContext::assertionStarting(AssertionInfo const& info)
 }
 void RunContext::assertionEnded(AssertionResult const& result)
 {
-    if (result.getResultType() == ResultWas::Ok)
+    if(result.getResultType() == ResultWas::Ok)
     {
         m_totals.assertions.passed++;
     }
-    else if (!result.isOk())
+    else if(!result.isOk())
     {
-        if (m_activeTestCase->getTestCaseInfo().okToFail())
+        if(m_activeTestCase->getTestCaseInfo().okToFail())
             m_totals.assertions.failedButOk++;
         else
             m_totals.assertions.failed++;
@@ -9675,7 +9674,7 @@ bool RunContext::sectionStarted(
         m_trackerContext,
         TestCaseTracking::NameAndLocation(
             sectionInfo.name, sectionInfo.lineInfo));
-    if (!sectionTracker.isOpen())
+    if(!sectionTracker.isOpen())
         return false;
     m_activeSections.push_back(&sectionTracker);
 
@@ -9690,11 +9689,11 @@ bool RunContext::sectionStarted(
 
 bool RunContext::testForMissingAssertions(Counts& assertions)
 {
-    if (assertions.total() != 0)
+    if(assertions.total() != 0)
         return false;
-    if (!m_config->warnAboutMissingAssertions())
+    if(!m_config->warnAboutMissingAssertions())
         return false;
-    if (m_trackerContext.currentTracker().hasChildren())
+    if(m_trackerContext.currentTracker().hasChildren())
         return false;
     m_totals.assertions.failed++;
     assertions.failed++;
@@ -9706,7 +9705,7 @@ void RunContext::sectionEnded(SectionEndInfo const& endInfo)
     Counts assertions        = m_totals.assertions - endInfo.prevAssertions;
     bool   missingAssertions = testForMissingAssertions(assertions);
 
-    if (!m_activeSections.empty())
+    if(!m_activeSections.empty())
     {
         m_activeSections.back()->close();
         m_activeSections.pop_back();
@@ -9722,7 +9721,7 @@ void RunContext::sectionEnded(SectionEndInfo const& endInfo)
 
 void RunContext::sectionEndedEarly(SectionEndInfo const& endInfo)
 {
-    if (m_unfinishedSections.empty())
+    if(m_unfinishedSections.empty())
         m_activeSections.back()->fail();
     else
         m_activeSections.back()->close();
@@ -9849,7 +9848,7 @@ void RunContext::runCurrentTest(
 
         Timer timer;
         timer.start();
-        if (m_reporter->getPreferences().shouldRedirectStdOut)
+        if(m_reporter->getPreferences().shouldRedirectStdOut)
         {
             StreamRedirect coutRedir(cout(), redirectedCout);
             StdErrRedirect errRedir(redirectedCerr);
@@ -9861,16 +9860,16 @@ void RunContext::runCurrentTest(
         }
         duration = timer.getElapsedSeconds();
     }
-    catch (TestFailureException&)
+    catch(TestFailureException&)
     {
         // This just means the test was aborted due to failure
     }
-    catch (...)
+    catch(...)
     {
         // Under CATCH_CONFIG_FAST_COMPILE, unexpected exceptions under REQUIRE
         // assertions
         // are reported without translation at the point of origin.
-        if (m_shouldReportUnexpected)
+        if(m_shouldReportUnexpected)
         {
             AssertionHandler(
                 m_lastAssertionInfo.macroName,
@@ -9902,17 +9901,17 @@ void RunContext::handleUnfinishedSections()
 {
     // If sections ended prematurely due to an exception we stored their
     // infos here so we can tear them down outside the unwind process.
-    for (auto it    = m_unfinishedSections.rbegin(),
-              itEnd = m_unfinishedSections.rend();
-         it != itEnd;
-         ++it)
+    for(auto it    = m_unfinishedSections.rbegin(),
+             itEnd = m_unfinishedSections.rend();
+        it != itEnd;
+        ++it)
         sectionEnded(*it);
     m_unfinishedSections.clear();
 }
 
 IResultCapture& getResultCapture()
 {
-    if (auto* capture = getCurrentContext().getResultCapture())
+    if(auto* capture = getCurrentContext().getResultCapture())
         return *capture;
     else
         CATCH_INTERNAL_ERROR("No result capture instance");
@@ -9938,11 +9937,11 @@ Section::Section(SectionInfo const& info)
 #endif
 Section::~Section()
 {
-    if (m_sectionIncluded)
+    if(m_sectionIncluded)
     {
         SectionEndInfo endInfo(
             m_info, m_assertions, m_timer.getElapsedSeconds());
-        if (std::uncaught_exception())
+        if(std::uncaught_exception())
             getResultCapture().sectionEndedEarly(endInfo);
         else
             getResultCapture().sectionEnded(endInfo);
@@ -10092,11 +10091,11 @@ IStreamingReporterPtr
 IStreamingReporterPtr makeReporter(std::shared_ptr<Config> const& config)
 {
     auto const& reporterNames = config->getReporterNames();
-    if (reporterNames.empty())
+    if(reporterNames.empty())
         return createReporter(CATCH_CONFIG_DEFAULT_REPORTER, config);
 
     IStreamingReporterPtr reporter;
-    for (auto const& name : reporterNames)
+    for(auto const& name : reporterNames)
         addReporter(reporter, createReporter(name, config));
     return reporter;
 }
@@ -10107,7 +10106,7 @@ void addListeners(IStreamingReporterPtr& reporters, IConfigPtr const& config)
 {
     auto const& listeners =
         Catch::getRegistryHub().getReporterRegistry().getListeners();
-    for (auto const& listener : listeners)
+    for(auto const& listener : listeners)
         addReporter(reporters, listener->create(Catch::ReporterConfig(config)));
 }
 
@@ -10124,15 +10123,15 @@ Catch::Totals runTests(std::shared_ptr<Config> const& config)
     context.testGroupStarting(config->name(), 1, 1);
 
     TestSpec testSpec = config->testSpec();
-    if (!testSpec.hasFilters())
+    if(!testSpec.hasFilters())
         testSpec = TestSpecParser(ITagAliasRegistry::get())
                        .parse("~[.]")
                        .testSpec(); // All not hidden tests
 
     auto const& allTestCases = getAllTestCasesSorted(*config);
-    for (auto const& testCase : allTestCases)
+    for(auto const& testCase : allTestCases)
     {
-        if (!context.aborting() && matchTest(testCase, testSpec, *config))
+        if(!context.aborting() && matchTest(testCase, testSpec, *config))
             totals += context.runTest(testCase);
         else
             context.reporter().skipTest(testCase);
@@ -10147,20 +10146,20 @@ void applyFilenamesAsTags(Catch::IConfig const& config)
     using namespace Catch;
     auto& tests =
         const_cast<std::vector<TestCase>&>(getAllTestCasesSorted(config));
-    for (auto& testCase : tests)
+    for(auto& testCase : tests)
     {
         auto tags = testCase.tags;
 
         std::string filename  = testCase.lineInfo.file;
         auto        lastSlash = filename.find_last_of("\\/");
-        if (lastSlash != std::string::npos)
+        if(lastSlash != std::string::npos)
         {
             filename.erase(0, lastSlash);
             filename[0] = '#';
         }
 
         auto lastDot = filename.find_last_of('.');
-        if (lastDot != std::string::npos)
+        if(lastDot != std::string::npos)
         {
             filename.erase(lastDot);
         }
@@ -10177,14 +10176,14 @@ namespace Catch
 Session::Session()
 {
     static bool alreadyInstantiated = false;
-    if (alreadyInstantiated)
+    if(alreadyInstantiated)
     {
         try
         {
             CATCH_INTERNAL_ERROR(
                 "Only one instance of Catch::Session can ever be used");
         }
-        catch (...)
+        catch(...)
         {
             getMutableRegistryHub().registerStartupException();
         }
@@ -10192,19 +10191,19 @@ Session::Session()
 
     const auto& exceptions =
         getRegistryHub().getStartupExceptionRegistry().getExceptions();
-    if (!exceptions.empty())
+    if(!exceptions.empty())
     {
         m_startupExceptions = true;
         Colour colourGuard(Colour::Red);
         Catch::cerr() << "Errors occured during startup!" << '\n';
         // iterate over all exceptions and notify user
-        for (const auto& ex_ptr : exceptions)
+        for(const auto& ex_ptr : exceptions)
         {
             try
             {
                 std::rethrow_exception(ex_ptr);
             }
-            catch (std::exception const& ex)
+            catch(std::exception const& ex)
             {
                 Catch::cerr() << Column(ex.what()).indent(2) << '\n';
             }
@@ -10240,11 +10239,11 @@ void Session::libIdentify()
 
 int Session::applyCommandLine(int argc, char* argv[])
 {
-    if (m_startupExceptions)
+    if(m_startupExceptions)
         return 1;
 
     auto result = m_cli.parse(clara::Args(argc, argv));
-    if (!result)
+    if(!result)
     {
         Catch::cerr() << Colour(Colour::Red) << "\nError(s) in input:\n"
                       << Column(result.errorMessage()).indent(2) << "\n\n";
@@ -10252,9 +10251,9 @@ int Session::applyCommandLine(int argc, char* argv[])
         return MaxExitCode;
     }
 
-    if (m_configData.showHelp)
+    if(m_configData.showHelp)
         showHelp();
-    if (m_configData.libIdentify)
+    if(m_configData.libIdentify)
         libIdentify();
     m_config.reset();
     return 0;
@@ -10268,10 +10267,10 @@ void Session::useConfigData(ConfigData const& configData)
 
 int Session::run(int argc, char* argv[])
 {
-    if (m_startupExceptions)
+    if(m_startupExceptions)
         return 1;
     int returnCode = applyCommandLine(argc, argv);
-    if (returnCode == 0)
+    if(returnCode == 0)
         returnCode = run();
     return returnCode;
 }
@@ -10282,7 +10281,7 @@ int Session::run(int argc, wchar_t* const argv[])
 
     char** utf8Argv = new char*[argc];
 
-    for (int i = 0; i < argc; ++i)
+    for(int i = 0; i < argc; ++i)
     {
         int bufSize =
             WideCharToMultiByte(CP_UTF8, 0, argv[i], -1, NULL, 0, NULL, NULL);
@@ -10295,7 +10294,7 @@ int Session::run(int argc, wchar_t* const argv[])
 
     int returnCode = run(argc, utf8Argv);
 
-    for (int i = 0; i < argc; ++i)
+    for(int i = 0; i < argc; ++i)
         delete[] utf8Argv[i];
 
     delete[] utf8Argv;
@@ -10305,14 +10304,14 @@ int Session::run(int argc, wchar_t* const argv[])
 #endif
 int Session::run()
 {
-    if ((m_configData.waitForKeypress & WaitForKeypress::BeforeStart) != 0)
+    if((m_configData.waitForKeypress & WaitForKeypress::BeforeStart) != 0)
     {
         Catch::cout() << "...waiting for enter/ return before starting"
                       << std::endl;
         static_cast<void>(std::getchar());
     }
     int exitCode = runInternal();
-    if ((m_configData.waitForKeypress & WaitForKeypress::BeforeExit) != 0)
+    if((m_configData.waitForKeypress & WaitForKeypress::BeforeExit) != 0)
     {
         Catch::cout()
             << "...waiting for enter/ return before exiting, with code: "
@@ -10336,17 +10335,17 @@ ConfigData& Session::configData()
 }
 Config& Session::config()
 {
-    if (!m_config)
+    if(!m_config)
         m_config = std::make_shared<Config>(m_configData);
     return *m_config;
 }
 
 int Session::runInternal()
 {
-    if (m_startupExceptions)
+    if(m_startupExceptions)
         return 1;
 
-    if (m_configData.showHelp || m_configData.libIdentify)
+    if(m_configData.showHelp || m_configData.libIdentify)
         return 0;
 
     try
@@ -10355,18 +10354,18 @@ int Session::runInternal()
 
         seedRng(*m_config);
 
-        if (m_configData.filenamesAsTags)
+        if(m_configData.filenamesAsTags)
             applyFilenamesAsTags(*m_config);
 
         // Handle list request
-        if (Option<std::size_t> listed = list(config()))
+        if(Option<std::size_t> listed = list(config()))
             return static_cast<int>(*listed);
 
         return (std::min)(
             MaxExitCode,
             static_cast<int>(runTests(m_config).assertions.failed));
     }
-    catch (std::exception& ex)
+    catch(std::exception& ex)
     {
         Catch::cerr() << ex.what() << std::endl;
         return MaxExitCode;
@@ -10385,7 +10384,7 @@ void StartupExceptionRegistry::add(std::exception_ptr const& exception) noexcept
     {
         m_exceptions.push_back(exception);
     }
-    catch (...)
+    catch(...)
     {
         // If we run out of memory during start-up there's really not a lot more
         // we can do about it
@@ -10432,9 +10431,9 @@ private:
     {
         sync();
 
-        if (c != EOF)
+        if(c != EOF)
         {
-            if (pbase() == epptr())
+            if(pbase() == epptr())
                 m_writer(std::string(1, static_cast<char>(c)));
             else
                 sputc(static_cast<char>(c));
@@ -10444,7 +10443,7 @@ private:
 
     int sync() override
     {
-        if (pbase() != pptr())
+        if(pbase() != pptr())
         {
             m_writer(std::string(
                 pbase(),
@@ -10588,11 +10587,11 @@ bool replaceInPlace(
 {
     bool        replaced = false;
     std::size_t i        = str.find(replaceThis);
-    while (i != std::string::npos)
+    while(i != std::string::npos)
     {
         replaced = true;
         str = str.substr(0, i) + withThis + str.substr(i + replaceThis.size());
-        if (i < str.size() - withThis.size())
+        if(i < str.size() - withThis.size())
             i = str.find(replaceThis, i + withThis.size());
         else
             i = std::string::npos;
@@ -10608,7 +10607,7 @@ pluralise::pluralise(std::size_t count, std::string const& label)
 std::ostream& operator<<(std::ostream& os, pluralise const& pluraliser)
 {
     os << pluraliser.m_count << ' ' << pluraliser.m_label;
-    if (pluraliser.m_count != 1)
+    if(pluraliser.m_count != 1)
         os << 's';
     return os;
 }
@@ -10660,7 +10659,7 @@ StringRef::StringRef(char const* rawChars, size_type size) noexcept
 {
     size_type rawSize =
         rawChars == nullptr ? 0 : static_cast<size_type>(std::strlen(rawChars));
-    if (rawSize < size)
+    if(rawSize < size)
         m_size = rawSize;
 }
 
@@ -10693,7 +10692,7 @@ void StringRef::swap(StringRef& other) noexcept
 
 auto StringRef::c_str() const -> char const*
 {
-    if (isSubstring())
+    if(isSubstring())
         const_cast<StringRef*>(this)->takeOwnership();
     return m_start;
 }
@@ -10713,7 +10712,7 @@ auto StringRef::isSubstring() const noexcept -> bool
 
 void StringRef::takeOwnership()
 {
-    if (!isOwned())
+    if(!isOwned())
     {
         m_data = new char[m_size + 1];
         memcpy(m_data, m_start, m_size);
@@ -10724,7 +10723,7 @@ void StringRef::takeOwnership()
 auto StringRef::substr(size_type start, size_type size) const noexcept
     -> StringRef
 {
-    if (start < m_size)
+    if(start < m_size)
         return StringRef(m_start + start, size);
     else
         return StringRef();
@@ -10757,16 +10756,16 @@ auto StringRef::numberOfCharacters() const noexcept -> size_type
 {
     size_type noChars = m_size;
     // Make adjustments for uft encodings
-    for (size_type i = 0; i < m_size; ++i)
+    for(size_type i = 0; i < m_size; ++i)
     {
         char c = m_start[i];
-        if ((c & 0b11000000) == 0b11000000)
+        if((c & 0b11000000) == 0b11000000)
         {
-            if ((c & 0b11100000) == 0b11000000)
+            if((c & 0b11100000) == 0b11000000)
                 noChars--;
-            else if ((c & 0b11110000) == 0b11100000)
+            else if((c & 0b11110000) == 0b11100000)
                 noChars -= 2;
-            else if ((c & 0b11111000) == 0b11110000)
+            else if((c & 0b11111000) == 0b11110000)
                 noChars -= 3;
         }
     }
@@ -10823,7 +10822,7 @@ RegistrarForTagAliases::RegistrarForTagAliases(
     {
         getMutableRegistryHub().registerTagAlias(alias, tag, lineInfo);
     }
-    catch (...)
+    catch(...)
     {
         // Do not throw when constructing global objects, instead register the
         // exception to be processed later
@@ -10844,7 +10843,7 @@ TagAliasRegistry::~TagAliasRegistry()
 TagAlias const* TagAliasRegistry::find(std::string const& alias) const
 {
     auto it = m_registry.find(alias);
-    if (it != m_registry.end())
+    if(it != m_registry.end())
         return &(it->second);
     else
         return nullptr;
@@ -10854,10 +10853,10 @@ std::string
     TagAliasRegistry::expandAliases(std::string const& unexpandedTestSpec) const
 {
     std::string expandedTestSpec = unexpandedTestSpec;
-    for (auto const& registryKvp : m_registry)
+    for(auto const& registryKvp : m_registry)
     {
         std::size_t pos = expandedTestSpec.find(registryKvp.first);
-        if (pos != std::string::npos)
+        if(pos != std::string::npos)
         {
             expandedTestSpec =
                 expandedTestSpec.substr(0, pos) + registryKvp.second.tag +
@@ -10911,17 +10910,17 @@ namespace Catch
 
 TestCaseInfo::SpecialProperties parseSpecialTag(std::string const& tag)
 {
-    if (startsWith(tag, '.') || tag == "!hide")
+    if(startsWith(tag, '.') || tag == "!hide")
         return TestCaseInfo::IsHidden;
-    else if (tag == "!throws")
+    else if(tag == "!throws")
         return TestCaseInfo::Throws;
-    else if (tag == "!shouldfail")
+    else if(tag == "!shouldfail")
         return TestCaseInfo::ShouldFail;
-    else if (tag == "!mayfail")
+    else if(tag == "!mayfail")
         return TestCaseInfo::MayFail;
-    else if (tag == "!nonportable")
+    else if(tag == "!nonportable")
         return TestCaseInfo::NonPortable;
-    else if (tag == "!benchmark")
+    else if(tag == "!benchmark")
         return static_cast<TestCaseInfo::SpecialProperties>(
             TestCaseInfo::Benchmark | TestCaseInfo::IsHidden);
     else
@@ -10957,23 +10956,23 @@ TestCase makeTestCase(
     std::vector<std::string> tags;
     std::string              desc, tag;
     bool                     inTag = false;
-    for (char c : _descOrTags)
+    for(char c : _descOrTags)
     {
-        if (!inTag)
+        if(!inTag)
         {
-            if (c == '[')
+            if(c == '[')
                 inTag = true;
             else
                 desc += c;
         }
         else
         {
-            if (c == ']')
+            if(c == ']')
             {
                 TestCaseInfo::SpecialProperties prop = parseSpecialTag(tag);
-                if ((prop & TestCaseInfo::IsHidden) != 0)
+                if((prop & TestCaseInfo::IsHidden) != 0)
                     isHidden = true;
-                else if (prop == TestCaseInfo::None)
+                else if(prop == TestCaseInfo::None)
                     enforceNotReservedTag(tag, _lineInfo);
 
                 tags.push_back(tag);
@@ -10984,7 +10983,7 @@ TestCase makeTestCase(
                 tag += c;
         }
     }
-    if (isHidden)
+    if(isHidden)
     {
         tags.push_back(".");
     }
@@ -10999,7 +10998,7 @@ void setTags(TestCaseInfo& testCaseInfo, std::vector<std::string> tags)
     tags.erase(std::unique(begin(tags), end(tags)), end(tags));
     testCaseInfo.lcaseTags.clear();
 
-    for (auto const& tag : tags)
+    for(auto const& tag : tags)
     {
         std::string lcaseTag    = toLower(tag);
         testCaseInfo.properties = static_cast<TestCaseInfo::SpecialProperties>(
@@ -11046,12 +11045,12 @@ std::string TestCaseInfo::tagsAsString() const
     std::string ret;
     // '[' and ']' per tag
     std::size_t full_size = 2 * tags.size();
-    for (const auto& tag : tags)
+    for(const auto& tag : tags)
     {
         full_size += tag.size();
     }
     ret.reserve(full_size);
-    for (const auto& tag : tags)
+    for(const auto& tag : tags)
     {
         ret.push_back('[');
         ret.append(tag);
@@ -11109,7 +11108,7 @@ std::vector<TestCase> sortTests(
 
     std::vector<TestCase> sorted = unsortedTestCases;
 
-    switch (config.runOrder())
+    switch(config.runOrder())
     {
     case RunTests::InLexicographicalOrder:
         std::sort(sorted.begin(), sorted.end());
@@ -11134,7 +11133,7 @@ bool matchTest(
 void enforceNoDuplicateTestCases(std::vector<TestCase> const& functions)
 {
     std::set<TestCase> seenFunctions;
-    for (auto const& function : functions)
+    for(auto const& function : functions)
     {
         auto prev = seenFunctions.insert(function);
         CATCH_ENFORCE(
@@ -11155,8 +11154,8 @@ std::vector<TestCase> filterTests(
 {
     std::vector<TestCase> filtered;
     filtered.reserve(testCases.size());
-    for (auto const& testCase : testCases)
-        if (matchTest(testCase, testSpec, config))
+    for(auto const& testCase : testCases)
+        if(matchTest(testCase, testSpec, config))
             filtered.push_back(testCase);
     return filtered;
 }
@@ -11168,7 +11167,7 @@ std::vector<TestCase> const& getAllTestCasesSorted(IConfig const& config)
 void TestRegistry::registerTest(TestCase const& testCase)
 {
     std::string name = testCase.getTestCaseInfo().name;
-    if (name.empty())
+    if(name.empty())
     {
         std::ostringstream oss;
         oss << "Anonymous test case " << ++m_unnamedCount;
@@ -11184,10 +11183,10 @@ std::vector<TestCase> const& TestRegistry::getAllTests() const
 std::vector<TestCase> const&
     TestRegistry::getAllTestsSorted(IConfig const& config) const
 {
-    if (m_sortedFunctions.empty())
+    if(m_sortedFunctions.empty())
         enforceNoDuplicateTestCases(m_functions);
 
-    if (m_currentSortOrder != config.runOrder() || m_sortedFunctions.empty())
+    if(m_currentSortOrder != config.runOrder() || m_sortedFunctions.empty())
     {
         m_sortedFunctions  = sortTests(config, m_functions);
         m_currentSortOrder = config.runOrder();
@@ -11209,11 +11208,11 @@ void TestInvokerAsFunction::invoke() const
 std::string extractClassName(std::string const& classOrQualifiedMethodName)
 {
     std::string className = classOrQualifiedMethodName;
-    if (startsWith(className, '&'))
+    if(startsWith(className, '&'))
     {
         std::size_t lastColons        = className.rfind("::");
         std::size_t penultimateColons = className.rfind("::", lastColons - 1);
-        if (penultimateColons == std::string::npos)
+        if(penultimateColons == std::string::npos)
             penultimateColons = 1;
         className =
             className.substr(penultimateColons, lastColons - penultimateColons);
@@ -11352,10 +11351,10 @@ ITracker& TrackerBase::parent()
 
 void TrackerBase::openChild()
 {
-    if (m_runState != ExecutingChildren)
+    if(m_runState != ExecutingChildren)
     {
         m_runState = ExecutingChildren;
-        if (m_parent)
+        if(m_parent)
             m_parent->openChild();
     }
 }
@@ -11373,7 +11372,7 @@ void TrackerBase::open()
 {
     m_runState = Executing;
     moveToThis();
-    if (m_parent)
+    if(m_parent)
         m_parent->openChild();
 }
 
@@ -11381,10 +11380,10 @@ void TrackerBase::close()
 {
 
     // Close any still open children (e.g. generators)
-    while (&m_ctx.currentTracker() != this)
+    while(&m_ctx.currentTracker() != this)
         m_ctx.currentTracker().close();
 
-    switch (m_runState)
+    switch(m_runState)
     {
     case NeedsAnotherRun:
         break;
@@ -11393,7 +11392,7 @@ void TrackerBase::close()
         m_runState = CompletedSuccessfully;
         break;
     case ExecutingChildren:
-        if (m_children.empty() || m_children.back()->isComplete())
+        if(m_children.empty() || m_children.back()->isComplete())
             m_runState = CompletedSuccessfully;
         break;
 
@@ -11411,7 +11410,7 @@ void TrackerBase::close()
 void TrackerBase::fail()
 {
     m_runState = Failed;
-    if (m_parent)
+    if(m_parent)
         m_parent->markAsNeedingAnotherRun();
     moveToParent();
     m_ctx.completeCycle();
@@ -11437,9 +11436,9 @@ SectionTracker::SectionTracker(
     ITracker*              parent)
     : TrackerBase(nameAndLocation, ctx, parent)
 {
-    if (parent)
+    if(parent)
     {
-        while (!parent->isSectionTracker())
+        while(!parent->isSectionTracker())
             parent = &parent->parent();
 
         SectionTracker& parentSection = static_cast<SectionTracker&>(*parent);
@@ -11458,7 +11457,7 @@ SectionTracker& SectionTracker::acquire(
     std::shared_ptr<SectionTracker> section;
 
     ITracker& currentTracker = ctx.currentTracker();
-    if (ITrackerPtr childTracker = currentTracker.findChild(nameAndLocation))
+    if(ITrackerPtr childTracker = currentTracker.findChild(nameAndLocation))
     {
         assert(childTracker);
         assert(childTracker->isSectionTracker());
@@ -11470,21 +11469,21 @@ SectionTracker& SectionTracker::acquire(
             nameAndLocation, ctx, &currentTracker);
         currentTracker.addChild(section);
     }
-    if (!ctx.completedCycle())
+    if(!ctx.completedCycle())
         section->tryOpen();
     return *section;
 }
 
 void SectionTracker::tryOpen()
 {
-    if (!isComplete() && (m_filters.empty() || m_filters[0].empty() ||
-                          m_filters[0] == m_nameAndLocation.name))
+    if(!isComplete() && (m_filters.empty() || m_filters[0].empty() ||
+                         m_filters[0] == m_nameAndLocation.name))
         open();
 }
 
 void SectionTracker::addInitialFilters(std::vector<std::string> const& filters)
 {
-    if (!filters.empty())
+    if(!filters.empty())
     {
         m_filters.push_back(""); // Root - should never be consulted
         m_filters.push_back(""); // Test Case - not a section filter
@@ -11493,7 +11492,7 @@ void SectionTracker::addInitialFilters(std::vector<std::string> const& filters)
 }
 void SectionTracker::addNextFilters(std::vector<std::string> const& filters)
 {
-    if (filters.size() > 1)
+    if(filters.size() > 1)
         m_filters.insert(m_filters.end(), ++filters.begin(), filters.end());
 }
 
@@ -11517,7 +11516,7 @@ IndexTracker& IndexTracker::acquire(
     std::shared_ptr<IndexTracker> tracker;
 
     ITracker& currentTracker = ctx.currentTracker();
-    if (ITrackerPtr childTracker = currentTracker.findChild(nameAndLocation))
+    if(ITrackerPtr childTracker = currentTracker.findChild(nameAndLocation))
     {
         assert(childTracker);
         assert(childTracker->isIndexTracker());
@@ -11530,10 +11529,10 @@ IndexTracker& IndexTracker::acquire(
         currentTracker.addChild(tracker);
     }
 
-    if (!ctx.completedCycle() && !tracker->isComplete())
+    if(!ctx.completedCycle() && !tracker->isComplete())
     {
-        if (tracker->m_runState != ExecutingChildren &&
-            tracker->m_runState != NeedsAnotherRun)
+        if(tracker->m_runState != ExecutingChildren &&
+           tracker->m_runState != NeedsAnotherRun)
             tracker->moveNext();
         tracker->open();
     }
@@ -11555,7 +11554,7 @@ void IndexTracker::moveNext()
 void IndexTracker::close()
 {
     TrackerBase::close();
-    if (m_runState == CompletedSuccessfully && m_index < m_size - 1)
+    if(m_runState == CompletedSuccessfully && m_index < m_size - 1)
         m_runState = Executing;
 }
 
@@ -11579,7 +11578,7 @@ namespace Catch
 
 auto makeTestInvoker(void (*testAsFunction)()) noexcept -> ITestInvoker*
 {
-    return new (std::nothrow) TestInvokerAsFunction(testAsFunction);
+    return new(std::nothrow) TestInvokerAsFunction(testAsFunction);
 }
 
 NameAndTags::NameAndTags(StringRef name_, StringRef tags_) noexcept
@@ -11602,7 +11601,7 @@ AutoReg::AutoReg(
             nameAndTags.tags,
             lineInfo));
     }
-    catch (...)
+    catch(...)
     {
         // Do not throw when constructing global objects, instead register the
         // exception to be processed later
@@ -11659,9 +11658,9 @@ bool TestSpec::ExcludedPattern::matches(TestCaseInfo const& testCase) const
 bool TestSpec::Filter::matches(TestCaseInfo const& testCase) const
 {
     // All patterns in a filter must match for the filter to be a match
-    for (auto const& pattern : m_patterns)
+    for(auto const& pattern : m_patterns)
     {
-        if (!pattern->matches(testCase))
+        if(!pattern->matches(testCase))
             return false;
     }
     return true;
@@ -11674,8 +11673,8 @@ bool TestSpec::hasFilters() const
 bool TestSpec::matches(TestCaseInfo const& testCase) const
 {
     // A TestSpec matches if any filter matches
-    for (auto const& filter : m_filters)
-        if (filter.matches(testCase))
+    for(auto const& filter : m_filters)
+        if(filter.matches(testCase))
             return true;
     return false;
 }
@@ -11698,9 +11697,9 @@ TestSpecParser& TestSpecParser::parse(std::string const& arg)
     m_start     = std::string::npos;
     m_arg       = m_tagAliases->expandAliases(arg);
     m_escapeChars.clear();
-    for (m_pos = 0; m_pos < m_arg.size(); ++m_pos)
+    for(m_pos = 0; m_pos < m_arg.size(); ++m_pos)
         visitChar(m_arg[m_pos]);
-    if (m_mode == Name)
+    if(m_mode == Name)
         addPattern<TestSpec::NamePattern>();
     return *this;
 }
@@ -11712,9 +11711,9 @@ TestSpec TestSpecParser::testSpec()
 
 void TestSpecParser::visitChar(char c)
 {
-    if (m_mode == None)
+    if(m_mode == None)
     {
-        switch (c)
+        switch(c)
         {
         case ' ':
             return;
@@ -11732,29 +11731,29 @@ void TestSpecParser::visitChar(char c)
             break;
         }
     }
-    if (m_mode == Name)
+    if(m_mode == Name)
     {
-        if (c == ',')
+        if(c == ',')
         {
             addPattern<TestSpec::NamePattern>();
             addFilter();
         }
-        else if (c == '[')
+        else if(c == '[')
         {
-            if (subString() == "exclude:")
+            if(subString() == "exclude:")
                 m_exclusion = true;
             else
                 addPattern<TestSpec::NamePattern>();
             startNewMode(Tag, ++m_pos);
         }
-        else if (c == '\\')
+        else if(c == '\\')
             escape();
     }
-    else if (m_mode == EscapedName)
+    else if(m_mode == EscapedName)
         m_mode = Name;
-    else if (m_mode == QuotedName && c == '"')
+    else if(m_mode == QuotedName && c == '"')
         addPattern<TestSpec::NamePattern>();
-    else if (m_mode == Tag && c == ']')
+    else if(m_mode == Tag && c == ']')
         addPattern<TestSpec::TagPattern>();
 }
 void TestSpecParser::startNewMode(Mode mode, std::size_t start)
@@ -11764,7 +11763,7 @@ void TestSpecParser::startNewMode(Mode mode, std::size_t start)
 }
 void TestSpecParser::escape()
 {
-    if (m_mode == None)
+    if(m_mode == None)
         m_start = m_pos;
     m_mode      = EscapedName;
     m_escapeChars.push_back(m_pos);
@@ -11776,7 +11775,7 @@ std::string TestSpecParser::subString() const
 
 void TestSpecParser::addFilter()
 {
-    if (!m_currentFilter.m_patterns.empty())
+    if(!m_currentFilter.m_patterns.empty())
     {
         m_testSpec.m_filters.push_back(m_currentFilter);
         m_currentFilter = TestSpec::Filter();
@@ -11809,7 +11808,7 @@ auto estimateClockResolution() -> uint64_t
     uint64_t              sum        = 0;
     static const uint64_t iterations = 1000000;
 
-    for (std::size_t i = 0; i < iterations; ++i)
+    for(std::size_t i = 0; i < iterations; ++i)
     {
 
         uint64_t ticks;
@@ -11817,7 +11816,7 @@ auto estimateClockResolution() -> uint64_t
         do
         {
             ticks = getCurrentNanosecondsSinceEpoch();
-        } while (ticks == baseTicks);
+        } while(ticks == baseTicks);
 
         auto delta = ticks - baseTicks;
         sum += delta;
@@ -11905,7 +11904,7 @@ std::string rawMemoryToString(const void* object, std::size_t size)
 {
     // Reverse order for little endian architectures
     int i = 0, end = static_cast<int>(size), inc = 1;
-    if (Endianness::which() == Endianness::Little)
+    if(Endianness::which() == Endianness::Little)
     {
         i   = end - 1;
         end = inc = -1;
@@ -11914,7 +11913,7 @@ std::string rawMemoryToString(const void* object, std::size_t size)
     unsigned char const* bytes = static_cast<unsigned char const*>(object);
     std::ostringstream   os;
     os << "0x" << std::setfill('0') << std::hex;
-    for (; i != end; i += inc)
+    for(; i != end; i += inc)
         os << std::setw(2) << static_cast<unsigned>(bytes[i]);
     return os.str();
 }
@@ -11927,9 +11926,9 @@ std::string fpToString(T value, int precision)
     oss << std::setprecision(precision) << std::fixed << value;
     std::string d = oss.str();
     std::size_t i = d.find_last_not_of('0');
-    if (i != std::string::npos && i != d.size() - 1)
+    if(i != std::string::npos && i != d.size() - 1)
     {
-        if (d[i] == '.')
+        if(d[i] == '.')
             i++;
         d = d.substr(0, i + 1);
     }
@@ -11944,15 +11943,15 @@ std::string fpToString(T value, int precision)
 
 std::string StringMaker<std::string>::convert(const std::string& str)
 {
-    if (!getCurrentContext().getConfig()->showInvisibles())
+    if(!getCurrentContext().getConfig()->showInvisibles())
     {
         return '"' + str + '"';
     }
 
     std::string s("\"");
-    for (char c : str)
+    for(char c : str)
     {
-        switch (c)
+        switch(c)
         {
         case '\n':
             s.append("\\n");
@@ -11973,7 +11972,7 @@ std::string StringMaker<std::wstring>::convert(const std::wstring& wstr)
 {
     std::string s;
     s.reserve(wstr.size());
-    for (auto c : wstr)
+    for(auto c : wstr)
     {
         s += (c <= 0xff) ? static_cast<char>(c) : '?';
     }
@@ -11982,7 +11981,7 @@ std::string StringMaker<std::wstring>::convert(const std::wstring& wstr)
 
 std::string StringMaker<char const*>::convert(char const* str)
 {
-    if (str)
+    if(str)
     {
         return ::Catch::Detail::stringify(std::string{str});
     }
@@ -11993,7 +11992,7 @@ std::string StringMaker<char const*>::convert(char const* str)
 }
 std::string StringMaker<char*>::convert(char* str)
 {
-    if (str)
+    if(str)
     {
         return ::Catch::Detail::stringify(std::string{str});
     }
@@ -12004,7 +12003,7 @@ std::string StringMaker<char*>::convert(char* str)
 }
 std::string StringMaker<wchar_t const*>::convert(wchar_t const* str)
 {
-    if (str)
+    if(str)
     {
         return ::Catch::Detail::stringify(std::wstring{str});
     }
@@ -12015,7 +12014,7 @@ std::string StringMaker<wchar_t const*>::convert(wchar_t const* str)
 }
 std::string StringMaker<wchar_t*>::convert(wchar_t* str)
 {
-    if (str)
+    if(str)
     {
         return ::Catch::Detail::stringify(std::wstring{str});
     }
@@ -12037,7 +12036,7 @@ std::string StringMaker<long long>::convert(long long value)
 {
     std::ostringstream oss;
     oss << value;
-    if (value > Detail::hexThreshold)
+    if(value > Detail::hexThreshold)
     {
         oss << " (0x" << std::hex << value << ')';
     }
@@ -12056,7 +12055,7 @@ std::string StringMaker<unsigned long long>::convert(unsigned long long value)
 {
     std::ostringstream oss;
     oss << value;
-    if (value > Detail::hexThreshold)
+    if(value > Detail::hexThreshold)
     {
         oss << " (0x" << std::hex << value << ')';
     }
@@ -12070,23 +12069,23 @@ std::string StringMaker<bool>::convert(bool b)
 
 std::string StringMaker<char>::convert(char value)
 {
-    if (value == '\r')
+    if(value == '\r')
     {
         return "'\\r'";
     }
-    else if (value == '\f')
+    else if(value == '\f')
     {
         return "'\\f'";
     }
-    else if (value == '\n')
+    else if(value == '\n')
     {
         return "'\\n'";
     }
-    else if (value == '\t')
+    else if(value == '\t')
     {
         return "'\\t'";
     }
-    else if ('\0' <= value && value < ' ')
+    else if('\0' <= value && value < ' ')
     {
         return ::Catch::Detail::stringify(static_cast<unsigned int>(value));
     }
@@ -12180,9 +12179,9 @@ Totals& Totals::operator+=(Totals const& other)
 Totals Totals::delta(Totals const& prevTotals) const
 {
     Totals diff = *this - prevTotals;
-    if (diff.assertions.failed > 0)
+    if(diff.assertions.failed > 0)
         ++diff.testCases.failed;
-    else if (diff.assertions.failedButOk > 0)
+    else if(diff.assertions.failedButOk > 0)
         ++diff.testCases.failedButOk;
     else
         ++diff.testCases.passed;
@@ -12216,7 +12215,7 @@ std::ostream& operator<<(std::ostream& os, Version const& version)
     os << version.majorVersion << '.' << version.minorVersion << '.'
        << version.patchNumber;
     // branchName is never null -> 0th char is \0 if it is empty
-    if (version.branchName[0])
+    if(version.branchName[0])
     {
         os << '-' << version.branchName << '.' << version.buildNumber;
     }
@@ -12239,12 +12238,12 @@ WildcardPattern::WildcardPattern(
     std::string const& pattern, CaseSensitive::Choice caseSensitivity)
     : m_caseSensitivity(caseSensitivity), m_pattern(adjustCase(pattern))
 {
-    if (startsWith(m_pattern, '*'))
+    if(startsWith(m_pattern, '*'))
     {
         m_pattern  = m_pattern.substr(1);
         m_wildcard = WildcardAtStart;
     }
-    if (endsWith(m_pattern, '*'))
+    if(endsWith(m_pattern, '*'))
     {
         m_pattern  = m_pattern.substr(0, m_pattern.size() - 1);
         m_wildcard = static_cast<WildcardPosition>(m_wildcard | WildcardAtEnd);
@@ -12253,7 +12252,7 @@ WildcardPattern::WildcardPattern(
 
 bool WildcardPattern::matches(std::string const& str) const
 {
-    switch (m_wildcard)
+    switch(m_wildcard)
     {
     case NoWildcard:
         return m_pattern == adjustCase(str);
@@ -12399,10 +12398,10 @@ void XmlEncode::encodeTo(std::ostream& os) const
     // Apostrophe escaping not necessary if we always use " to write attributes
     // (see: http://www.w3.org/TR/xml/#syntax)
 
-    for (std::size_t i = 0; i < m_str.size(); ++i)
+    for(std::size_t i = 0; i < m_str.size(); ++i)
     {
         char c = m_str[i];
-        switch (c)
+        switch(c)
         {
         case '<':
             os << "&lt;";
@@ -12413,14 +12412,14 @@ void XmlEncode::encodeTo(std::ostream& os) const
 
         case '>':
             // See: http://www.w3.org/TR/xml/#syntax
-            if (i > 2 && m_str[i - 1] == ']' && m_str[i - 2] == ']')
+            if(i > 2 && m_str[i - 1] == ']' && m_str[i - 2] == ']')
                 os << "&gt;";
             else
                 os << c;
             break;
 
         case '\"':
-            if (m_forWhat == ForAttributes)
+            if(m_forWhat == ForAttributes)
                 os << "&quot;";
             else
                 os << c;
@@ -12430,8 +12429,8 @@ void XmlEncode::encodeTo(std::ostream& os) const
             // Escape control chars - based on contribution by @espenalb in PR
             // #465 and
             // by @mrpi PR #588
-            if ((c >= 0 && c < '\x09') || (c > '\x0D' && c < '\x20') ||
-                c == '\x7F')
+            if((c >= 0 && c < '\x09') || (c > '\x0D' && c < '\x20') ||
+               c == '\x7F')
             {
                 // see
                 // http://stackoverflow.com/questions/404107/why-are-control-characters-illegal-in-xml-1-0
@@ -12462,7 +12461,7 @@ XmlWriter::ScopedElement::ScopedElement(ScopedElement&& other) noexcept
 XmlWriter::ScopedElement& XmlWriter::ScopedElement::
     operator=(ScopedElement&& other) noexcept
 {
-    if (m_writer)
+    if(m_writer)
     {
         m_writer->endElement();
     }
@@ -12473,7 +12472,7 @@ XmlWriter::ScopedElement& XmlWriter::ScopedElement::
 
 XmlWriter::ScopedElement::~ScopedElement()
 {
-    if (m_writer)
+    if(m_writer)
         m_writer->endElement();
 }
 
@@ -12491,7 +12490,7 @@ XmlWriter::XmlWriter(std::ostream& os) : m_os(os)
 
 XmlWriter::~XmlWriter()
 {
-    while (!m_tags.empty())
+    while(!m_tags.empty())
         endElement();
 }
 
@@ -12517,7 +12516,7 @@ XmlWriter& XmlWriter::endElement()
 {
     newlineIfNecessary();
     m_indent = m_indent.substr(0, m_indent.size() - 2);
-    if (m_tagIsOpen)
+    if(m_tagIsOpen)
     {
         m_os << "/>";
         m_tagIsOpen = false;
@@ -12534,7 +12533,7 @@ XmlWriter& XmlWriter::endElement()
 XmlWriter& XmlWriter::writeAttribute(
     std::string const& name, std::string const& attribute)
 {
-    if (!name.empty() && !attribute.empty())
+    if(!name.empty() && !attribute.empty())
         m_os << ' ' << name << "=\""
              << XmlEncode(attribute, XmlEncode::ForAttributes) << '"';
     return *this;
@@ -12548,11 +12547,11 @@ XmlWriter& XmlWriter::writeAttribute(std::string const& name, bool attribute)
 
 XmlWriter& XmlWriter::writeText(std::string const& text, bool indent)
 {
-    if (!text.empty())
+    if(!text.empty())
     {
         bool tagWasOpen = m_tagIsOpen;
         ensureTagClosed();
-        if (tagWasOpen && indent)
+        if(tagWasOpen && indent)
             m_os << m_indent;
         m_os << XmlEncode(text);
         m_needsNewline = true;
@@ -12582,7 +12581,7 @@ XmlWriter& XmlWriter::writeBlankLine()
 
 void XmlWriter::ensureTagClosed()
 {
-    if (m_tagIsOpen)
+    if(m_tagIsOpen)
     {
         m_os << ">" << std::endl;
         m_tagIsOpen = false;
@@ -12596,7 +12595,7 @@ void XmlWriter::writeDeclaration()
 
 void XmlWriter::newlineIfNecessary()
 {
-    if (m_needsNewline)
+    if(m_needsNewline)
     {
         m_os << std::endl;
         m_needsNewline = false;
@@ -12731,9 +12730,9 @@ struct CompactReporter : StreamingReporterBase<CompactReporter>
         bool printInfoMessages = true;
 
         // Drop out if result was successful and we're not printing those
-        if (!m_config->includeSuccessfulResults() && result.isOk())
+        if(!m_config->includeSuccessfulResults() && result.isOk())
         {
-            if (result.getResultType() != ResultWas::Warning)
+            if(result.getResultType() != ResultWas::Warning)
                 return false;
             printInfoMessages = false;
         }
@@ -12747,7 +12746,7 @@ struct CompactReporter : StreamingReporterBase<CompactReporter>
 
     void sectionEnded(SectionStats const& _sectionStats) override
     {
-        if (m_config->showDurations() == ShowDurations::Always)
+        if(m_config->showDurations() == ShowDurations::Always)
         {
             stream << getFormattedDuration(_sectionStats.durationInSeconds)
                    << " s: " << _sectionStats.sectionInfo.name << std::endl;
@@ -12785,19 +12784,19 @@ private:
 
             itMessage = messages.begin();
 
-            switch (result.getResultType())
+            switch(result.getResultType())
             {
             case ResultWas::Ok:
                 printResultType(Colour::ResultSuccess, passedString());
                 printOriginalExpression();
                 printReconstructedExpression();
-                if (!result.hasExpression())
+                if(!result.hasExpression())
                     printRemainingMessages(Colour::None);
                 else
                     printRemainingMessages();
                 break;
             case ResultWas::ExpressionFailed:
-                if (result.isOk())
+                if(result.isOk())
                     printResultType(
                         Colour::ResultSuccess,
                         failedString() + std::string(" - but was ok"));
@@ -12861,7 +12860,7 @@ private:
         void printResultType(
             Colour::Code colour, std::string const& passOrFail) const
         {
-            if (!passOrFail.empty())
+            if(!passOrFail.empty())
             {
                 {
                     Colour colourGuard(colour);
@@ -12878,7 +12877,7 @@ private:
 
         void printExpressionWas()
         {
-            if (result.hasExpression())
+            if(result.hasExpression())
             {
                 stream << ';';
                 {
@@ -12891,7 +12890,7 @@ private:
 
         void printOriginalExpression() const
         {
-            if (result.hasExpression())
+            if(result.hasExpression())
             {
                 stream << ' ' << result.getExpression();
             }
@@ -12899,7 +12898,7 @@ private:
 
         void printReconstructedExpression() const
         {
-            if (result.hasExpandedExpression())
+            if(result.hasExpandedExpression())
             {
                 {
                     Colour colour(dimColour());
@@ -12911,7 +12910,7 @@ private:
 
         void printMessage()
         {
-            if (itMessage != messages.end())
+            if(itMessage != messages.end())
             {
                 stream << " '" << itMessage->message << '\'';
                 ++itMessage;
@@ -12920,7 +12919,7 @@ private:
 
         void printRemainingMessages(Colour::Code colour = dimColour())
         {
-            if (itMessage == messages.end())
+            if(itMessage == messages.end())
                 return;
 
             // using messages.end() directly yields (or auto) compilation error:
@@ -12933,13 +12932,13 @@ private:
                 stream << " with " << pluralise(N, "message") << ':';
             }
 
-            for (; itMessage != itEnd;)
+            for(; itMessage != itEnd;)
             {
                 // If this assertion is a warning ignore any INFO messages
-                if (printInfoMessages || itMessage->type != ResultWas::Info)
+                if(printInfoMessages || itMessage->type != ResultWas::Info)
                 {
                     stream << " '" << itMessage->message << '\'';
-                    if (++itMessage != itEnd)
+                    if(++itMessage != itEnd)
                     {
                         Colour colourGuard(dimColour());
                         stream << " and";
@@ -12965,11 +12964,11 @@ private:
 
     void printTotals(const Totals& totals) const
     {
-        if (totals.testCases.total() == 0)
+        if(totals.testCases.total() == 0)
         {
             stream << "No tests ran.";
         }
-        else if (totals.testCases.failed == totals.testCases.total())
+        else if(totals.testCases.failed == totals.testCases.total())
         {
             Colour            colour(Colour::ResultError);
             const std::string qualify_assertions_failed =
@@ -12983,13 +12982,13 @@ private:
                    << qualify_assertions_failed
                    << pluralise(totals.assertions.failed, "assertion") << '.';
         }
-        else if (totals.assertions.total() == 0)
+        else if(totals.assertions.total() == 0)
         {
             stream << "Passed " << bothOrAll(totals.testCases.total())
                    << pluralise(totals.testCases.total(), "test case")
                    << " (no assertions).";
         }
-        else if (totals.assertions.failed)
+        else if(totals.assertions.failed)
         {
             Colour colour(Colour::ResultError);
             stream << "Failed "
@@ -13044,9 +13043,9 @@ std::size_t makeRatio(std::size_t number, std::size_t total)
 
 std::size_t& findMax(std::size_t& i, std::size_t& j, std::size_t& k)
 {
-    if (i > j && i > k)
+    if(i > j && i > k)
         return i;
-    else if (j > k)
+    else if(j > k)
         return j;
     else
         return k;
@@ -13091,11 +13090,11 @@ public:
 
     void open()
     {
-        if (!m_isOpen)
+        if(!m_isOpen)
         {
             m_isOpen = true;
             *this << RowBreak();
-            for (auto const& info : m_columnInfos)
+            for(auto const& info : m_columnInfos)
                 *this << info.name << ColumnBreak();
             *this << RowBreak();
             m_os << Catch::getLineOfChars<'-'>() << "\n";
@@ -13103,7 +13102,7 @@ public:
     }
     void close()
     {
-        if (m_isOpen)
+        if(m_isOpen)
         {
             *this << RowBreak();
             m_os << std::endl;
@@ -13125,7 +13124,7 @@ public:
         auto strSize = Catch::StringRef(colStr).numberOfCharacters();
         tp.m_oss.str("");
         tp.open();
-        if (tp.m_currentColumn == static_cast<int>(tp.m_columnInfos.size() - 1))
+        if(tp.m_currentColumn == static_cast<int>(tp.m_columnInfos.size() - 1))
         {
             tp.m_currentColumn = -1;
             tp.m_os << "\n";
@@ -13136,7 +13135,7 @@ public:
         auto padding = (strSize + 2 < static_cast<std::size_t>(colInfo.width))
                            ? std::string(colInfo.width - (strSize + 2), ' ')
                            : std::string();
-        if (colInfo.justification == ColumnInfo::Left)
+        if(colInfo.justification == ColumnInfo::Left)
             tp.m_os << colStr << padding << " ";
         else
             tp.m_os << padding << colStr << " ";
@@ -13145,7 +13144,7 @@ public:
 
     friend TablePrinter& operator<<(TablePrinter& tp, RowBreak)
     {
-        if (tp.m_currentColumn > 0)
+        if(tp.m_currentColumn > 0)
         {
             tp.m_os << "\n";
             tp.m_currentColumn = -1;
@@ -13179,15 +13178,15 @@ public:
     Duration(uint64_t inNanoseconds, Unit units = Unit::Auto)
         : m_inNanoseconds(inNanoseconds), m_units(units)
     {
-        if (m_units == Unit::Auto)
+        if(m_units == Unit::Auto)
         {
-            if (m_inNanoseconds < s_nanosecondsInAMicrosecond)
+            if(m_inNanoseconds < s_nanosecondsInAMicrosecond)
                 m_units = Unit::Nanoseconds;
-            else if (m_inNanoseconds < s_nanosecondsInAMillisecond)
+            else if(m_inNanoseconds < s_nanosecondsInAMillisecond)
                 m_units = Unit::Microseconds;
-            else if (m_inNanoseconds < s_nanosecondsInASecond)
+            else if(m_inNanoseconds < s_nanosecondsInASecond)
                 m_units = Unit::Milliseconds;
-            else if (m_inNanoseconds < s_nanosecondsInAMinute)
+            else if(m_inNanoseconds < s_nanosecondsInAMinute)
                 m_units = Unit::Seconds;
             else
                 m_units = Unit::Minutes;
@@ -13196,7 +13195,7 @@ public:
 
     auto value() const -> double
     {
-        switch (m_units)
+        switch(m_units)
         {
         case Unit::Microseconds:
             return m_inNanoseconds /
@@ -13216,7 +13215,7 @@ public:
     }
     auto unitsAsString() const -> std::string
     {
-        switch (m_units)
+        switch(m_units)
         {
         case Unit::Nanoseconds:
             return "ns";
@@ -13279,7 +13278,7 @@ struct ConsoleReporter : StreamingReporterBase<ConsoleReporter>
             m_config->includeSuccessfulResults() || !result.isOk();
 
         // Drop out if result was successful but we're not printing them.
-        if (!includeResults && result.getResultType() != ResultWas::Warning)
+        if(!includeResults && result.getResultType() != ResultWas::Warning)
             return false;
 
         lazyPrint();
@@ -13298,23 +13297,23 @@ struct ConsoleReporter : StreamingReporterBase<ConsoleReporter>
     void sectionEnded(SectionStats const& _sectionStats) override
     {
         m_tablePrinter.close();
-        if (_sectionStats.missingAssertions)
+        if(_sectionStats.missingAssertions)
         {
             lazyPrint();
             Colour colour(Colour::ResultError);
-            if (m_sectionStack.size() > 1)
+            if(m_sectionStack.size() > 1)
                 stream << "\nNo assertions in section";
             else
                 stream << "\nNo assertions in test case";
             stream << " '" << _sectionStats.sectionInfo.name << "'\n"
                    << std::endl;
         }
-        if (m_config->showDurations() == ShowDurations::Always)
+        if(m_config->showDurations() == ShowDurations::Always)
         {
             stream << getFormattedDuration(_sectionStats.durationInSeconds)
                    << " s: " << _sectionStats.sectionInfo.name << std::endl;
         }
-        if (m_headerPrinted)
+        if(m_headerPrinted)
         {
             m_headerPrinted = false;
         }
@@ -13329,9 +13328,9 @@ struct ConsoleReporter : StreamingReporterBase<ConsoleReporter>
             Column(info.name).width(m_tablePrinter.columnInfos()[0].width - 2);
 
         bool firstLine = true;
-        for (auto line : nameCol)
+        for(auto line : nameCol)
         {
-            if (!firstLine)
+            if(!firstLine)
                 m_tablePrinter << ColumnBreak() << ColumnBreak()
                                << ColumnBreak();
             else
@@ -13356,7 +13355,7 @@ struct ConsoleReporter : StreamingReporterBase<ConsoleReporter>
     }
     void testGroupEnded(TestGroupStats const& _testGroupStats) override
     {
-        if (currentGroupInfo.used)
+        if(currentGroupInfo.used)
         {
             printSummaryDivider();
             stream << "Summary for group '" << _testGroupStats.groupInfo.name
@@ -13392,19 +13391,19 @@ private:
               messages(_stats.infoMessages),
               printInfoMessages(_printInfoMessages)
         {
-            switch (result.getResultType())
+            switch(result.getResultType())
             {
             case ResultWas::Ok:
                 colour     = Colour::Success;
                 passOrFail = "PASSED";
                 // if( result.hasMessage() )
-                if (_stats.infoMessages.size() == 1)
+                if(_stats.infoMessages.size() == 1)
                     messageLabel = "with message";
-                if (_stats.infoMessages.size() > 1)
+                if(_stats.infoMessages.size() > 1)
                     messageLabel = "with messages";
                 break;
             case ResultWas::ExpressionFailed:
-                if (result.isOk())
+                if(result.isOk())
                 {
                     colour     = Colour::Success;
                     passOrFail = "FAILED - but was ok";
@@ -13414,18 +13413,18 @@ private:
                     colour     = Colour::Error;
                     passOrFail = "FAILED";
                 }
-                if (_stats.infoMessages.size() == 1)
+                if(_stats.infoMessages.size() == 1)
                     messageLabel = "with message";
-                if (_stats.infoMessages.size() > 1)
+                if(_stats.infoMessages.size() > 1)
                     messageLabel = "with messages";
                 break;
             case ResultWas::ThrewException:
                 colour       = Colour::Error;
                 passOrFail   = "FAILED";
                 messageLabel = "due to unexpected exception with ";
-                if (_stats.infoMessages.size() == 1)
+                if(_stats.infoMessages.size() == 1)
                     messageLabel += "message";
-                if (_stats.infoMessages.size() > 1)
+                if(_stats.infoMessages.size() > 1)
                     messageLabel += "messages";
                 break;
             case ResultWas::FatalErrorCondition:
@@ -13448,9 +13447,9 @@ private:
             case ResultWas::ExplicitFailure:
                 passOrFail = "FAILED";
                 colour     = Colour::Error;
-                if (_stats.infoMessages.size() == 1)
+                if(_stats.infoMessages.size() == 1)
                     messageLabel = "explicitly with message";
-                if (_stats.infoMessages.size() > 1)
+                if(_stats.infoMessages.size() > 1)
                     messageLabel = "explicitly with messages";
                 break;
             // These cases are here to prevent compiler warnings
@@ -13466,9 +13465,9 @@ private:
         void print() const
         {
             printSourceInfo();
-            if (stats.totals.assertions.total() > 0)
+            if(stats.totals.assertions.total() > 0)
             {
-                if (result.isOk())
+                if(result.isOk())
                     stream << '\n';
                 printResultType();
                 printOriginalExpression();
@@ -13484,7 +13483,7 @@ private:
     private:
         void printResultType() const
         {
-            if (!passOrFail.empty())
+            if(!passOrFail.empty())
             {
                 Colour colourGuard(colour);
                 stream << passOrFail << ":\n";
@@ -13492,7 +13491,7 @@ private:
         }
         void printOriginalExpression() const
         {
-            if (result.hasExpression())
+            if(result.hasExpression())
             {
                 Colour colourGuard(Colour::OriginalExpression);
                 stream << "  ";
@@ -13502,7 +13501,7 @@ private:
         }
         void printReconstructedExpression() const
         {
-            if (result.hasExpandedExpression())
+            if(result.hasExpandedExpression())
             {
                 stream << "with expansion:\n";
                 Colour colourGuard(Colour::ReconstructedExpression);
@@ -13512,12 +13511,12 @@ private:
         }
         void printMessage() const
         {
-            if (!messageLabel.empty())
+            if(!messageLabel.empty())
                 stream << messageLabel << ':' << '\n';
-            for (auto const& msg : messages)
+            for(auto const& msg : messages)
             {
                 // If this assertion is a warning ignore any INFO messages
-                if (printInfoMessages || msg.type != ResultWas::Info)
+                if(printInfoMessages || msg.type != ResultWas::Info)
                     stream << Column(msg.message).indent(2) << '\n';
             }
         }
@@ -13548,12 +13547,12 @@ private:
     void lazyPrintWithoutClosingBenchmarkTable()
     {
 
-        if (!currentTestRunInfo.used)
+        if(!currentTestRunInfo.used)
             lazyPrintRunInfo();
-        if (!currentGroupInfo.used)
+        if(!currentGroupInfo.used)
             lazyPrintGroupInfo();
 
-        if (!m_headerPrinted)
+        if(!m_headerPrinted)
         {
             printTestCaseAndSectionHeader();
             m_headerPrinted = true;
@@ -13567,15 +13566,15 @@ private:
                << libraryVersion() << " host application.\n"
                << "Run with -? for options\n\n";
 
-        if (m_config->rngSeed() != 0)
+        if(m_config->rngSeed() != 0)
             stream << "Randomness seeded to: " << m_config->rngSeed() << "\n\n";
 
         currentTestRunInfo.used = true;
     }
     void lazyPrintGroupInfo()
     {
-        if (!currentGroupInfo->name.empty() &&
-            currentGroupInfo->groupsCounts > 1)
+        if(!currentGroupInfo->name.empty() &&
+           currentGroupInfo->groupsCounts > 1)
         {
             printClosedHeader("Group: " + currentGroupInfo->name);
             currentGroupInfo.used = true;
@@ -13586,20 +13585,20 @@ private:
         assert(!m_sectionStack.empty());
         printOpenHeader(currentTestCaseInfo->name);
 
-        if (m_sectionStack.size() > 1)
+        if(m_sectionStack.size() > 1)
         {
             Colour colourGuard(Colour::Headers);
 
             auto it = m_sectionStack.begin() +
                       1, // Skip first section (test case)
                 itEnd = m_sectionStack.end();
-            for (; it != itEnd; ++it)
+            for(; it != itEnd; ++it)
                 printHeaderString(it->name, 2);
         }
 
         SourceLineInfo lineInfo = m_sectionStack.back().lineInfo;
 
-        if (!lineInfo.empty())
+        if(!lineInfo.empty())
         {
             stream << getLineOfChars<'-'>() << '\n';
             Colour colourGuard(Colour::FileName);
@@ -13627,7 +13626,7 @@ private:
     void printHeaderString(std::string const& _string, std::size_t indent = 0)
     {
         std::size_t i = _string.find(": ");
-        if (i != std::string::npos)
+        if(i != std::string::npos)
             i += 2;
         else
             i = 0;
@@ -13647,11 +13646,11 @@ private:
             std::ostringstream oss;
             oss << count;
             std::string row = oss.str();
-            for (auto& oldRow : rows)
+            for(auto& oldRow : rows)
             {
-                while (oldRow.size() < row.size())
+                while(oldRow.size() < row.size())
                     oldRow = ' ' + oldRow;
-                while (oldRow.size() > row.size())
+                while(oldRow.size() > row.size())
                     row = ' ' + row;
             }
             rows.push_back(row);
@@ -13665,11 +13664,11 @@ private:
 
     void printTotals(Totals const& totals)
     {
-        if (totals.testCases.total() == 0)
+        if(totals.testCases.total() == 0)
         {
             stream << Colour(Colour::Warning) << "No tests ran\n";
         }
-        else if (totals.assertions.total() > 0 && totals.testCases.allPassed())
+        else if(totals.assertions.total() > 0 && totals.testCases.allPassed())
         {
             stream << Colour(Colour::ResultSuccess) << "All tests passed";
             stream << " (" << pluralise(totals.assertions.passed, "assertion")
@@ -13704,18 +13703,18 @@ private:
         std::vector<SummaryColumn> const& cols,
         std::size_t                       row)
     {
-        for (auto col : cols)
+        for(auto col : cols)
         {
             std::string value = col.rows[row];
-            if (col.label.empty())
+            if(col.label.empty())
             {
                 stream << label << ": ";
-                if (value != "0")
+                if(value != "0")
                     stream << value;
                 else
                     stream << Colour(Colour::Warning) << "- none -";
             }
-            else if (value != "0")
+            else if(value != "0")
             {
                 stream << Colour(Colour::LightGrey) << " | ";
                 stream << Colour(col.colour) << value << ' ' << col.label;
@@ -13726,7 +13725,7 @@ private:
 
     void printTotalsDivider(Totals const& totals)
     {
-        if (totals.testCases.total() > 0)
+        if(totals.testCases.total() > 0)
         {
             std::size_t failedRatio =
                 makeRatio(totals.testCases.failed, totals.testCases.total());
@@ -13734,17 +13733,17 @@ private:
                 totals.testCases.failedButOk, totals.testCases.total());
             std::size_t passedRatio =
                 makeRatio(totals.testCases.passed, totals.testCases.total());
-            while (failedRatio + failedButOkRatio + passedRatio <
-                   CATCH_CONFIG_CONSOLE_WIDTH - 1)
+            while(failedRatio + failedButOkRatio + passedRatio <
+                  CATCH_CONFIG_CONSOLE_WIDTH - 1)
                 findMax(failedRatio, failedButOkRatio, passedRatio)++;
-            while (failedRatio + failedButOkRatio + passedRatio >
-                   CATCH_CONFIG_CONSOLE_WIDTH - 1)
+            while(failedRatio + failedButOkRatio + passedRatio >
+                  CATCH_CONFIG_CONSOLE_WIDTH - 1)
                 findMax(failedRatio, failedButOkRatio, passedRatio)--;
 
             stream << Colour(Colour::Error) << std::string(failedRatio, '=');
             stream << Colour(Colour::ResultExpectedFailure)
                    << std::string(failedButOkRatio, '=');
-            if (totals.testCases.allPassed())
+            if(totals.testCases.allPassed())
                 stream << Colour(Colour::ResultSuccess)
                        << std::string(passedRatio, '=');
             else
@@ -13823,7 +13822,7 @@ std::string fileNameTag(const std::vector<std::string>& tags)
     auto it = std::find_if(begin(tags), end(tags), [](std::string const& tag) {
         return tag.front() == '#';
     });
-    if (it != tags.end())
+    if(it != tags.end())
         return it->substr(1);
     return std::string();
 }
@@ -13870,9 +13869,9 @@ public:
     }
     bool assertionEnded(AssertionStats const& assertionStats) override
     {
-        if (assertionStats.assertionResult.getResultType() ==
-                ResultWas::ThrewException &&
-            !m_okToFail)
+        if(assertionStats.assertionResult.getResultType() ==
+               ResultWas::ThrewException &&
+           !m_okToFail)
             unexpectedExceptions++;
         return CumulativeReporterBase::assertionEnded(assertionStats);
     }
@@ -13906,14 +13905,14 @@ public:
             "failures", stats.totals.assertions.failed - unexpectedExceptions);
         xml.writeAttribute("tests", stats.totals.assertions.total());
         xml.writeAttribute("hostname", "tbd"); // !TBD
-        if (m_config->showDurations() == ShowDurations::Never)
+        if(m_config->showDurations() == ShowDurations::Never)
             xml.writeAttribute("time", "");
         else
             xml.writeAttribute("time", suiteTime);
         xml.writeAttribute("timestamp", getCurrentTimestamp());
 
         // Write test cases
-        for (auto const& child : groupNode.children)
+        for(auto const& child : groupNode.children)
             writeTestCase(*child);
 
         xml.scopedElement("system-out")
@@ -13933,14 +13932,14 @@ public:
 
         std::string className = stats.testInfo.className;
 
-        if (className.empty())
+        if(className.empty())
         {
             className = fileNameTag(stats.testInfo.tags);
-            if (className.empty())
+            if(className.empty())
                 className = "global";
         }
 
-        if (!m_config->name().empty())
+        if(!m_config->name().empty())
             className = m_config->name() + "." + className;
 
         writeSection(className, "", rootSection);
@@ -13952,14 +13951,14 @@ public:
         SectionNode const& sectionNode)
     {
         std::string name = trim(sectionNode.stats.sectionInfo.name);
-        if (!rootName.empty())
+        if(!rootName.empty())
             name = rootName + '/' + name;
 
-        if (!sectionNode.assertions.empty() || !sectionNode.stdOut.empty() ||
-            !sectionNode.stdErr.empty())
+        if(!sectionNode.assertions.empty() || !sectionNode.stdOut.empty() ||
+           !sectionNode.stdErr.empty())
         {
             XmlWriter::ScopedElement e = xml.scopedElement("testcase");
-            if (className.empty())
+            if(className.empty())
             {
                 xml.writeAttribute("classname", name);
                 xml.writeAttribute("name", "root");
@@ -13976,15 +13975,15 @@ public:
 
             writeAssertions(sectionNode);
 
-            if (!sectionNode.stdOut.empty())
+            if(!sectionNode.stdOut.empty())
                 xml.scopedElement("system-out")
                     .writeText(trim(sectionNode.stdOut), false);
-            if (!sectionNode.stdErr.empty())
+            if(!sectionNode.stdErr.empty())
                 xml.scopedElement("system-err")
                     .writeText(trim(sectionNode.stdErr), false);
         }
-        for (auto const& childNode : sectionNode.childSections)
-            if (className.empty())
+        for(auto const& childNode : sectionNode.childSections)
+            if(className.empty())
                 writeSection(name, "", *childNode);
             else
                 writeSection(className, name, *childNode);
@@ -13992,16 +13991,16 @@ public:
 
     void writeAssertions(SectionNode const& sectionNode)
     {
-        for (auto const& assertion : sectionNode.assertions)
+        for(auto const& assertion : sectionNode.assertions)
             writeAssertion(assertion);
     }
     void writeAssertion(AssertionStats const& stats)
     {
         AssertionResult const& result = stats.assertionResult;
-        if (!result.isOk())
+        if(!result.isOk())
         {
             std::string elementName;
-            switch (result.getResultType())
+            switch(result.getResultType())
             {
             case ResultWas::ThrewException:
             case ResultWas::FatalErrorCondition:
@@ -14034,10 +14033,10 @@ public:
             xml.writeAttribute("type", result.getTestMacroName());
 
             std::ostringstream oss;
-            if (!result.getMessage().empty())
+            if(!result.getMessage().empty())
                 oss << result.getMessage() << '\n';
-            for (auto const& msg : stats.infoMessages)
-                if (msg.type == ResultWas::Info)
+            for(auto const& msg : stats.infoMessages)
+                if(msg.type == ResultWas::Info)
                     oss << msg.message << '\n';
 
             oss << "at " << result.getSourceInfo();
@@ -14082,48 +14081,48 @@ std::set<Verbosity> MultipleReporters::getSupportedVerbosities()
 
 void MultipleReporters::noMatchingTestCases(std::string const& spec)
 {
-    for (auto const& reporter : m_reporters)
+    for(auto const& reporter : m_reporters)
         reporter->noMatchingTestCases(spec);
 }
 
 void MultipleReporters::benchmarkStarting(BenchmarkInfo const& benchmarkInfo)
 {
-    for (auto const& reporter : m_reporters)
+    for(auto const& reporter : m_reporters)
         reporter->benchmarkStarting(benchmarkInfo);
 }
 void MultipleReporters::benchmarkEnded(BenchmarkStats const& benchmarkStats)
 {
-    for (auto const& reporter : m_reporters)
+    for(auto const& reporter : m_reporters)
         reporter->benchmarkEnded(benchmarkStats);
 }
 
 void MultipleReporters::testRunStarting(TestRunInfo const& testRunInfo)
 {
-    for (auto const& reporter : m_reporters)
+    for(auto const& reporter : m_reporters)
         reporter->testRunStarting(testRunInfo);
 }
 
 void MultipleReporters::testGroupStarting(GroupInfo const& groupInfo)
 {
-    for (auto const& reporter : m_reporters)
+    for(auto const& reporter : m_reporters)
         reporter->testGroupStarting(groupInfo);
 }
 
 void MultipleReporters::testCaseStarting(TestCaseInfo const& testInfo)
 {
-    for (auto const& reporter : m_reporters)
+    for(auto const& reporter : m_reporters)
         reporter->testCaseStarting(testInfo);
 }
 
 void MultipleReporters::sectionStarting(SectionInfo const& sectionInfo)
 {
-    for (auto const& reporter : m_reporters)
+    for(auto const& reporter : m_reporters)
         reporter->sectionStarting(sectionInfo);
 }
 
 void MultipleReporters::assertionStarting(AssertionInfo const& assertionInfo)
 {
-    for (auto const& reporter : m_reporters)
+    for(auto const& reporter : m_reporters)
         reporter->assertionStarting(assertionInfo);
 }
 
@@ -14131,38 +14130,38 @@ void MultipleReporters::assertionStarting(AssertionInfo const& assertionInfo)
 bool MultipleReporters::assertionEnded(AssertionStats const& assertionStats)
 {
     bool clearBuffer = false;
-    for (auto const& reporter : m_reporters)
+    for(auto const& reporter : m_reporters)
         clearBuffer |= reporter->assertionEnded(assertionStats);
     return clearBuffer;
 }
 
 void MultipleReporters::sectionEnded(SectionStats const& sectionStats)
 {
-    for (auto const& reporter : m_reporters)
+    for(auto const& reporter : m_reporters)
         reporter->sectionEnded(sectionStats);
 }
 
 void MultipleReporters::testCaseEnded(TestCaseStats const& testCaseStats)
 {
-    for (auto const& reporter : m_reporters)
+    for(auto const& reporter : m_reporters)
         reporter->testCaseEnded(testCaseStats);
 }
 
 void MultipleReporters::testGroupEnded(TestGroupStats const& testGroupStats)
 {
-    for (auto const& reporter : m_reporters)
+    for(auto const& reporter : m_reporters)
         reporter->testGroupEnded(testGroupStats);
 }
 
 void MultipleReporters::testRunEnded(TestRunStats const& testRunStats)
 {
-    for (auto const& reporter : m_reporters)
+    for(auto const& reporter : m_reporters)
         reporter->testRunEnded(testRunStats);
 }
 
 void MultipleReporters::skipTest(TestCaseInfo const& testInfo)
 {
-    for (auto const& reporter : m_reporters)
+    for(auto const& reporter : m_reporters)
         reporter->skipTest(testInfo);
 }
 
@@ -14222,10 +14221,10 @@ public: // StreamingReporterBase
     {
         StreamingReporterBase::testRunStarting(testInfo);
         std::string stylesheetRef = getStylesheetRef();
-        if (!stylesheetRef.empty())
+        if(!stylesheetRef.empty())
             m_xml.writeStylesheetRef(stylesheetRef);
         m_xml.startElement("Catch");
-        if (!m_config->name().empty())
+        if(!m_config->name().empty())
             m_xml.writeAttribute("name", m_config->name());
     }
 
@@ -14245,7 +14244,7 @@ public: // StreamingReporterBase
 
         writeSourceInfo(testInfo.lineInfo);
 
-        if (m_config->showDurations() == ShowDurations::Always)
+        if(m_config->showDurations() == ShowDurations::Always)
             m_testCaseTimer.start();
         m_xml.ensureTagClosed();
     }
@@ -14253,7 +14252,7 @@ public: // StreamingReporterBase
     void sectionStarting(SectionInfo const& sectionInfo) override
     {
         StreamingReporterBase::sectionStarting(sectionInfo);
-        if (m_sectionDepth++ > 0)
+        if(m_sectionDepth++ > 0)
         {
             m_xml.startElement("Section")
                 .writeAttribute("name", trim(sectionInfo.name))
@@ -14275,16 +14274,16 @@ public: // StreamingReporterBase
         bool includeResults =
             m_config->includeSuccessfulResults() || !result.isOk();
 
-        if (includeResults)
+        if(includeResults)
         {
             // Print any info messages in <Info> tags.
-            for (auto const& msg : assertionStats.infoMessages)
+            for(auto const& msg : assertionStats.infoMessages)
             {
-                if (msg.type == ResultWas::Info)
+                if(msg.type == ResultWas::Info)
                 {
                     m_xml.scopedElement("Info").writeText(msg.message);
                 }
-                else if (msg.type == ResultWas::Warning)
+                else if(msg.type == ResultWas::Warning)
                 {
                     m_xml.scopedElement("Warning").writeText(msg.message);
                 }
@@ -14292,11 +14291,11 @@ public: // StreamingReporterBase
         }
 
         // Drop out if result was successful but we're not printing them.
-        if (!includeResults && result.getResultType() != ResultWas::Warning)
+        if(!includeResults && result.getResultType() != ResultWas::Warning)
             return true;
 
         // Print the expression if there is one.
-        if (result.hasExpression())
+        if(result.hasExpression())
         {
             m_xml.startElement("Expression")
                 .writeAttribute("success", result.succeeded())
@@ -14310,7 +14309,7 @@ public: // StreamingReporterBase
         }
 
         // And... Print a result applicable to each result type.
-        switch (result.getResultType())
+        switch(result.getResultType())
         {
         case ResultWas::ThrewException:
             m_xml.startElement("Exception");
@@ -14340,7 +14339,7 @@ public: // StreamingReporterBase
             break;
         }
 
-        if (result.hasExpression())
+        if(result.hasExpression())
             m_xml.endElement();
 
         return true;
@@ -14349,7 +14348,7 @@ public: // StreamingReporterBase
     void sectionEnded(SectionStats const& sectionStats) override
     {
         StreamingReporterBase::sectionEnded(sectionStats);
-        if (--m_sectionDepth > 0)
+        if(--m_sectionDepth > 0)
         {
             XmlWriter::ScopedElement e = m_xml.scopedElement("OverallResults");
             e.writeAttribute("successes", sectionStats.assertions.passed);
@@ -14357,7 +14356,7 @@ public: // StreamingReporterBase
             e.writeAttribute(
                 "expectedFailures", sectionStats.assertions.failedButOk);
 
-            if (m_config->showDurations() == ShowDurations::Always)
+            if(m_config->showDurations() == ShowDurations::Always)
                 e.writeAttribute(
                     "durationInSeconds", sectionStats.durationInSeconds);
 
@@ -14371,14 +14370,14 @@ public: // StreamingReporterBase
         XmlWriter::ScopedElement e = m_xml.scopedElement("OverallResult");
         e.writeAttribute("success", testCaseStats.totals.assertions.allOk());
 
-        if (m_config->showDurations() == ShowDurations::Always)
+        if(m_config->showDurations() == ShowDurations::Always)
             e.writeAttribute(
                 "durationInSeconds", m_testCaseTimer.getElapsedSeconds());
 
-        if (!testCaseStats.stdOut.empty())
+        if(!testCaseStats.stdOut.empty())
             m_xml.scopedElement("StdOut").writeText(
                 trim(testCaseStats.stdOut), false);
-        if (!testCaseStats.stdErr.empty())
+        if(!testCaseStats.stdErr.empty())
             m_xml.scopedElement("StdErr").writeText(
                 trim(testCaseStats.stdErr), false);
 
@@ -14848,8 +14847,8 @@ using Catch::Detail::Approx;
 
 #define CATCH_CHECK(...) (void)(0)
 #define CATCH_CHECK_FALSE(...) (void)(0)
-#define CATCH_CHECKED_IF(...) if (__VA_ARGS__)
-#define CATCH_CHECKED_ELSE(...) if (!(__VA_ARGS__))
+#define CATCH_CHECKED_IF(...) if(__VA_ARGS__)
+#define CATCH_CHECKED_ELSE(...) if(!(__VA_ARGS__))
 #define CATCH_CHECK_NOFAIL(...) (void)(0)
 
 #define CATCH_CHECK_THROWS(...) (void)(0)
@@ -14917,8 +14916,8 @@ using Catch::Detail::Approx;
 
 #define CHECK(...) (void)(0)
 #define CHECK_FALSE(...) (void)(0)
-#define CHECKED_IF(...) if (__VA_ARGS__)
-#define CHECKED_ELSE(...) if (!(__VA_ARGS__))
+#define CHECKED_IF(...) if(__VA_ARGS__)
+#define CHECKED_ELSE(...) if(!(__VA_ARGS__))
 #define CHECK_NOFAIL(...) (void)(0)
 
 #define CHECK_THROWS(...) (void)(0)
