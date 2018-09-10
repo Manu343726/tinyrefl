@@ -13,3 +13,4 @@ set(BUILD_INSTALLER OFF CACHE BOOL "disable rttr installer")
 set(BUILD_PACKAGE OFF CACHE BOOL "disable rttr CPack")
 
 external_dependency(rttr https://github.com/rttrorg/rttr.git v0.9.6)
+external_dependency(MetaStuff https://github.com/Manu343726/MetaStuff master)

@@ -24,4 +24,7 @@ else()
 endif()
 
 add_tinyrefl_example(tinyrefl-rttr-example rttr.cpp)
-target_link_libraries(tinyrefl-rttr-example PUBLIC tinyrefl-example-lib RTTR::Core)
+target_link_libraries(tinyrefl-rttr-example PRIVATE tinyrefl-example-lib RTTR::Core)
+
+add_tinyrefl_example(tinyrefl-metastuff-example metastuff.cpp)
+target_link_libraries(tinyrefl-metastuff-example PRIVATE tinyrefl-example-lib MetaStuff)
