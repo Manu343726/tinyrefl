@@ -108,13 +108,14 @@ bool operator==(const T& lhs, const T& rhs)
      * passing an
      * arbitrary number of objects `first.
      */
-    tinyrefl::visit_objects(lhs, rhs)([&equal](
-        const std::string& /* name */,
-        auto /* depth */,
-        auto members,
-        TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)) {
-        equal &= std::get<0>(members) == std::get<1>(members);
-    });
+    tinyrefl::visit_objects(lhs, rhs)(
+        [&equal](
+            const std::string& /* name */,
+            auto /* depth */,
+            auto members,
+            TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)) {
+            equal &= std::get<0>(members) == std::get<1>(members);
+        });
 
     return equal;
 }
@@ -136,14 +137,13 @@ int main()
      * are represented as opaque tag types which the type can be extracted from
      * (i.e. typename decltype(entity)::type)
      */
-    tinyrefl::visit_class<example::C>(
-        [](const std::string& name,
-           auto               depth,
-           auto /* entity */,
-           auto entity_kind) {
-            std::cout << std::string(2 * depth, ' ') << "at '" << name << "' ("
-                      << decltype(entity_kind)::value << ")\n";
-        });
+    tinyrefl::visit_class<example::C>([](const std::string& name,
+                                         auto               depth,
+                                         auto /* entity */,
+                                         auto entity_kind) {
+        std::cout << std::string(2 * depth, ' ') << "at '" << name << "' ("
+                  << decltype(entity_kind)::value << ")\n";
+    });
 
     std::cout << "c object dump: " << c << "\n";
 

@@ -47,23 +47,23 @@
 #define TINYREFL_REFLECT_ENUM_VALUE(value) // we don't care about enums
 #define TINYREFL_REFLECT_ENUM( \
     name, type, values, attributes) // we don't care about enums
-#define TINYREFL_REFLECT_CLASS(                   \
-    classname,                                    \
-    classtype,                                    \
-    bases,                                        \
-    constructors,                                 \
-    member_functions,                             \
-    member_variables,                             \
-    classes,                                      \
-    enums,                                        \
-    attributes)                                   \
-    namespace meta                                \
-    {                                             \
-    template<>                                    \
-    inline auto registerMembers<classtype>()      \
-    {                                             \
+#define TINYREFL_REFLECT_CLASS(                                      \
+    classname,                                                       \
+    classtype,                                                       \
+    bases,                                                           \
+    constructors,                                                    \
+    member_functions,                                                \
+    member_variables,                                                \
+    classes,                                                         \
+    enums,                                                           \
+    attributes)                                                      \
+    namespace meta                                                   \
+    {                                                                \
+    template<>                                                       \
+    inline auto registerMembers<classtype>()                         \
+    {                                                                \
         return ::meta::members(TINYREFL_PP_UNWRAP member_variables); \
-    }                                             \
+    }                                                                \
     }
 
 #endif // TINYREFL_EXAMPLES_METASTUFF_HPP

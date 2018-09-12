@@ -16,9 +16,7 @@ class MyClass : public BaseClass, public my_namespace::Foo
 {
 public:
     [[ctor]] MyClass() = default;
-    MyClass(int, int)
-    {
-    }
+    MyClass(int, int) {}
     MyClass(std::vector<std::string>){}
 
         [[f]] void f(int i)
@@ -46,5 +44,5 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, const MyClass::Enum value);
-bool operator==(const MyClass& lhs, const MyClass& rhs);
+bool          operator==(const MyClass& lhs, const MyClass& rhs);
 }

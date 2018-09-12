@@ -10,13 +10,13 @@ std::string EntryPoint::SessionData::to_string() const
 }
 
 bool EntryPoint::SessionData::
-    operator==(const EntryPoint::SessionData& other) const
+     operator==(const EntryPoint::SessionData& other) const
 {
     return tinyrefl::equal(*this, other);
 }
 
 bool EntryPoint::SessionData::
-    operator!=(const EntryPoint::SessionData& other) const
+     operator!=(const EntryPoint::SessionData& other) const
 {
     return tinyrefl::not_equal(*this, other);
 }

@@ -1,12 +1,13 @@
 #include "metastuff.hpp"
 #include "example.hpp"
-#include "example.hpp.tinyrefl"
 #include <cassert>
 #include <iostream>
+#include "example.hpp.tinyrefl"
 
 int main()
 {
-    static_assert(meta::isRegistered<example::C>(), "C class is not registered");
+    static_assert(
+        meta::isRegistered<example::C>(), "C class is not registered");
 
     if(!meta::hasMember<example::C>("hey_im_here"))
     {
@@ -17,5 +18,6 @@ int main()
     example::C c;
     c.hey_im_here = "foobar";
 
-    std::cout << "example::C::hey_im_here: \"" << meta::getMemberValue<std::string>(c, "hey_im_here") << "\"\n";
+    std::cout << "example::C::hey_im_here: \""
+              << meta::getMemberValue<std::string>(c, "hey_im_here") << "\"\n";
 }

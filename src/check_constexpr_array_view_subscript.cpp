@@ -27,6 +27,4 @@ constexpr constexpr_array_view<char> array{"hello"};
 constexpr char                       c = array[1];
 static_assert(c == 'e', "");
 
-int main()
-{
-}
+int main() {}

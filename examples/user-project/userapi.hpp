@@ -25,8 +25,8 @@ public:
         std::vector<std::string> tags;
 
         std::string to_string() const;
-        bool operator==(const SessionData& other) const;
-        bool operator!=(const SessionData& other) const;
+        bool        operator==(const SessionData& other) const;
+        bool        operator!=(const SessionData& other) const;
     };
 
     EntryPoint(const SessionData& sessionData);

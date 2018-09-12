@@ -125,9 +125,7 @@ struct is_invokable<
 template<typename Head>
 struct overloaded_function<tinyrefl::meta::list<Head>> : public Head
 {
-    constexpr overloaded_function(Head head) : Head{head}
-    {
-    }
+    constexpr overloaded_function(Head head) : Head{head} {}
 
     using Head::operator();
 };
@@ -525,10 +523,10 @@ auto visit_objects_member_variables(Class&&... objects)
     {
         auto make_visitor = [](auto visitor) {
             return [visitor](
-                const auto& name,
-                auto /* depth */,
-                auto&& entities,
-                TINYREFL_STATIC_VALUE(entity::MEMBER_VARIABLE)) {
+                       const auto& name,
+                       auto /* depth */,
+                       auto&& entities,
+                       TINYREFL_STATIC_VALUE(entity::MEMBER_VARIABLE)) {
                 visitor(name, entities);
             };
         };
@@ -773,8 +771,9 @@ auto equal(Class&&... objects) -> std::enable_if_t<
 
 template<typename... Class>
 auto memberwise_equal(Class&&... objects) -> std::enable_if_t<
-    (sizeof...(Class) >= 2) && tinyrefl::has_metadata<std::decay_t<
-                                   tinyrefl::meta::pack_head_t<Class...>>>() &&
+    (sizeof...(Class) >= 2) &&
+        tinyrefl::has_metadata<
+            std::decay_t<tinyrefl::meta::pack_head_t<Class...>>>() &&
         std::is_class<
             std::decay_t<tinyrefl::meta::pack_head_t<Class...>>>::value,
     bool>

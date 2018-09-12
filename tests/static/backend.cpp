@@ -30,7 +30,7 @@ namespace foo
 {
 namespace bar
 {
-template<ctti::detail::hash_t   Hash>
+template<ctti::detail::hash_t Hash>
 constexpr ctti::detail::cstring get_string()
 {
     return "default string";
