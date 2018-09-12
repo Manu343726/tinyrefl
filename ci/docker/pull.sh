@@ -7,6 +7,7 @@ if [[ -z "$NAME" ]]; then
     NAME="tinyrefl"
 fi
 
+docker pull saschpe/clang
 docker pull $REPO/$NAME:clang40-x86
 docker pull $REPO/$NAME:clang50-x86
 docker pull $REPO/$NAME:clang60-x86

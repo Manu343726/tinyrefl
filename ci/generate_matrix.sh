@@ -30,32 +30,56 @@ for stage in "${stages[@]}"; do
     llvm_versions=${!llvm_versions_var}
     declare -n script=${stage_sanitized}_script
 
-    for toolchain in ${toolchains}; do
-        for llvm_version in ${llvm_versions}; do
-            job_name=$stage-$toolchain-llvm$llvm_version
-            docker_image=$docker_repo/$docker_name:$toolchain
+    if [ -z "${toolchains}" ]; then
+        job_name=$stage
+        docker_image_var=${stage_sanitized}_image
+        docker_image=${!docker_image_var}
 
-            echo  - $stage $toolchain $llvm_version
+        echo  - $stage \(single job stage\)
 
-            echo "$job_name:"                      >> $OUTPUT_FILE
-            echo "  stage: $stage"                 >> $OUTPUT_FILE
-            echo "  tags:"                         >> $OUTPUT_FILE
+        echo "$job_name:"                      >> $OUTPUT_FILE
+        echo "  stage: $stage"                 >> $OUTPUT_FILE
+        echo "  tags:"                         >> $OUTPUT_FILE
 
-            for tag in ${tags}; do
-                echo "    - $tag"                  >> $OUTPUT_FILE
-            done
+        for tag in ${tags}; do
+            echo "    - $tag"                  >> $OUTPUT_FILE
+        done
 
-            echo "  image: $docker_image"          >> $OUTPUT_FILE
-            echo "  variables:"                    >> $OUTPUT_FILE
-            echo "    LLVM_VERSION: $llvm_version" >> $OUTPUT_FILE
-            echo "  script:"                       >> $OUTPUT_FILE
+        echo "  image: $docker_image"          >> $OUTPUT_FILE
+        echo "  script:"                       >> $OUTPUT_FILE
 
-            for ((i = 0; i < ${#script[@]}; i++)); do
-                script_line=${script[$i]}
-                echo "    - $script_line"          >> $OUTPUT_FILE
+        for ((i = 0; i < ${#script[@]}; i++)); do
+            script_line=${script[$i]}
+            echo "    - $script_line"          >> $OUTPUT_FILE
+        done
+    else
+        for toolchain in ${toolchains}; do
+            for llvm_version in ${llvm_versions}; do
+                job_name=$stage-$toolchain-llvm$llvm_version
+                docker_image=$docker_repo/$docker_name:$toolchain
+
+                echo  - $stage $toolchain $llvm_version
+
+                echo "$job_name:"                      >> $OUTPUT_FILE
+                echo "  stage: $stage"                 >> $OUTPUT_FILE
+                echo "  tags:"                         >> $OUTPUT_FILE
+
+                for tag in ${tags}; do
+                    echo "    - $tag"                  >> $OUTPUT_FILE
+                done
+
+                echo "  image: $docker_image"          >> $OUTPUT_FILE
+                echo "  variables:"                    >> $OUTPUT_FILE
+                echo "    LLVM_VERSION: $llvm_version" >> $OUTPUT_FILE
+                echo "  script:"                       >> $OUTPUT_FILE
+
+                for ((i = 0; i < ${#script[@]}; i++)); do
+                    script_line=${script[$i]}
+                    echo "    - $script_line"          >> $OUTPUT_FILE
+                done
             done
         done
-    done
+    fi
 
     echo End of $stage stage
 done

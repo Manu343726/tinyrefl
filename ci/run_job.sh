@@ -50,9 +50,8 @@ elif [[ "$OPTION" == "--help" ]]; then
     exit
 fi
 
-if [[ -z "$LLVM_VERSION" ]]; then
-    >&2 echo LLVM_VERSION variable not set in job $JOB_NAME
-    exit 2
+if [[ ! -z "$LLVM_VERSION" ]]; then
+    LLVM_VERSION_FLAG="-e LLVM_VERSION=$LLVM_VERSION"
 fi
 
 echo Running job $JOB_NAME
@@ -60,7 +59,16 @@ echo Using docker image $IMAGE
 echo CROSS_BUILDING=$CROSS_BUILDING
 echo LLVM_VERSION=$LLVM_VERSION
 
+script_file=/tmp/run_job.sh
+
+echo "#!bin/sh" > $script_file
+echo "set -e"  >> $script_file
+
 for ((i = 0; i < ${#SCRIPT[@]}; i++)); do
     script_line=${SCRIPT[$i]}
-    docker run -ti --rm --hostname $JOB_NAME -v $SRC_DIR:/repo -w /repo -e CI_JOB_NAME=$JOB_NAME -e LLVM_VERSION=$LLVM_VERSION $CROSS_BUILDING_FLAG $CLEAN_BUILD_FLAG $IMAGE bash -c "$script_line"
+    echo "$script_line" >> $script_file
 done
+
+chmod +x $script_file
+
+docker run -ti --rm --hostname $JOB_NAME -v $script_file:$script_file -v $SRC_DIR:/repo -w /repo -e CI_JOB_NAME=$JOB_NAME ${LLVM_VERSION_ENVIRONMENT_FLAG} $CROSS_BUILDING_FLAG $CLEAN_BUILD_FLAG $IMAGE sh $script_file

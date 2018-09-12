@@ -3,8 +3,19 @@ docker:
   name: tinyrefl
 
 stages:
+  - clang-format-check
   - test
   - user-integration
+
+clang-format-check:
+  tags:
+    - linux
+    - docker
+  image: saschpe/clang
+  script:
+    - apk update && apk add bash git
+    - /bin/bash ./ci/ci_clang_format_check.sh
+    - echo clang-format was applied ok
 
 test:
   tags:
