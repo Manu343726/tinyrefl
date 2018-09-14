@@ -104,7 +104,7 @@ A work in progress minimal C++ static reflection API and codegen tool.
 ## Compiler support
 
 The library has been testes against GCC >= 5.x and Clang >= 5.x.y. MSVC is not supported, but I have plans to make it work in the future.
-See the [CI build matrix](https://gitlab.com/Manu343726/tinyrefl/-/jobs) for details.
+See the [CI build matrix](https://gitlab.com/Manu343726/tinyrefl/blob/master/ci/matrix.yml) for details.
 
 ## Documentation
 
