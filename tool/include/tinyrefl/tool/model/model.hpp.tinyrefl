@@ -1,0 +1,114 @@
+#ifndef TINYREFL_TOOL_MODEL_MODEL_HPP_TINYREFL
+#define TINYREFL_TOOL_MODEL_MODEL_HPP_TINYREFL
+
+/*
+ * This is a handrolled version of a tinyrefl
+ * metadata header compatible with the tinyrefl
+ * static reflection API.
+ *
+ * All tool metadata model types are registered
+ * here to enable static reflection of these types
+ * which helps to automate binding with the Jinja2
+ * engine (See https://github.com/flexferrum/Jinja2Cpp#reflection)
+ */
+
+///////////////////////////////////////////////////////////////////////////////
+// Tool vs metadata checks. !!! COULD BREAK AFTER CODEGEN FORMAT CHANGES !!! //
+///////////////////////////////////////////////////////////////////////////////
+
+#define TINYREFL_TOOL_CODEGEN_VERSION_MAJOR 0
+#define TINYREFL_TOOL_CODEGEN_VERSION_MINOR 2
+#define TINYREFL_TOOL_CODEGEN_VERSION_FIX 0
+#define TINYREFL_TOOL_CODEGEN_VERSION "0.2.0"
+
+#ifndef TINYREFL_API_CODEGEN_VERSION_MAJOR
+    #error "TINYREFL_API_CODEGEN_VERSION_MAJOR macro not found. API backends must define this macro with the generated code major version they support"
+#endif // TINYREFL_API_CODEGEN_VERSION_MAJOR
+
+#ifndef TINYREFL_API_CODEGEN_VERSION_MINOR
+    #error "TINYREFL_API_CODEGEN_VERSION_MINOR macro not found. API backends must define this macro with the generated code minor version they support"
+#endif // TINYREFL_API_CODEGEN_VERSION_MINOR
+
+#ifndef TINYREFL_API_CODEGEN_VERSION_FIX
+    #warning "TINYREFL_API_CODEGEN_VERSION_FIX macro not found. API backends are encouraged to define this macro with the generated code fix version they support"
+    #define TINYREFL_API_CODEGEN_VERSION_FIX 0
+#endif // TINYREFL_API_CODEGEN_VERSION_FIX
+
+#ifdef TINYREFL_API_CODEGEN_VERSION
+    #undef TINYREFL_API_CODEGEN_VERSION
+#endif // TINYREFL_API_CODEGEN_VERSION
+
+#ifdef TINYREFL_MAKE_API_CODEGEN_VERSION
+    #undef TINYREFL_MAKE_API_CODEGEN_VERSION
+#endif // TINYREFL_MAKE_API_CODEGEN_VERSION
+
+#ifdef TINYREFL_MAKE_API_CODEGEN_VERSION_STRING
+    #undef TINYREFL_MAKE_API_CODEGEN_VERSION_STRING
+#endif // TINYREFL_MAKE_API_CODEGEN_VERSION_STRING
+
+#define TINYREFL_MAKE_API_CODEGEN_VERSION_STRING(...) # __VA_ARGS__
+#define TINYREFL_MAKE_API_CODEGEN_VERSION(major, minor, fix) \
+    TINYREFL_MAKE_API_CODEGEN_VERSION_STRING(major) "." TINYREFL_MAKE_API_CODEGEN_VERSION_STRING(minor) "." TINYREFL_MAKE_API_CODEGEN_VERSION_STRING(fix)
+
+#define TINYREFL_API_CODEGEN_VERSION TINYREFL_MAKE_API_CODEGEN_VERSION(TINYREFL_API_CODEGEN_VERSION_MAJOR, TINYREFL_API_CODEGEN_VERSION_MINOR, TINYREFL_API_CODEGEN_VERSION_FIX)
+#define TINYREFL_API_CODEGEN_VERSION_SOFT TINYREFL_MAKE_API_CODEGEN_VERSION(TINYREFL_API_CODEGEN_VERSION_MAJOR, TINYREFL_API_CODEGEN_VERSION_MINOR, x)
+
+#if ((TINYREFL_TOOL_CODEGEN_VERSION_MAJOR != TINYREFL_API_CODEGEN_VERSION_MAJOR) || \
+     (TINYREFL_TOOL_CODEGEN_VERSION_MINOR != TINYREFL_API_CODEGEN_VERSION_MINOR))
+    #error "Tinyrefl tool generated code is not compatible with your API. Both major and minor version must be equal"
+    #error "Tinyrefl tool generated code version is " TINYREFL_TOOL_CODEGEN_VERSION
+    #error "Your API expects generated code from version " TINYREFL_API_CODEGEN_VERSION_SOFT
+#endif // CODEGEN VERSION CHECK
+
+
+/////////////////////////////////////////////////
+// !!!! METADATA REGISTRATION STARTS HERE !!!! //
+/////////////////////////////////////////////////
+
+/// STRING DEFINITIONS
+
+// common names
+TINYREFL_DEFINE_STRING(full_name)
+TINYREFL_DEFINE_STRING(name)
+TINYREFL_DEFINE_STRING(value)
+TINYREFL_DEFINE_STRING(values)
+
+// enum_value identifiers
+TINYREFL_DEFINE_STRING(tinyrefl::tool::model::enum_value)
+TINYREFL_DEFINE_STRING(tinyrefl::tool::model::enum_value::full_name)
+TINYREFL_DEFINE_STRING(tinyrefl::tool::model::enum_value::name)
+TINYREFL_DEFINE_STRING(tinyrefl::tool::model::enum_value::value)
+
+// enum_ identifiers
+TINYREFL_DEFINE_STRING(tinyrefl::tool::model::enum_)
+TINYREFL_DEFINE_STRING(tinyrefl::tool::model::enum_::full_name)
+TINYREFL_DEFINE_STRING(tinyrefl::tool::model::enum_::name)
+TINYREFL_DEFINE_STRING(tinyrefl::tool::model::enum_::values)
+
+/// MEMBER REGISTRATIONS
+
+// enum_value members
+#define MEMBER_enum_value_full_name TINYREFL_MEMBER_VARIABLE(TINYREFL_STRING(full_name), TINYREFL_STRING(tinyrefl::tool::model::enum_value::full_name), TINYREFL_TYPE(enum_value, tinyrefl::tool::model::enum_value), TINYREFL_TYPE(std::string, std::string), TINYREFL_VALUE(TINYREFL_TYPE(std::string tinyrefl::tool::model::enum_value::*, std::string tinyrefl::tool::model::enum_value::*), &tinyrefl::tool::model::enum_value::full_name), TINYREFL_SEQUENCE(()))
+#define MEMBER_enum_value_name      TINYREFL_MEMBER_VARIABLE(TINYREFL_STRING(name), TINYREFL_STRING(tinyrefl::tool::model::enum_value::name), TINYREFL_TYPE(enum_value, tinyrefl::tool::model::enum_value), TINYREFL_TYPE(std::string, std::string), TINYREFL_VALUE(TINYREFL_TYPE(std::string tinyrefl::tool::model::enum_value::*, std::string tinyrefl::tool::model::enum_value::*), &tinyrefl::tool::model::enum_value::name), TINYREFL_SEQUENCE(()))
+#define MEMBER_enum_value_value     TINYREFL_MEMBER_VARIABLE(TINYREFL_STRING(value), TINYREFL_STRING(tinyrefl::tool::model::enum_value::value), TINYREFL_TYPE(enum_value, tinyrefl::tool::model::enum_value), TINYREFL_TYPE(std::int64_t, std::int64_t), TINYREFL_VALUE(TINYREFL_TYPE(std::int64_t tinyrefl::tool::model::enum_value::*, std::int64_t tinyrefl::tool::model::enum_value::*), &tinyrefl::tool::model::enum_value::value), TINYREFL_SEQUENCE(()))
+TINYREFL_REFLECT_MEMBER(MEMBER_enum_value_full_name)
+TINYREFL_REFLECT_MEMBER(MEMBER_enum_value_name)
+TINYREFL_REFLECT_MEMBER(MEMBER_enum_value_value)
+
+// enum_ members
+#define MEMBER_enum__full_name TINYREFL_MEMBER_VARIABLE(TINYREFL_STRING(full_name), TINYREFL_STRING(tinyrefl::tool::model::enum_::full_name), TINYREFL_TYPE(enum_, tinyrefl::tool::model::enum_), TINYREFL_TYPE(std::string, std::string), TINYREFL_VALUE(TINYREFL_TYPE(std::string tinyrefl::tool::model::enum_::*, std::string tinyrefl::tool::model::enum_::*), &tinyrefl::tool::model::enum_::full_name), TINYREFL_SEQUENCE(()))
+#define MEMBER_enum__name      TINYREFL_MEMBER_VARIABLE(TINYREFL_STRING(name), TINYREFL_STRING(tinyrefl::tool::model::enum_::name), TINYREFL_TYPE(enum_, tinyrefl::tool::model::enum_), TINYREFL_TYPE(std::string, std::string), TINYREFL_VALUE(TINYREFL_TYPE(std::string tinyrefl::tool::model::enum_::*, std::string tinyrefl::tool::model::enum_::*), &tinyrefl::tool::model::enum_::name), TINYREFL_SEQUENCE(()))
+#define MEMBER_enum__values    TINYREFL_MEMBER_VARIABLE(TINYREFL_STRING(values), TINYREFL_STRING(tinyrefl::tool::model::enum_::values), TINYREFL_TYPE(enum_, tinyrefl::tool::model::enum_), TINYREFL_TYPE(std::vector<tinyrefl::tool::model::enum_value>, std::vector<tinyrefl::tool::model::enum_value>), TINYREFL_VALUE(TINYREFL_TYPE(std::vector<tinyrefl::tool::model::enum_value> tinyrefl::tool::model::enum_::*, std::vector<tinyrefl::tool::model::enum_value> tinyrefl::tool::model::enum_::*), &tinyrefl::tool::model::enum_::values), TINYREFL_SEQUENCE(()))
+TINYREFL_REFLECT_MEMBER(MEMBER_enum__full_name)
+TINYREFL_REFLECT_MEMBER(MEMBER_enum__name)
+TINYREFL_REFLECT_MEMBER(MEMBER_enum__values)
+
+/// CLASS REGISTRATIONS
+
+// enum_value class
+TINYREFL_REFLECT_CLASS(TINYREFL_STRING(tinyrefl::tool::model::enum_value), TINYREFL_TYPE(enum_value, tinyrefl::tool::model::enum_value), TINYREFL_SEQUENCE(()), TINYREFL_SEQUENCE(()), TINYREFL_SEQUENCE(()), TINYREFL_SEQUENCE((MEMBER_enum_value_full_name, MEMBER_enum_value_name, MEMBER_enum_value_value)), TINYREFL_SEQUENCE(()), TINYREFL_SEQUENCE(()), TINYREFL_SEQUENCE(()))
+
+// enum_ class
+TINYREFL_REFLECT_CLASS(TINYREFL_STRING(tinyrefl::tool::model::enum_), TINYREFL_TYPE(enum_, tinyrefl::tool::model::enum_), TINYREFL_SEQUENCE(()), TINYREFL_SEQUENCE(()), TINYREFL_SEQUENCE(()), TINYREFL_SEQUENCE((MEMBER_enum__full_name, MEMBER_enum__full_name, MEMBER_enum__values)), TINYREFL_SEQUENCE(()), TINYREFL_SEQUENCE(()), TINYREFL_SEQUENCE(()))
+
+#endif // TINYREFL_TOOL_MODEL_MODEL_HPP_TINYREFL

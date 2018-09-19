@@ -56,7 +56,10 @@ else()
         set(CMAKE_CXX_STANDARD 14)
     endif()
 
+    set(TINYREFL_TOOL_INCLUDE_DIR "${TINYREFL_SOURCE_DIR}/tool/include")
+
     add_subdirectory(external)
+    add_subdirectory(src)
     require_targets(cppast cppfs)
 
     # LLVM releases are compiled with old GCC ABI and RTTI disabled
@@ -69,11 +72,11 @@ else()
     add_executable(tinyrefl-tool tool.cpp)
     define_tinyrefl_version_variables(tinyrefl-tool)
     define_llvm_version_variables(tinyrefl-tool)
-    target_include_directories(tinyrefl-tool PRIVATE ${TINYREFL_INCLUDE_DIR} ${fmt-header-only_SOURCE_DIR}/include)
+    target_include_directories(tinyrefl-tool PRIVATE ${fmt-header-only_SOURCE_DIR}/include)
     target_compile_definitions(tinyrefl-tool PRIVATE -DFMT_HEADER_ONLY)
 
     find_package(LLVM ${TINYREFL_LLVM_VERSION} REQUIRED EXACT CONFIG PATHS "${LLVM_CMAKE_PATH}" NO_DEFAULT_PATH)
-    target_link_libraries(tinyrefl-tool PRIVATE cppast cppfs LLVMSupport jinja2cpp)
+    target_link_libraries(tinyrefl-tool PRIVATE tinyrefl-tool-model cppast cppfs LLVMSupport jinja2cpp)
 
     set(TINYREFL_TOOL_EXECUTABLE $<TARGET_FILE:tinyrefl-tool> CACHE STRING "")
     set(TINYREFL_TOOL_TARGET tinyrefl-tool CACHE STRING "")

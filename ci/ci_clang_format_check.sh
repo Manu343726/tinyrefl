@@ -45,6 +45,7 @@ if bash $CLANG_FORMAT_SCRIPT; then
     if require_clean_work_tree; then
         echo no changes after clang-format, ok
     else
+        git diff
         echo changes found after running clang-format, please run clang-format before submitting your changes
         exit 1
     fi

@@ -71,4 +71,4 @@ done
 
 chmod +x $script_file
 
-docker run -ti --rm --hostname $JOB_NAME -v $script_file:$script_file -v $SRC_DIR:/repo -w /repo -e CI_JOB_NAME=$JOB_NAME ${LLVM_VERSION_ENVIRONMENT_FLAG} $CROSS_BUILDING_FLAG $CLEAN_BUILD_FLAG $IMAGE sh $script_file
+docker run -ti --rm --hostname $JOB_NAME -v $script_file:$script_file -v $SRC_DIR:/repo -w /repo -e CI_JOB_NAME=$JOB_NAME ${LLVM_VERSION_FLAG} $CROSS_BUILDING_FLAG $CLEAN_BUILD_FLAG $IMAGE bash $script_file
