@@ -283,7 +283,7 @@ T const& operator+(T const& value, StreamEndStop)
 {
     return value;
 }
-}
+} // namespace Catch
 
 #define CATCH_INTERNAL_LINEINFO \
     ::Catch::SourceLineInfo(__FILE__, static_cast<std::size_t>(__LINE__))
@@ -346,7 +346,7 @@ std::vector<TestCase> filterTests(
     TestSpec const&              testSpec,
     IConfig const&               config);
 std::vector<TestCase> const& getAllTestCasesSorted(IConfig const& config);
-}
+} // namespace Catch
 
 // end catch_interfaces_testcase.h
 // start catch_stringref.h
@@ -880,7 +880,7 @@ std::string rangeToString(InputIterator first, InputIterator last)
     oss << " }";
     return oss.str();
 }
-}
+} // namespace Detail
 
 template<typename T, typename Allocator>
 struct StringMaker<std::vector<T, Allocator>>
@@ -958,7 +958,7 @@ struct StringMaker<std::pair<T1, T2>>
         return oss.str();
     }
 };
-}
+} // namespace Catch
 #endif // CATCH_CONFIG_ENABLE_PAIR_STRINGMAKER
 
 // Separate std::tuple specialization
@@ -987,7 +987,7 @@ struct TupleElementPrinter<Tuple, N, false>
 {
     static void print(const Tuple&, std::ostream&) {}
 };
-}
+} // namespace Detail
 
 template<typename... Types>
 struct StringMaker<std::tuple<Types...>>
@@ -1001,7 +1001,7 @@ struct StringMaker<std::tuple<Types...>>
         return os.str();
     }
 };
-}
+} // namespace Catch
 #endif // CATCH_CONFIG_ENABLE_TUPLE_STRINGMAKER
 
 // Separate std::chrono::duration specialization
@@ -1164,7 +1164,7 @@ struct StringMaker<std::chrono::time_point<std::chrono::system_clock, Duration>>
         return std::string(timeStamp);
     }
 };
-}
+} // namespace Catch
 #endif // CATCH_CONFIG_ENABLE_CHRONO_STRINGMAKER
 
 #ifdef _MSC_VER
@@ -1667,7 +1667,7 @@ struct IResultCapture
 };
 
 IResultCapture& getResultCapture();
-}
+} // namespace Catch
 
 // end catch_interfaces_capture.h
 // start catch_debugger.h
@@ -1956,7 +1956,7 @@ struct Totals
     Counts assertions;
     Counts testCases;
 };
-}
+} // namespace Catch
 
 // end catch_totals.h
 #include <string>
@@ -2151,7 +2151,7 @@ IRegistryHub&        getRegistryHub();
 IMutableRegistryHub& getMutableRegistryHub();
 void                 cleanUp();
 std::string          translateActiveException();
-}
+} // namespace Catch
 
 // end catch_interfaces_registry_hub.h
 #if defined(CATCH_CONFIG_DISABLE)
@@ -2226,7 +2226,7 @@ public:
             new ExceptionTranslator<T>(translateFunction));
     }
 };
-}
+} // namespace Catch
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_CATCH_TRANSLATE_EXCEPTION2(translatorName, signature) \
@@ -2427,7 +2427,7 @@ private:
     double m_scale;
     double m_value;
 };
-}
+} // namespace Detail
 
 template<>
 struct StringMaker<Catch::Detail::Approx>
@@ -2469,7 +2469,7 @@ struct pluralise
     std::size_t m_count;
     std::string m_label;
 };
-}
+} // namespace Catch
 
 // end catch_string_manip.h
 #ifndef CATCH_CONFIG_DISABLE_MATCHERS
@@ -3053,7 +3053,7 @@ TestCase makeTestCase(
     std::string const&    name,
     std::string const&    description,
     SourceLineInfo const& lineInfo);
-}
+} // namespace Catch
 
 #ifdef __clang__
 #pragma clang diagnostic pop
@@ -3070,7 +3070,7 @@ struct IRunner
     virtual ~IRunner();
     virtual bool aborting() const = 0;
 };
-}
+} // namespace Catch
 
 // end catch_interfaces_runner.h
 
@@ -3142,7 +3142,7 @@ inline std::string getAnnotation(
         return [(NSString*)value UTF8String];
     return "";
 }
-}
+} // namespace Detail
 
 inline std::size_t registerTestMethods()
 {
@@ -3375,7 +3375,7 @@ private:
     WildcardPosition      m_wildcard = NoWildcard;
     std::string           m_pattern;
 };
-}
+} // namespace Catch
 
 // end catch_wildcard_pattern.h
 #include <memory>
@@ -3443,7 +3443,7 @@ private:
 
     friend class TestSpecParser;
 };
-}
+} // namespace Catch
 
 #ifdef __clang__
 #pragma clang diagnostic pop
@@ -3632,7 +3632,7 @@ struct IConfig : NonCopyable
 };
 
 using IConfigPtr = std::shared_ptr<IConfig const>;
-}
+} // namespace Catch
 
 // end catch_interfaces_config.h
 // Libstdc++ doesn't like incomplete classes for unique_ptr
@@ -3650,7 +3650,7 @@ class StreamBufBase : public std::streambuf
 public:
     virtual ~StreamBufBase();
 };
-}
+} // namespace Catch
 
 // end catch_streambuf.h
 #include <fstream>
@@ -3707,7 +3707,7 @@ public:
 public: // IStream
     std::ostream& stream() const override;
 };
-}
+} // namespace Catch
 
 // end catch_stream.h
 
@@ -4603,7 +4603,7 @@ public:
             std::make_shared<ListenerFactory>());
     }
 };
-}
+} // namespace Catch
 
 #if !defined(CATCH_CONFIG_DISABLE)
 
@@ -4832,8 +4832,8 @@ public:
 
 } // namespace TestCaseTracking
 
-using TestCaseTracking::ITracker;
 using TestCaseTracking::IndexTracker;
+using TestCaseTracking::ITracker;
 using TestCaseTracking::SectionTracker;
 using TestCaseTracking::TrackerContext;
 
@@ -4850,7 +4850,7 @@ struct LeakDetector
 {
     LeakDetector();
 };
-}
+} // namespace Catch
 // end catch_leak_detector.h
 // Cpp files will be included in the single-header file here
 // start catch_approx.cpp
@@ -4867,7 +4867,7 @@ bool marginComparison(double lhs, double rhs, double margin)
 {
     return (lhs + margin >= rhs) && (rhs + margin >= lhs);
 }
-}
+} // namespace
 
 namespace Catch
 {
@@ -4949,7 +4949,7 @@ struct IMutableContext : IContext
 IContext&        getCurrentContext();
 IMutableContext& getCurrentMutableContext();
 void             cleanUpContext();
-}
+} // namespace Catch
 
 // end catch_context.h
 #include <cassert>
@@ -5731,9 +5731,9 @@ inline auto Column::operator+(Column const& other) -> Columns
     cols += other;
     return cols;
 }
-}
-}
-} // namespace Catch::clara::TextFlow
+} // namespace TextFlow
+} // namespace clara
+} // namespace Catch
 
 // ----------- end of #include from clara_textflow.hpp -----------
 // ........... back in clara.hpp
@@ -6874,8 +6874,8 @@ using detail::ParseResultType;
 
 // Result type for parser operation
 using detail::ParserResult;
-}
-} // namespace Catch::clara
+} // namespace clara
+} // namespace Catch
 
 // end clara.hpp
 #ifdef __clang__
@@ -7115,7 +7115,7 @@ std::string StreamEndStop::operator+() const
 
 NonCopyable::NonCopyable()  = default;
 NonCopyable::~NonCopyable() = default;
-}
+} // namespace Catch
 // end catch_common.cpp
 // start catch_config.cpp
 
@@ -7276,7 +7276,7 @@ public:
 private:
     int m_oldErrno;
 };
-}
+} // namespace Catch
 
 // end catch_errno_guard.h
 // start catch_windows_h_proxy.h
@@ -7332,7 +7332,7 @@ struct NoColourImpl : IColourImpl
     }
 };
 
-} // anon namespace
+} // namespace
 } // namespace Catch
 
 #if !defined(CATCH_CONFIG_COLOUR_NONE) &&    \
@@ -7430,7 +7430,7 @@ IColourImpl* platformColourInstance()
                                         : NoColourImpl::instance();
 }
 
-} // end anon namespace
+} // namespace
 } // end namespace Catch
 
 #elif defined(CATCH_CONFIG_COLOUR_ANSI) //////////////////////////////////////
@@ -7515,7 +7515,7 @@ IColourImpl* platformColourInstance()
                                         : NoColourImpl::instance();
 }
 
-} // end anon namespace
+} // namespace
 } // end namespace Catch
 
 #else // not Windows or ANSI ///////////////////////////////////////////////
@@ -7645,7 +7645,7 @@ void cleanUpContext()
 IContext::~IContext()               = default;
 IMutableContext::~IMutableContext() = default;
 Context::~Context()                 = default;
-}
+} // namespace Catch
 // end catch_context.cpp
 // start catch_debug_console.cpp
 
@@ -7667,7 +7667,7 @@ void writeToDebugConsole(std::string const& text)
 {
     ::OutputDebugStringA(text.c_str());
 }
-}
+} // namespace Catch
 #else
 namespace Catch
 {
@@ -7676,7 +7676,7 @@ void writeToDebugConsole(std::string const& text)
     // !TBD: Need a version for Mac/ XCode and other IDEs
     Catch::cout() << text;
 }
-}
+} // namespace Catch
 #endif // Platform
 // end catch_debug_console.cpp
 // start catch_debugger.cpp
@@ -7776,7 +7776,7 @@ bool isDebuggerActive()
 {
     return IsDebuggerPresent() != 0;
 }
-}
+} // namespace Catch
 #elif defined(__MINGW32__)
 extern "C" __declspec(dllimport) int __stdcall IsDebuggerPresent();
 namespace Catch
@@ -7785,7 +7785,7 @@ bool isDebuggerActive()
 {
     return IsDebuggerPresent() != 0;
 }
-}
+} // namespace Catch
 #else
 namespace Catch
 {
@@ -7793,7 +7793,7 @@ bool isDebuggerActive()
 {
     return false;
 }
-}
+} // namespace Catch
 #endif // Platform
 // end catch_debugger.cpp
 // start catch_decomposer.cpp
@@ -7815,7 +7815,7 @@ void formatReconstructedExpression(
     else
         os << lhs << "\n" << op << "\n" << rhs;
 }
-}
+} // namespace Catch
 // end catch_decomposer.cpp
 // start catch_errno_guard.cpp
 
@@ -7828,7 +7828,7 @@ ErrnoGuard::~ErrnoGuard()
 {
     errno = m_oldErrno;
 }
-}
+} // namespace Catch
 // end catch_errno_guard.cpp
 // start catch_exception_translator_registry.cpp
 
@@ -7852,7 +7852,7 @@ public:
 private:
     std::vector<std::unique_ptr<IExceptionTranslator const>> m_translators;
 };
-}
+} // namespace Catch
 
 // end catch_exception_translator_registry.h
 #ifdef __OBJC__
@@ -7919,7 +7919,7 @@ std::string ExceptionTranslatorRegistry::tryTranslators() const
         return m_translators[0]->translate(
             m_translators.begin() + 1, m_translators.end());
 }
-}
+} // namespace Catch
 // end catch_exception_translator_registry.cpp
 // start catch_fatal_condition.cpp
 
@@ -7937,7 +7937,7 @@ struct FatalConditionHandler
 {
     void reset();
 };
-}
+} // namespace Catch
 
 #else // CATCH_CONFIG_WINDOWS_SEH is defined
 
@@ -7973,7 +7973,7 @@ struct FatalConditionHandler
 {
     void reset();
 };
-}
+} // namespace Catch
 
 #else // CATCH_CONFIG_POSIX_SIGNALS is defined
 
@@ -8013,7 +8013,7 @@ void reportFatal(char const* const message)
     Catch::getCurrentContext().getResultCapture()->handleFatalErrorCondition(
         message);
 }
-}
+} // namespace
 
 #if defined(CATCH_PLATFORM_WINDOWS) /////////////////////////////////////////
 
@@ -8022,7 +8022,7 @@ void reportFatal(char const* const message)
 namespace Catch
 {
 void FatalConditionHandler::reset() {}
-}
+} // namespace Catch
 
 #else // CATCH_CONFIG_WINDOWS_SEH is defined
 
@@ -8105,7 +8105,7 @@ PVOID FatalConditionHandler::exceptionHandlerHandle = nullptr;
 namespace Catch
 {
 void FatalConditionHandler::reset() {}
-}
+} // namespace Catch
 
 #else // CATCH_CONFIG_POSIX_SIGNALS is defined
 
@@ -8214,7 +8214,7 @@ namespace Catch
 {
 IExceptionTranslator::~IExceptionTranslator()                 = default;
 IExceptionTranslatorRegistry::~IExceptionTranslatorRegistry() = default;
-}
+} // namespace Catch
 // end catch_interfaces_exception.cpp
 // start catch_interfaces_registry_hub.cpp
 
@@ -8222,7 +8222,7 @@ namespace Catch
 {
 IRegistryHub::~IRegistryHub()               = default;
 IMutableRegistryHub::~IMutableRegistryHub() = default;
-}
+} // namespace Catch
 // end catch_interfaces_registry_hub.cpp
 // start catch_interfaces_reporter.cpp
 
@@ -8431,7 +8431,7 @@ namespace Catch
 {
 ITestInvoker::~ITestInvoker()           = default;
 ITestCaseRegistry::~ITestCaseRegistry() = default;
-}
+} // namespace Catch
 // end catch_interfaces_testcase.cpp
 // start catch_leak_detector.cpp
 
@@ -8458,7 +8458,7 @@ LeakDetector::LeakDetector()
 LeakDetector::LeakDetector() {}
 
 #endif
-}
+} // namespace Catch
 // end catch_leak_detector.cpp
 // start catch_list.cpp
 
@@ -8912,7 +8912,7 @@ struct RandomNumberGenerator
         std::shuffle(vector.begin(), vector.end(), rng);
     }
 };
-}
+} // namespace Catch
 
 // end catch_random_number_generator.h
 #include <cstdlib>
@@ -8939,7 +8939,7 @@ RandomNumberGenerator::result_type RandomNumberGenerator::operator()() const
 {
     return std::rand() % (max)();
 }
-}
+} // namespace Catch
 // end catch_random_number_generator.cpp
 // start catch_registry_hub.cpp
 
@@ -9035,7 +9035,7 @@ private:
     FactoryMap m_factories;
     Listeners  m_listeners;
 };
-}
+} // namespace Catch
 
 // end catch_reporter_registry.h
 // start catch_tag_alias_registry.h
@@ -9183,7 +9183,7 @@ RegistryHub*& getTheRegistryHub()
         theRegistryHub = new RegistryHub();
     return theRegistryHub;
 }
-}
+} // namespace
 
 IRegistryHub& getRegistryHub()
 {
@@ -9242,7 +9242,7 @@ IReporterRegistry::Listeners const& ReporterRegistry::getListeners() const
 {
     return m_listeners;
 }
-}
+} // namespace Catch
 // end catch_reporter_registry.cpp
 // start catch_result_type.cpp
 
@@ -9824,7 +9824,7 @@ IResultCapture& getResultCapture()
     else
         CATCH_INTERNAL_ERROR("No result capture instance");
 }
-}
+} // namespace Catch
 // end catch_run_context.cpp
 // start catch_section.cpp
 
@@ -9968,7 +9968,7 @@ struct Version
 };
 
 Version const& libraryVersion();
-}
+} // namespace Catch
 
 // end catch_version.h
 #include <cstdlib>
@@ -10076,7 +10076,7 @@ void applyFilenamesAsTags(Catch::IConfig const& config)
         setTags(testCase, tags);
     }
 }
-}
+} // namespace
 
 namespace Catch
 {
@@ -10421,7 +10421,7 @@ std::ostream& clog()
     return std::clog;
 }
 #endif
-}
+} // namespace Catch
 // end catch_stream.cpp
 // start catch_streambuf.cpp
 
@@ -10517,7 +10517,7 @@ std::ostream& operator<<(std::ostream& os, pluralise const& pluraliser)
         os << 's';
     return os;
 }
-}
+} // namespace Catch
 // end catch_string_manip.cpp
 // start catch_stringref.cpp
 
@@ -10712,7 +10712,7 @@ TagAlias::TagAlias(std::string const& _tag, SourceLineInfo _lineInfo)
     : tag(_tag), lineInfo(_lineInfo)
 {
 }
-}
+} // namespace Catch
 // end catch_tag_alias.cpp
 // start catch_tag_alias_autoregistrar.cpp
 
@@ -10733,7 +10733,7 @@ RegistrarForTagAliases::RegistrarForTagAliases(
         getMutableRegistryHub().registerStartupException();
     }
 }
-}
+} // namespace Catch
 // end catch_tag_alias_autoregistrar.cpp
 // start catch_tag_alias_registry.cpp
 
@@ -11456,8 +11456,8 @@ void IndexTracker::close()
 
 } // namespace TestCaseTracking
 
-using TestCaseTracking::ITracker;
 using TestCaseTracking::IndexTracker;
+using TestCaseTracking::ITracker;
 using TestCaseTracking::SectionTracker;
 using TestCaseTracking::TrackerContext;
 
@@ -11506,7 +11506,7 @@ AutoReg::AutoReg(
 }
 
 AutoReg::~AutoReg() = default;
-}
+} // namespace Catch
 // end catch_test_registry.cpp
 // start catch_test_spec.cpp
 
@@ -11574,7 +11574,7 @@ bool TestSpec::matches(TestCaseInfo const& testCase) const
             return true;
     return false;
 }
-}
+} // namespace Catch
 // end catch_test_spec.cpp
 // start catch_test_spec_parser.cpp
 
@@ -11794,7 +11794,7 @@ struct Endianness
         return (u.asChar[sizeof(int) - 1] == 1) ? Big : Little;
     }
 };
-}
+} // namespace
 
 std::string rawMemoryToString(const void* object, std::size_t size)
 {
@@ -11813,7 +11813,7 @@ std::string rawMemoryToString(const void* object, std::size_t size)
         os << std::setw(2) << static_cast<unsigned>(bytes[i]);
     return os.str();
 }
-}
+} // namespace Detail
 
 template<typename T>
 std::string fpToString(T value, int precision)
@@ -12083,7 +12083,7 @@ Totals Totals::delta(Totals const& prevTotals) const
         ++diff.testCases.passed;
     return diff;
 }
-}
+} // namespace Catch
 // end catch_totals.cpp
 // start catch_version.cpp
 
@@ -12123,7 +12123,7 @@ Version const& libraryVersion()
     static Version version(2, 0, 1, "", 0);
     return version;
 }
-}
+} // namespace Catch
 // end catch_version.cpp
 // start catch_wildcard_pattern.cpp
 
@@ -12167,7 +12167,7 @@ std::string WildcardPattern::adjustCase(std::string const& str) const
 {
     return m_caseSensitivity == CaseSensitive::No ? toLower(str) : str;
 }
-}
+} // namespace Catch
 // end catch_wildcard_pattern.cpp
 // start catch_xmlwriter.cpp
 
@@ -12275,7 +12275,7 @@ private:
     std::ostream&            m_os;
     std::ostringstream       m_oss;
 };
-}
+} // namespace Catch
 
 // end catch_xmlwriter.h
 #include <iomanip>
@@ -12495,7 +12495,7 @@ void XmlWriter::newlineIfNecessary()
         m_needsNewline = false;
     }
 }
-}
+} // namespace Catch
 // end catch_xmlwriter.cpp
 // start catch_reporter_bases.cpp
 
@@ -12582,7 +12582,7 @@ std::string bothOrAll(std::size_t count)
 {
     return count == 1 ? std::string() : count == 2 ? "both " : "all ";
 }
-}
+} // namespace
 
 namespace Catch
 {
@@ -12911,10 +12911,9 @@ CATCH_REGISTER_REPORTER("compact", CompactReporter)
 
 #if defined(_MSC_VER)
 #pragma warning(push)
-#pragma warning( \
-    disable : 4061) // Not all labels are EXPLICITLY handled in switch
-                    // Note that 4062 (not all labels are handled
-                    // and default is missing) is enabled
+#pragma warning(disable : 4061) // Not all labels are EXPLICITLY handled in
+                                // switch Note that 4062 (not all labels are
+                                // handled and default is missing) is enabled
 #endif
 
 namespace Catch
@@ -13125,7 +13124,7 @@ public:
         return os << duration.value() << " " << duration.unitsAsString();
     }
 };
-} // end anon namespace
+} // namespace
 
 struct ConsoleReporter : StreamingReporterBase<ConsoleReporter>
 {
@@ -13710,7 +13709,7 @@ std::string fileNameTag(const std::vector<std::string>& tags)
         return it->substr(1);
     return std::string();
 }
-}
+} // namespace
 
 class JunitReporter : public CumulativeReporterBase<JunitReporter>
 {
@@ -14056,10 +14055,9 @@ bool MultipleReporters::isMulti() const
 
 #if defined(_MSC_VER)
 #pragma warning(push)
-#pragma warning( \
-    disable : 4061) // Not all labels are EXPLICITLY handled in switch
-                    // Note that 4062 (not all labels are handled
-                    // and default is missing) is enabled
+#pragma warning(disable : 4061) // Not all labels are EXPLICITLY handled in
+                                // switch Note that 4062 (not all labels are
+                                // handled and default is missing) is enabled
 #endif
 
 namespace Catch

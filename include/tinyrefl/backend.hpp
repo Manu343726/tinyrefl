@@ -910,8 +910,8 @@ constexpr
     typename enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes>::
         value_t enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes>::
             invalid_value;
-}
-}
+} // namespace backend
+} // namespace tinyrefl
 
 #ifndef TINYREFL_PP_CAT
 #define TINYREFL_PP_CAT_IMPL(x, y) x##y

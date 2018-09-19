@@ -18,4 +18,4 @@ std::ostream& operator<<(std::ostream& os, const C::Enum& value)
 {
     return os << tinyrefl::to_string(value);
 }
-}
+} // namespace example

@@ -3,7 +3,6 @@ docker:
   name: tinyrefl
 
 stages:
-  - clang-format-check
   - test
   - user-integration
 

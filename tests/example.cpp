@@ -26,4 +26,4 @@ bool operator==(const MyClass& lhs, const MyClass& rhs)
 {
     return tinyrefl::memberwise_equal(lhs, rhs);
 }
-}
+} // namespace my_namespace

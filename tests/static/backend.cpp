@@ -35,8 +35,8 @@ constexpr ctti::detail::cstring get_string()
 {
     return "default string";
 }
-}
-}
+} // namespace bar
+} // namespace foo
 
 namespace foo
 {
@@ -48,8 +48,8 @@ constexpr ctti::detail::cstring
 {
     return "foobar::foo";
 }
-}
-}
+} // namespace bar
+} // namespace foo
 
 EXPECT_EQ(
     foo::bar::get_string<ctti::detail::cstring{"foobar::foo"}.hash()>(),

@@ -30,11 +30,16 @@ public:
 
     [[str]] std::string str;
 
-    enum class[[Enum]] Enum{A TINYREFL_ENUM_VALUE_ATTRIBUTE(A), B, C, D = 42};
+    enum class [[Enum]] Enum
+    {
+        A TINYREFL_ENUM_VALUE_ATTRIBUTE(A), B, C, D = 42
+    };
 
-    struct[[Foo]] Foo{};
+    struct [[Foo]] Foo
+    {
+    };
 
-    struct[[InnerClassWithMembers(42, "foo")]] InnerClassWithMembers
+    struct [[InnerClassWithMembers(42, "foo")]] InnerClassWithMembers
     {
         int a, b, c;
     };
@@ -45,4 +50,4 @@ public:
 
 std::ostream& operator<<(std::ostream& os, const MyClass::Enum value);
 bool          operator==(const MyClass& lhs, const MyClass& rhs);
-}
+} // namespace my_namespace
