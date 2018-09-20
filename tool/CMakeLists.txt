@@ -70,8 +70,12 @@ else()
     target_compile_definitions(tinyrefl-tool PRIVATE -DFMT_HEADER_ONLY)
 
     find_package(LLVM ${TINYREFL_LLVM_VERSION} REQUIRED EXACT CONFIG PATHS "${LLVM_CMAKE_PATH}" NO_DEFAULT_PATH)
-    target_link_libraries(tinyrefl-tool PRIVATE tinyrefl-tool-model cppast cppfs LLVMSupport jinja2cpp)
+    target_link_libraries(tinyrefl-tool PRIVATE tinyrefl-tool-lib cppast cppfs LLVMSupport)
 
     set(TINYREFL_TOOL_EXECUTABLE $<TARGET_FILE:tinyrefl-tool> CACHE STRING "")
     set(TINYREFL_TOOL_TARGET tinyrefl-tool CACHE STRING "")
+
+    if(TINYREFL_BUILD_TESTS)
+        add_subdirectory(tests)
+    endif()
 endif()

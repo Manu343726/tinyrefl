@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.3)
 
 set(TINYREFL_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "")
 set(TINYREFL_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "")
@@ -46,24 +46,32 @@ else()
     set(TINYREFL_CROSS_BUILDING OFF CACHE BOOL "")
 endif()
 
+if(TINYREFL_CROSS_BUILDING)
+    set(TINYREFL_BUILD_EXAMPLES OFF)
+    set(TINYREFL_BUILD_TESTS OFF)
+endif()
+
+if(TINYREFL_BUILD_TESTS OR TINYREFL_BUILD_EXAMPLES)
+    include(cmake/ctest_setup.cmake)
+endif()
+
 message(STATUS "Configuring tinyrefl external dependencies...")
 add_subdirectory(external)
 message(STATUS "Configuring tinyrefl library...")
 add_subdirectory(src)
-message(STATUS "Configuring tinyrefl tool...")
-add_subdirectory(tool)
 
 # Implicitly add driver for users
 include(${TINYREFL_SOURCE_DIR}/tool/driver.cmake)
 
-if(TINYREFL_BUILD_TESTS AND NOT TINYREFL_CROSS_BUILDING)
-    include(cmake/ctest_setup.cmake)
+message(STATUS "Configuring tinyrefl tool...")
+add_subdirectory(tool)
+
+if(TINYREFL_BUILD_TESTS)
     message(STATUS "Configuring tinyrefl tests...")
     add_subdirectory(tests)
 endif()
 
 if(TINYREFL_BUILD_EXAMPLES)
-    include(cmake/ctest_setup.cmake)
     message(STATUS "Configuring tinyrefl examples...")
     add_subdirectory(examples)
 endif()
