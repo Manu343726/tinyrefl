@@ -36,13 +36,13 @@ else
     toolchain=""
 fi
 
-cmake $SOURCE_DIR -G $GENERATOR \
+cmake $SOURCE_DIR -G "$GENERATOR" \
         $toolchain \
         -DTINYREFL_LLVM_VERSION="${LLVM_VERSION}" \
         -DTINYREFL_LLVM_DOWNLOAD_FROM_OFFICIAL_SERVER="ON" \
         -DCMAKE_VERBOSE_MAKEFILE=ON
 
-cmake --build .
+cmake --build . --parallel $(nproc --all)
 
 if [ "$CROSS_BUILDING" != "YES" ]; then
     ctest . -V

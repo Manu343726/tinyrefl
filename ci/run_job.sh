@@ -19,9 +19,7 @@ SCRIPT_VARIABLE=${JOB_NAME_SANITIZED}_script
 
 # Parse Giltab-ci config file
 source yaml.sh
-parse_yaml $SRC_DIR/.gitlab-ci.yml
 create_variables $SRC_DIR/.gitlab-ci.yml
-echo $JOB_NAME_SANITIZED
 
 IMAGE=${!IMAGE_VARIABLE}
 LLVM_VERSION=${!LLVM_VERSION_VARIABLE}
@@ -58,6 +56,7 @@ echo Running job $JOB_NAME
 echo Using docker image $IMAGE
 echo CROSS_BUILDING=$CROSS_BUILDING
 echo LLVM_VERSION=$LLVM_VERSION
+echo GENERATOR=$GENERATOR
 
 script_file=/tmp/run_job.sh
 
@@ -71,4 +70,14 @@ done
 
 chmod +x $script_file
 
-docker run -ti --rm --hostname $JOB_NAME -v $script_file:$script_file -v $SRC_DIR:/repo -w /repo -e CI_JOB_NAME=$JOB_NAME ${LLVM_VERSION_FLAG} $CROSS_BUILDING_FLAG $CLEAN_BUILD_FLAG $IMAGE bash $script_file
+docker run -ti --rm \
+    --hostname $JOB_NAME \
+    -v $script_file:$script_file \
+    -v $SRC_DIR:/repo \
+    -w /repo \
+    -e CI_JOB_NAME=$JOB_NAME \
+    $LLVM_VERSION_FLAG \
+    $CROSS_BUILDING_FLAG \
+    $CLEAN_BUILD_FLAG \
+    -e GENERATOR="$GENERATOR" \
+    $IMAGE bash $script_file

@@ -7,7 +7,7 @@ if(TINYREFL_CROSS_BUILDING)
     message(STATUS "Cross-building tinyrefl, host-build tinyrefl-tool")
     include(ExternalProject)
 
-    set(srcdir ${CMAKE_CURRENT_LIST_DIR})
+    set(srcdir "${TINYREFL_SOURCE_DIR}")
     set(bindir ${CMAKE_CURRENT_BINARY_DIR}/tinyrefl_tool_external)
 
     if(TINYREFL_HOST_CXX_COMPILER)
@@ -30,10 +30,10 @@ if(TINYREFL_CROSS_BUILDING)
             ${cmake_generator}
             ${cmake_cxx_compiler}
             ${cmake_c_compiler}
+            -DCMAKE_VERBOSE_MAKEFILE=${CMAKE_VERBOSE_MAKEFILE}
+            -DTINYREFL_BUILD_TESTS=OFF
+            -DTINYREFL_BUILD_EXAMPLES=OFF
             -DTINYREFL_HOST_BUILDING_TOOL=ON
-            -DTINYREFL_SOURCE_DIR=${TINYREFL_SOURCE_DIR}
-            -DTINYREFL_BINARY_DIR=${TINYREFL_BINARY_DIR}
-            -DTINYREFL_INCLUDE_DIR=${TINYREFL_INCLUDE_DIR}
             -DTINYREFL_LLVM_VERSION=${TINYREFL_LLVM_VERSION}
             -DTINYREFL_USE_LOCAL_LLVM=${TINYREFL_USE_LOCAL_LLVM}
             -DTINYREFL_LLVM_DOWNLOAD_FROM_OFFICIAL_SERVER=${TINYREFL_LLVM_DOWNLOAD_FROM_OFFICIAL_SERVER}
@@ -47,15 +47,9 @@ if(TINYREFL_CROSS_BUILDING)
         INSTALL_COMMAND ""
     )
 
-    set(TINYREFL_TOOL_EXECUTABLE ${bindir}/tinyrefl-tool CACHE STRING "")
+    set(TINYREFL_TOOL_EXECUTABLE ${bindir}/tool/tinyrefl-tool CACHE STRING "")
     set(TINYREFL_TOOL_TARGET tinyrefl_tool_external CACHE STRING "")
 else()
-    if(TINYREFL_HOST_BUILDING_TOOL)
-        cmake_minimum_required(VERSION 3.0)
-        project(tinyrefl-tool)
-        set(CMAKE_CXX_STANDARD 14)
-    endif()
-
     set(TINYREFL_TOOL_INCLUDE_DIR "${TINYREFL_SOURCE_DIR}/tool/include")
 
     add_subdirectory(external)
