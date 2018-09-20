@@ -13,6 +13,10 @@ if [[ -z "$GENERATOR" ]]; then
     GENERATOR=Ninja
 fi
 
+if [[ "$GENERATOR" =~ "Makefiles" ]]; then
+    BUILD_JOBS_FLAG="-j$(nproc --all)"
+fi
+
 if [[ -z "$BUILD_DIR" ]]; then
     BUILD_DIR=$SOURCE_DIR/build_${CI_JOB_NAME}_${HOSTNAME}
 fi
@@ -42,7 +46,7 @@ cmake $SOURCE_DIR -G "$GENERATOR" \
         -DTINYREFL_LLVM_DOWNLOAD_FROM_OFFICIAL_SERVER="ON" \
         -DCMAKE_VERBOSE_MAKEFILE=ON
 
-cmake --build . --parallel $(nproc --all)
+cmake --build . -- $BUILD_JOBS_FLAG
 
 if [ "$CROSS_BUILDING" != "YES" ]; then
     ctest . -V
