@@ -54,7 +54,7 @@ else()
     set(TINYREFL_TOOL_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
     add_subdirectory(external)
-    require_targets(cppast cppfs)
+    require_targets(cppast cppfs jinja2cpp spdlog)
 
     # LLVM releases are compiled with old GCC ABI and RTTI disabled
     if(NOT TINYREFL_USE_LOCAL_LLVM)

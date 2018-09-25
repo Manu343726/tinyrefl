@@ -1,6 +1,7 @@
 #ifndef TINYREFL_TOOL_MODEL_AST_JINJA2REFLECTION_HPP
 #define TINYREFL_TOOL_MODEL_AST_JINJA2REFLECTION_HPP
 
+#include <cppast/cpp_file.hpp>
 #include <jinja2cpp/reflected_value.h>
 #include <tinyrefl/tool/model/cppast/class.hpp>
 
@@ -44,6 +45,21 @@ struct TypeReflection<tinyrefl::tool::model::entity_ref<cppast::cpp_class>>
 template<>
 struct TypeReflection<tinyrefl::tool::model::entity_ref<cppast::cpp_enum>>
     : public TypeReflected<tinyrefl::tool::model::entity_ref<cppast::cpp_enum>>
+{
+    static std::unordered_map<std::string, FieldAccessor> GetAccessors();
+};
+
+template<>
+struct TypeReflection<tinyrefl::tool::model::entity_ref<cppast::cpp_enum_value>>
+    : public TypeReflected<
+          tinyrefl::tool::model::entity_ref<cppast::cpp_enum_value>>
+{
+    static std::unordered_map<std::string, FieldAccessor> GetAccessors();
+};
+
+template<>
+struct TypeReflection<tinyrefl::tool::model::entity_ref<cppast::cpp_file>>
+    : public TypeReflected<tinyrefl::tool::model::entity_ref<cppast::cpp_file>>
 {
     static std::unordered_map<std::string, FieldAccessor> GetAccessors();
 };
