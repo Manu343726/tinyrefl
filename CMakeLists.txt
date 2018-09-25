@@ -78,6 +78,7 @@ endif()
 
 if(TINYREFL_IS_ROOT_PROJECT)
     message(STATUS "Generate vim YCM config file for tinyrefl at ${TINYREFL_SOURCE_DIR} ...")
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     configure_file(
         ${TINYREFL_SOURCE_DIR}/.ycm_extra_conf.py.in
         ${TINYREFL_SOURCE_DIR}/.ycm_extra_conf.py
