@@ -66,6 +66,16 @@ bool is_direct_child_of(
            equal_entities(entity.parent().value(), parent);
 }
 
+bool entity_has_comment(const cppast::cpp_entity& entity)
+{
+    return entity.comment().has_value();
+}
+
+std::string entity_comment(const cppast::cpp_entity& entity)
+{
+    return (entity_has_comment(entity) ? entity.comment().value() : "");
+}
+
 } // namespace model
 } // namespace tool
 } // namespace tinyrefl

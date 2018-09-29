@@ -1,31 +1,39 @@
 #include <string>
+#include <tinyrefl/utils/enum_value_attributes.hpp>
 
 namespace my
 {
-struct Base
+struct [[Name("Base", type = "class")]] Base
 {
     std::string str;
 };
-class Class : public Base
+
+/**
+ * A class
+ */
+class[[Class]] Class : public Base
 {
-    int i;
-    Class(int i);
+    [[property("i")]] int i;         //< A member variable
+    [[ctor("int: i")]] Class(int i); //< A constructor
 
-    int  get_i() const;
-    int& get_i();
+    [[property_getter("i")]] int  get_i() const; //< A getter member function
+    [[property_setter("i")]] int& get_i();       //< A setter member function
 
-    struct Tag
+    struct [[Tag]] Tag
     {
     };
     struct AnotherTag
     {
     };
 
-    enum class Enum
+    /**
+     * An enum
+     */
+    enum class [[Enum]] Enum
     {
         A = 42,
-        B,
-        C
+        B, //< An enum value
+            C TINYREFL_ENUM_VALUE_ATTRIBUTE(C)
     };
 };
 } // namespace my

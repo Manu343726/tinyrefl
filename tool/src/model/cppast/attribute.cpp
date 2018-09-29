@@ -25,7 +25,8 @@ std::string full_attribute(const cppast::cpp_attribute& attribute)
 {
     if(attribute.arguments())
     {
-        return attribute.name() + attribute.arguments().value().as_string();
+        return attribute.name() + "(" +
+               attribute.arguments().value().as_string() + ")";
     }
     else
     {
@@ -38,26 +39,24 @@ std::string attribute_name(const cppast::cpp_attribute& attribute)
     return attribute.name();
 }
 
-std::vector<std::string>
-    tokenized_attribute_arguments(const cppast::cpp_attribute& attribute)
+bool attribute_has_arguments(const cppast::cpp_attribute& attribute)
 {
-    std::vector<std::string> result;
+    return attribute.arguments().has_value();
+}
 
-    if(attribute.arguments())
+entity_refs<cppast::cpp_token> tokenized_attribute_arguments(
+    const cppast::cpp_entity_index& index,
+    const cppast::cpp_attribute&    attribute)
+{
+    entity_refs<cppast::cpp_token> result;
+
+    if(attribute_has_arguments(attribute))
     {
         const auto& arguments = attribute.arguments().value();
 
-        DEBUG_ASSERT(
-            arguments.front().spelling == "(" &&
-                arguments.back().spelling == ")",
-            tinyrefl::tool::detail::assert_handler{});
-
-        const auto begin = ++arguments.begin();
-        const auto end   = --arguments.end();
-
-        for(auto it = begin; it != end; ++it)
+        for(const auto& token : arguments)
         {
-            result.push_back(it->spelling);
+            result.emplace_back(index, token);
         }
     }
 
@@ -66,24 +65,15 @@ std::vector<std::string>
 
 std::string attribute_joined_arguments(const cppast::cpp_attribute& attribute)
 {
-    if(attribute.arguments())
+    if(attribute_has_arguments(attribute))
     {
-        std::string joined_arguments =
-            attribute.arguments().value().as_string();
-
-        DEBUG_ASSERT(
-            (joined_arguments.size() >= 2) &&
-                (joined_arguments.front() == '(') &&
-                (joined_arguments.back() == ')'),
-            tinyrefl::tool::detail::assert_handler{});
-
-        return joined_arguments.substr(1, joined_arguments.size() - 1);
+        return attribute.arguments().value().as_string();
     }
     else
     {
         return "";
     }
 }
-}
-}
-}
+} // namespace model
+} // namespace tool
+} // namespace tinyrefl

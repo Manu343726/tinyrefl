@@ -114,9 +114,11 @@ entity_ref<T> make_entity_ref(
 template<typename T>
 using entity_refs = std::vector<entity_ref<T>>;
 
-bool has_complete_name(const cppast::cpp_entity& entity);
+bool        has_complete_name(const cppast::cpp_entity& entity);
 std::string full_qualified_name(const cppast::cpp_entity& entity);
 std::string full_decorated_name(const cppast::cpp_entity& entity);
+bool        entity_has_comment(const cppast::cpp_entity& entity);
+std::string entity_comment(const cppast::cpp_entity& entity);
 
 template<typename T>
 entity_refs<T> public_entities_only(const entity_refs<T>& entities)
@@ -139,7 +141,7 @@ inline bool always_true(
 {
     return true;
 }
-}
+} // namespace entity_filters
 
 template<typename Entity, typename Predicate>
 entity_refs<Entity> child_entities(
@@ -228,8 +230,8 @@ bool operator==(const entity_ref<Lhs>& lhs, const entity_ref<Rhs>& rhs)
 {
     return equal_entities(lhs.entity(), rhs.entity());
 }
-}
-}
-}
+} // namespace model
+} // namespace tool
+} // namespace tinyrefl
 
 #endif // TINYREFL_TOOL_MODEL_CPPAST_COMMON_HPP

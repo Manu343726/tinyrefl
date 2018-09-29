@@ -1,3 +1,5 @@
+#include <tinyrefl/tool/model/cppast/attribute.hpp>
+#include <tinyrefl/tool/model/cppast/class.hpp>
 #include <tinyrefl/tool/model/cppast/enum.hpp>
 #include <tinyrefl/tool/model/cppast/file.hpp>
 #include <tinyrefl/tool/model/cppast/jinja2reflection.hpp>
@@ -175,6 +177,66 @@ jinja2::Value
     return jinja2::Reflect(tinyrefl::tool::model::all_namespace_level_enums(
         file.index(), file.entity()));
 }
+
+template<typename Entity>
+jinja2::Value entity_attributes(const entity_ref<Entity>& entity)
+{
+    return jinja2::Reflect(tinyrefl::tool::model::entity_attributes(
+        entity.index(), entity.entity()));
+}
+
+jinja2::Value full_attribute(const entity_ref<cppast::cpp_attribute>& attribute)
+{
+    return tinyrefl::tool::model::full_attribute(attribute.entity());
+}
+
+jinja2::Value attribute_name(const entity_ref<cppast::cpp_attribute>& attribute)
+{
+    return tinyrefl::tool::model::attribute_name(attribute.entity());
+}
+
+jinja2::Value tokenized_attribute_arguments(
+    const entity_ref<cppast::cpp_attribute>& attribute)
+{
+    return jinja2::Reflect(tinyrefl::tool::model::tokenized_attribute_arguments(
+        attribute.index(), attribute.entity()));
+}
+
+jinja2::Value attribute_joined_arguments(
+    const entity_ref<cppast::cpp_attribute>& attribute)
+{
+    return tinyrefl::tool::model::attribute_joined_arguments(
+        attribute.entity());
+}
+
+jinja2::Value
+    attribute_has_arguments(const entity_ref<cppast::cpp_attribute>& attribute)
+{
+    return tinyrefl::tool::model::attribute_has_arguments(attribute.entity());
+}
+
+jinja2::Value token_spelling(const entity_ref<cppast::cpp_token>& token)
+{
+    return tinyrefl::tool::model::token_spelling(token.entity());
+}
+
+jinja2::Value token_kind(const entity_ref<cppast::cpp_token>& token)
+{
+    return tinyrefl::tool::model::token_kind_string(token.entity());
+}
+
+template<typename Entity>
+jinja2::Value entity_comment(const entity_ref<Entity>& entity)
+{
+    return tinyrefl::tool::model::entity_comment(entity.entity());
+}
+
+template<typename Entity>
+jinja2::Value entity_has_comment(const entity_ref<Entity>& entity)
+{
+    return tinyrefl::tool::model::entity_has_comment(entity.entity());
+}
+
 namespace jinja2
 {
 
@@ -184,6 +246,9 @@ std::unordered_map<
     TypeReflection<entity_ref<cppast::cpp_member_function>>::GetAccessors()
 {
     static std::unordered_map<std::string, FieldAccessor> map{
+        {"comment", entity_comment<cppast::cpp_member_function>},
+        {"has_comment", entity_has_comment<cppast::cpp_member_function>},
+        {"attributes", entity_attributes<cppast::cpp_member_function>},
         {"access", access<cppast::cpp_member_function>},
         {"name", name<cppast::cpp_member_function>},
         {"fullname", full_name<cppast::cpp_member_function>},
@@ -202,6 +267,9 @@ std::unordered_map<
     TypeReflection<entity_ref<cppast::cpp_member_variable>>::GetAccessors()
 {
     static std::unordered_map<std::string, FieldAccessor> map{
+        {"comment", entity_comment<cppast::cpp_member_variable>},
+        {"has_comment", entity_has_comment<cppast::cpp_member_variable>},
+        {"attributes", entity_attributes<cppast::cpp_member_variable>},
         {"access", access<cppast::cpp_member_variable>},
         {"name", name<cppast::cpp_member_variable>},
         {"fullname", full_name<cppast::cpp_member_variable>},
@@ -218,6 +286,9 @@ std::unordered_map<
     TypeReflection<entity_ref<cppast::cpp_constructor>>::GetAccessors()
 {
     static std::unordered_map<std::string, FieldAccessor> map{
+        {"comment", entity_comment<cppast::cpp_constructor>},
+        {"has_comment", entity_has_comment<cppast::cpp_constructor>},
+        {"attributes", entity_attributes<cppast::cpp_constructor>},
         {"access", access<cppast::cpp_constructor>},
         {"name", name<cppast::cpp_constructor>},
         {"fullname", full_name<cppast::cpp_constructor>},
@@ -231,6 +302,9 @@ std::unordered_map<std::string, FieldAccessor<entity_ref<cppast::cpp_class>>>
     TypeReflection<entity_ref<cppast::cpp_class>>::GetAccessors()
 {
     static std::unordered_map<std::string, FieldAccessor> map{
+        {"comment", entity_comment<cppast::cpp_class>},
+        {"has_comment", entity_has_comment<cppast::cpp_class>},
+        {"attributes", entity_attributes<cppast::cpp_class>},
         {"access", access<cppast::cpp_class>},
         {"name", name<cppast::cpp_class>},
         {"fullname", full_name<cppast::cpp_class>},
@@ -250,6 +324,9 @@ std::unordered_map<
     TypeReflection<entity_ref<cppast::cpp_enum_value>>::GetAccessors()
 {
     static std::unordered_map<std::string, FieldAccessor> map{
+        {"comment", entity_comment<cppast::cpp_enum_value>},
+        {"has_comment", entity_has_comment<cppast::cpp_enum_value>},
+        {"attributes", entity_attributes<cppast::cpp_enum_value>},
         {"name", name<cppast::cpp_enum_value>},
         {"fullname", full_name<cppast::cpp_enum_value>},
         {"qualifiedname", ::enum_value_qualified_name},
@@ -262,6 +339,9 @@ std::unordered_map<std::string, FieldAccessor<entity_ref<cppast::cpp_enum>>>
     TypeReflection<entity_ref<cppast::cpp_enum>>::GetAccessors()
 {
     static std::unordered_map<std::string, FieldAccessor> map{
+        {"comment", entity_comment<cppast::cpp_enum>},
+        {"has_comment", entity_has_comment<cppast::cpp_enum>},
+        {"attributes", entity_attributes<cppast::cpp_enum>},
         {"access", access<cppast::cpp_enum>},
         {"name", name<cppast::cpp_enum>},
         {"fullname", full_name<cppast::cpp_enum>},
@@ -283,6 +363,29 @@ std::unordered_map<std::string, FieldAccessor<entity_ref<cppast::cpp_file>>>
         {"enums", ::all_enums},
         {"namespace_level_classes", ::all_namespace_level_classes},
         {"namespace_level_enums", ::all_namespace_level_enums}};
+
+    return map;
+}
+
+std::unordered_map<std::string, FieldAccessor<entity_ref<cppast::cpp_token>>>
+    TypeReflection<entity_ref<cppast::cpp_token>>::GetAccessors()
+{
+    static std::unordered_map<std::string, FieldAccessor> map{
+        {"kind", ::token_kind}, {"spelling", ::token_spelling}};
+
+    return map;
+}
+
+std::
+    unordered_map<std::string, FieldAccessor<entity_ref<cppast::cpp_attribute>>>
+    TypeReflection<entity_ref<cppast::cpp_attribute>>::GetAccessors()
+{
+    static std::unordered_map<std::string, FieldAccessor> map{
+        {"full", ::full_attribute},
+        {"name", ::attribute_name},
+        {"tokenized_arguments", ::tokenized_attribute_arguments},
+        {"has_arguments", ::attribute_has_arguments},
+        {"arguments", ::attribute_joined_arguments}};
 
     return map;
 }

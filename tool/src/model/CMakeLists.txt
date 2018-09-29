@@ -4,6 +4,7 @@ add_library(tinyrefl-tool-model
     cppast/enum.cpp
     cppast/file.cpp
     cppast/attribute.cpp
+    cppast/token.cpp
     cppast/jinja2reflection.cpp
     enum.cpp
 )
