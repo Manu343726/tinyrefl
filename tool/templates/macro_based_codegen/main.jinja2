@@ -1,0 +1,14 @@
+{% extends 'model.jinja2' %}
+{% block body %}
+#ifndef {{include_guard(file)}}
+#define {{include_guard(file)}}
+
+{% for enum in file.enums %}
+{{reflect_enum(enum)}}
+{% endfor %}
+{% for class in file.classes %}
+{{reflect_class(class)}}
+{% endfor %}
+
+#endif // {{include_guard(file)}}
+{% endblock %}

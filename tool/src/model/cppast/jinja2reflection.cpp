@@ -1,3 +1,5 @@
+#include <boost/filesystem/path.hpp>
+#include <tinyrefl/tool/detail/logger.hpp>
 #include <tinyrefl/tool/model/cppast/attribute.hpp>
 #include <tinyrefl/tool/model/cppast/class.hpp>
 #include <tinyrefl/tool/model/cppast/enum.hpp>
@@ -237,6 +239,32 @@ jinja2::Value entity_has_comment(const entity_ref<Entity>& entity)
     return tinyrefl::tool::model::entity_has_comment(entity.entity());
 }
 
+jinja2::Value filename(const entity_ref<cppast::cpp_file>& file)
+{
+    return boost::filesystem::path{file->name()}.filename().string();
+}
+
+jinja2::Value absolute_path(const entity_ref<cppast::cpp_file>& file)
+{
+    tinyrefl::tool::detail::log().info("absolute_path(): {}", file->name());
+    try
+    {
+        return file->name();
+    }
+    catch(...)
+    {
+        tinyrefl::tool::detail::log().error("absolute_path() exception thrown");
+        return "";
+    }
+}
+
+jinja2::Value
+    filename_without_extension(const entity_ref<cppast::cpp_file>& file)
+{
+    return boost::filesystem::path{file->name()}.stem().string();
+}
+
+
 namespace jinja2
 {
 
@@ -359,6 +387,9 @@ std::unordered_map<std::string, FieldAccessor<entity_ref<cppast::cpp_file>>>
     TypeReflection<entity_ref<cppast::cpp_file>>::GetAccessors()
 {
     static std::unordered_map<std::string, FieldAccessor> map{
+        {"filename", ::filename},
+        {"filename_without_extension", ::filename_without_extension},
+        {"absolute_path", ::absolute_path},
         {"classes", ::all_classes},
         {"enums", ::all_enums},
         {"namespace_level_classes", ::all_namespace_level_classes},

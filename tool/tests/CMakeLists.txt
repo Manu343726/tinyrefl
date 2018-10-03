@@ -3,6 +3,7 @@ add_tinyrefl_test(tinyrefl-tool-tests
     driver_handles_headers_in_different_dirs.cpp
     jinja2reflection.cpp
     cppast_jinja2reflection.cpp
+    templates/macro_based_codegen/model.cpp
 )
 
 target_link_libraries(tinyrefl-tool-tests PRIVATE tinyrefl-tool-lib)
