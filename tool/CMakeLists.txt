@@ -53,7 +53,7 @@ else()
     set(TINYREFL_TOOL_INCLUDE_DIR "${TINYREFL_SOURCE_DIR}/tool/include")
     set(TINYREFL_TOOL_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
-    add_subdirectory(external)
+    include(external/externals.cmake)
     require_targets(cppast cppfs jinja2cpp spdlog)
 
     # LLVM releases are compiled with old GCC ABI and RTTI disabled

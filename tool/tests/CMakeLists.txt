@@ -14,3 +14,10 @@ add_variable_compile_definition(tinyrefl-tool-tests TINYREFL_INCLUDE_DIR STRING)
 tinyrefl_tool(TARGET tinyrefl-tool-tests HEADERS
     dummy_folder/dummy_header.hpp
 )
+
+if(TINYREFL_TOOL_TESTS_ASAN)
+    set(SANITIZE_ADDRESS ON)
+    set(SANITIZE_LINK_STATIC ON)
+    find_package(Sanitizers REQUIRED)
+    add_sanitizers(tinyrefl-tool-tests)
+endif()

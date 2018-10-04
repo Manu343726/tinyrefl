@@ -25,7 +25,7 @@ namespace model
 template<typename T>
 struct entity_ref
 {
-    entity_ref() = default;
+    entity_ref() = delete;
 
     entity_ref(
         const cppast::cpp_entity_index&         index,
@@ -72,6 +72,7 @@ struct entity_ref
 
     const cppast::cpp_entity_index& index() const
     {
+        DEBUG_ASSERT(!_destroyed, tinyrefl::tool::detail::assert_handler{});
         DEBUG_ASSERT(
             _index != nullptr, tinyrefl::tool::detail::assert_handler{});
         return *_index;
@@ -79,6 +80,7 @@ struct entity_ref
 
     const T& entity() const
     {
+        DEBUG_ASSERT(!_destroyed, tinyrefl::tool::detail::assert_handler{});
         DEBUG_ASSERT(
             _entity != nullptr, tinyrefl::tool::detail::assert_handler{});
         return *_entity;
@@ -95,10 +97,18 @@ struct entity_ref
         return {index(), static_cast<const Parent&>(entity().parent().value())};
     }
 
+    ~entity_ref()
+    {
+        _entity    = nullptr;
+        _index     = nullptr;
+        _destroyed = true;
+    }
+
 private:
-    cppast::cpp_access_specifier_kind _access = cppast::cpp_public;
-    const T*                          _entity = nullptr;
-    const cppast::cpp_entity_index*   _index  = nullptr;
+    cppast::cpp_access_specifier_kind _access    = cppast::cpp_public;
+    const T*                          _entity    = nullptr;
+    const cppast::cpp_entity_index*   _index     = nullptr;
+    bool                              _destroyed = false;
 };
 
 template<typename T>
@@ -114,10 +124,10 @@ entity_ref<T> make_entity_ref(
 template<typename T>
 using entity_refs = std::vector<entity_ref<T>>;
 
-bool        has_complete_name(const cppast::cpp_entity& entity);
+bool has_complete_name(const cppast::cpp_entity& entity);
 std::string full_qualified_name(const cppast::cpp_entity& entity);
 std::string full_decorated_name(const cppast::cpp_entity& entity);
-bool        entity_has_comment(const cppast::cpp_entity& entity);
+bool entity_has_comment(const cppast::cpp_entity& entity);
 std::string entity_comment(const cppast::cpp_entity& entity);
 
 template<typename T>

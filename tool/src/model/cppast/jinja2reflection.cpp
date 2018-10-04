@@ -246,16 +246,7 @@ jinja2::Value filename(const entity_ref<cppast::cpp_file>& file)
 
 jinja2::Value absolute_path(const entity_ref<cppast::cpp_file>& file)
 {
-    tinyrefl::tool::detail::log().info("absolute_path(): {}", file->name());
-    try
-    {
-        return file->name();
-    }
-    catch(...)
-    {
-        tinyrefl::tool::detail::log().error("absolute_path() exception thrown");
-        return "";
-    }
+    return file->name();
 }
 
 jinja2::Value
