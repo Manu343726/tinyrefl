@@ -76,9 +76,12 @@ enum class TemplateMode
 
 void test_impl(const std::string& template_, const std::string& expected_render)
 {
-    TestFileParser         context;
-    jinja2::TemplateEnv    tmplEnv;
-    jinja2::RealFileSystem fs{TINYREFL_TOOL_SOURCE_DIR "/templates/"};
+    TestFileParser      context;
+    jinja2::TemplateEnv tmplEnv;
+    const std::string   rootFolder =
+        TINYREFL_TOOL_SOURCE_DIR "/templates/macro_based_codegen";
+    jinja2::RealFileSystem fs;
+    fs.SetRootFolder(rootFolder);
     tmplEnv.AddFilesystemHandler("", fs);
     jinja2::Template tmpl;
     auto             result = tmpl.Load(template_);
@@ -89,7 +92,8 @@ void test_impl(const std::string& template_, const std::string& expected_render)
     }
 
     const auto render = tmpl.RenderAsString(context.variables());
-    INFO("With template: \"" + template_ + "\"");
+    INFO("root: \"" + rootFolder + "\"");
+    INFO("With template: \n" + template_);
     CHECK(render == expected_render);
 }
 
@@ -108,11 +112,10 @@ void test(
     case TemplateMode::EXTEND_MODEL:
     {
         // clang-format off
-        test_impl(R"(
-{% extends 'macro_based_codegen/model.jinja2' %}
+        test_impl(
+R"({% extends "model.jinja2" %}
 {% block body %})" +
-        template_body + R"(
-{% endblock %})", expected_render);
+        template_body + R"({% endblock body %})", expected_render);
         // clang-format on
     }
     }
@@ -156,8 +159,20 @@ TEST_CASE("templates::macro_based_codegen::model")
     SECTION("file.classes names")
     {
         simple_test(
-            "{{file.classes|map(atrribute='name')|join(',')}}",
+            "{{file.classes|map(attribute='name')|join(',')}}",
             "Base,Class,Tag,AnotherTag");
+    }
+
+    SECTION("macro defined in same template")
+    {
+        simple_test(
+            "{% macro string(str) %}{{str}}{% endmacro %}{{string('foo')}}",
+            "foo");
+    }
+
+    SECTION("macro defined in parent template")
+    {
+        test("{{tinyrefl_string('foo')}}", "TINYREFL_STRING(foo)");
     }
 
     SECTION("file include guard")
