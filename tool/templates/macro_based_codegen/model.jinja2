@@ -1,15 +1,12 @@
-
 {% macro tinyrefl_string(str) -%}
 TINYREFL_STRING({{str}})
 {%- endmacro %}
-
 {% macro tinyrefl_define_string(str) -%}
 #if defined(TINYREFL_DEFINE_STRINGS) && !defined(TINYREFL_STRING_{{string_hash(str)}}_DEFINED)
 #define TINYREFL_STRING_{{string_hash(str)}}_DEFINED
 TINYREFL_DEFINE_STRING({{str}})
 #endif // TINYREFL_STRING_{{string_hash(str)}}_DEFINED
 {%- endmacro %}
-
 {% macro define_common_entity_strings(entity) -%}
 {{tinyrefl_define_string(entity.name)}}
 {{tinyrefl_define_string(entity.fullname)}}
@@ -22,66 +19,51 @@ TINYREFL_DEFINE_STRING({{str}})
 {% endfor %}
 {% endfor %}
 {%- endmacro %}
-
 {% macro tinyrefl_sequence(list, model) -%}
 TINYREFL_SEQUENCE(({{list | map('applymacro', name=model) | join(', ')}}))
 {%- endmacro %}
-
 {% macro tinyrefl_type(name) -%}
 TINYREFL_TYPE({{name}}, {{name}})
 {%- endmacro %}
-
 {% macro tinyrefl_value(type, value) -%}
 TINYREFL_VALUE({{tinyrefl_type(type)}}, {{value}})
 {%- endmacro %}
-
 {% macro tinyrefl_attribute(attr) -%}
 TINYREFL_ATTRIBUTE({{tinyrefl_string(attr.name)}}, {{tinyrefl_string(attr.name)}}, {{tinyrefl_string(attr.full)}}, TINYREFL_SEQUENCE(()))
-{%- endmacro %}o
-
+{%- endmacro %}
 {% macro tinyrefl_attributes(entity) -%}
 {{tinyrefl_sequence(entity.attributes, 'tinyrefl_attribute')}}
 {%- endmacro %}
-
 {% macro tinyrefl_types(types) -%}
 {{tinyrefl_sequence(types, 'tinyrefl_type')}}
 {%- endmacro %}
-
 {% macro entity_type(entity) -%}
 {{tinyrefl_type(entity.name, entity.fullname)}}
 {%- endmacro %}
-
 {% macro tinyrefl_constructor(ctor) -%}
 TINYREFL_CONSTRUCTOR({{tinyrefl_string(ctor.name)}}, {{tinyrefl_string(ctor.fullname)}}, {{tinyrefl_type(ctor.class.fullname)}}, {{tinyrefl_types(ctor.args)}}, {{tinyrefl_attributes(ctor)}})
 {%- endmacro %}
-
 {% macro tinyrefl_member_function(func) -%}
 TINYREFL_MEMBER_FUNCTION({{tinyrefl_string(func.name)}}, {{tinyrefl_string(func.fullname)}}, {{tinyrefl_type(func.class.fullname)}}, {{tinyrefl_type(func.return_type)}}, {{tinyrefl_types(func.args)}}, {{tinyrefl_value(func.pointer_type, func.pointer)}}, {{tinyrefl_attributes(func)}})
 {%- endmacro %}
-
 {% macro tinyrefl_member_variable(var) -%}
 TINYREFL_MEMBER_VARIABLE({{tinyrefl_string(var.name)}}, {{tinyrefl_string(var.fullname)}}, {{tinyrefl_type(var.class.fullname)}}, {{tinyrefl_type(var.value_type)}}, {{tinyrefl_value(var.pointer_type, var.pointer)}}, {{tinyrefl_attributes(var)}})
 {%- endmacro %}
-
 {% macro tinyrefl_enum_value(value) -%}
 TINYREFL_ENUM_VALUE({{tinyrefl_string(value.name)}}, {{tinyrefl_string(value.fullname)}}, {{tinyrefl_type(value.enum.fullname)}}, {{tinyrefl_value(value.enum.fullname, value.fullname)}}, {{tinyrefl_attributes(value)}})
 {%- endmacro %}
-
 {% macro reflect_enum_value(value) -%}
 {{define_common_entity_strings(value)}}
 TINYREFL_REFLECT_ENUM_VALUE({{tinyrefl_enum_value(value)}})
 {%- endmacro %}
-
 {% macro reflect_member_function(function) -%}
 {{define_common_entity_strings(function)}}
 TINYREFL_REFLECT_MEMBER_FUNCTION({{tinyrefl_member_function(function)}})
 {%- endmacro %}
-
 {% macro reflect_member_variable(variable) -%}
 {{define_common_entity_strings(variable)}}
 TINYREFL_REFLECT_MEMBER_VARIABLE({{tinyrefl_member_variable(variable)}})
 {%- endmacro %}
-
 {% macro reflect_enum(enum) -%}
 {% for value in enum.values %}
 {{reflect_enum_value(value)}}
@@ -89,7 +71,6 @@ TINYREFL_REFLECT_MEMBER_VARIABLE({{tinyrefl_member_variable(variable)}})
 {{define_common_entity_strings(enum)}}
 TINYREFL_REFLECT_ENUM({{tinyrefl_string(enum.fullname)}}, {{tinyrefl_type(enum.fullname)}}, {{tinyrefl_sequence(enum.values, 'tinyrefl_enum_value')}}, {{tinyrefl_attributes(enum)}})
 {%- endmacro %}
-
 {% macro reflect_class(class) -%}
 {% for func in class.functions %}
 {{reflect_member_function(func)}}
@@ -100,10 +81,7 @@ TINYREFL_REFLECT_ENUM({{tinyrefl_string(enum.fullname)}}, {{tinyrefl_type(enum.f
 {{define_common_entity_strings(class)}}
 TINYREFL_REFLECT_CLASS({{tinyrefl_string(class.fullname)}}, {{tinyrefl_type(class.fullname)}}, {{tinyrefl_types(class.bases)}}, {{tinyrefl_sequence(class.constructors, 'tinyrefl_constructor')}}, {{tinyrefl_sequence(class.functions, 'tinyrefl_member_function')}}, {{tinyrefl_sequence(class.variables, 'tinyrefl_member_variable')}}, {{tinyrefl_types(class.classes)}}, {{tinyrefl_types(class.enums)}}, {{tinyrefl_attributes(class)}})
 {%- endmacro %}
-
 {% macro include_guard(file) -%}
 TINYREFL_TOOL_GENERATED_{{file.absolute_path | replace('/', '_')}}_INCLUDED
 {%- endmacro %}
-{% block body scoped %}
-{{file.filename}}
-{% endblock %}
+{% block body scoped %}{% endblock %}

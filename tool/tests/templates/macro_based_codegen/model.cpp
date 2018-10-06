@@ -83,7 +83,7 @@ void test_impl(const std::string& template_, const std::string& expected_render)
     jinja2::RealFileSystem fs;
     fs.SetRootFolder(rootFolder);
     tmplEnv.AddFilesystemHandler("", fs);
-    jinja2::Template tmpl;
+    jinja2::Template tmpl{&tmplEnv};
     auto             result = tmpl.Load(template_);
 
     if(!result.has_value())
@@ -112,10 +112,7 @@ void test(
     case TemplateMode::EXTEND_MODEL:
     {
         // clang-format off
-        test_impl(
-R"({% extends "model.jinja2" %}
-{% block body %})" +
-        template_body + R"({% endblock body %})", expected_render);
+        test_impl(R"({% extends "model.jinja2" %}{% block body %})" + template_body + R"({% endblock body %})", expected_render);
         // clang-format on
     }
     }
