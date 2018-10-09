@@ -48,6 +48,23 @@ build()
     docker push ${REPO}/${NAME}:${TAG}
 }
 
+build_clang_format()
+{
+    BASE_IMAGE=$1
+    TAG=$2
+    CLANG_FORMAT_VERSION=$3
+
+    if [[ ! -z "$CLANG_FORMAT_VERSION" ]]; then
+        CLANG_FORMAT_VERSION_ARG="--build-arg CLANG_FORMAT_VERSION=$CLANG_FORMAT_VERSION"
+    fi
+
+    echo build $NO_CACHE $REPO/$NAME:$TAG clang format version $CLANG_FORMAT_VERSION
+    docker build $NO_CACHE $CLANG_FORMAT_VERSION_ARG --build-arg BASE_IMAGE=$BASE_IMAGE --tag ${REPO}/${NAME}:${TAG} $DOCKER_DIR/$TAG
+    docker push ${REPO}/${NAME}:${TAG}
+}
+
+build_clang_format debian:sid-slim clang-format-container 6.0
+build_clang_format ${REPO}/${NAME}:clang-format-container clang-format
 build lasote/conanclang40    clang40-x86 clang clang++
 build lasote/conanclang50    clang50-x86 clang clang++
 build lasote/conanclang60    clang60-x86 clang clang++

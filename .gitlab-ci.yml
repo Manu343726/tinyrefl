@@ -1,8 +1,18 @@
 variables:
   GIT_STRATEGY: clone
 stages:
+  - clang-format-check
   - test
   - user-integration
+clang-format-check:
+  stage: clang-format-check
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:clang-format-container
+  script:
+    - ./ci/ci_clang_format_check.sh
+    - echo clang-format was applied ok
 test-clang40-x86-llvm4.0.0:
   stage: test
   tags:

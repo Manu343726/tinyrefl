@@ -10,7 +10,7 @@ else
 fi
 
 if [ -z "${CLANG_FORMAT}" ] ; then
-  CLANG_FORMAT="clang-format"
+  CLANG_FORMAT="./clang-format"
 fi
 
 format_file() {
@@ -25,6 +25,7 @@ case "${1}" in
     ;;
   * )
     for file in `git diff-index --cached --name-only HEAD` ; do
+      echo pre-commit formatting $file
       format_file "${file}"
     done
     ;;

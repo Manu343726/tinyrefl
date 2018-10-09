@@ -125,9 +125,7 @@ struct is_invokable<
 template<typename Head>
 struct overloaded_function<tinyrefl::meta::list<Head>> : public Head
 {
-    constexpr overloaded_function(Head head) : Head{head}
-    {
-    }
+    constexpr overloaded_function(Head head) : Head{head} {}
 
     using Head::operator();
 };
@@ -385,10 +383,10 @@ template<typename Class, typename... Visitors>
 void visit_class_member_variables(Visitors... visitors)
 {
     visit_class<Class>([visitor = overloaded_function(visitors...)](
-        const auto& name,
-        auto /* depth */,
-        const auto& member,
-        TINYREFL_STATIC_VALUE(entity::MEMBER_VARIABLE)) {
+                           const auto& name,
+                           auto /* depth */,
+                           const auto& member,
+                           TINYREFL_STATIC_VALUE(entity::MEMBER_VARIABLE)) {
         visitor(name, member);
     });
 }
@@ -494,11 +492,9 @@ auto visit_objects(const std::tuple<Class...>& objects, Visitors... visitors)
 template<typename... Class>
 auto visit_objects(Class&&... objects)
 {
-    return [objects = std::forward_as_tuple(std::forward<Class>(objects)...)](
-        auto... visitors)
-    {
-        return visit_objects(objects, visitors...);
-    };
+    return
+        [objects = std::forward_as_tuple(std::forward<Class>(objects)...)](
+            auto... visitors) { return visit_objects(objects, visitors...); };
 }
 
 template<typename Class, typename... Visitors>
@@ -533,14 +529,13 @@ template<typename... Class>
 auto visit_objects_member_variables(Class&&... objects)
 {
     return [objects = std::forward_as_tuple(std::forward<Class>(objects)...)](
-        auto... visitors)
-    {
+               auto... visitors) {
         auto make_visitor = [](auto visitor) {
             return [visitor](
-                const auto& name,
-                auto /* depth */,
-                auto&& entities,
-                TINYREFL_STATIC_VALUE(entity::MEMBER_VARIABLE)) {
+                       const auto& name,
+                       auto /* depth */,
+                       auto&& entities,
+                       TINYREFL_STATIC_VALUE(entity::MEMBER_VARIABLE)) {
                 visitor(name, entities);
             };
         };
@@ -787,8 +782,9 @@ auto equal(Class&&... objects) -> std::enable_if_t<
 
 template<typename... Class>
 auto memberwise_equal(Class&&... objects) -> std::enable_if_t<
-    (sizeof...(Class) >= 2) && tinyrefl::has_metadata<std::decay_t<
-                                   tinyrefl::meta::pack_head_t<Class...>>>() &&
+    (sizeof...(Class) >= 2) &&
+        tinyrefl::has_metadata<
+            std::decay_t<tinyrefl::meta::pack_head_t<Class...>>>() &&
         std::is_class<
             std::decay_t<tinyrefl::meta::pack_head_t<Class...>>>::value,
     bool>

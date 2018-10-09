@@ -24,6 +24,7 @@ ConstructorInitializerIndentWidth: '4'
 ContinuationIndentWidth: '4'
 Cpp11BracedListStyle: 'true'
 DerivePointerAlignment: 'false'
+FixNamespaceComments: 'true'
 IncludeCategories:
   - Regex:    '.*\.tinyrefl'
     Priority: 10000

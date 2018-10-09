@@ -80,4 +80,5 @@ docker run -ti --rm \
     $CROSS_BUILDING_FLAG \
     $CLEAN_BUILD_FLAG \
     -e GENERATOR="$GENERATOR" \
-    $IMAGE bash $script_file
+    --entrypoint bash \
+    $IMAGE $script_file
