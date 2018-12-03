@@ -41,10 +41,10 @@ else()
     set(LLVM_DOWNLOAD_URL "${TINYREFL_LLVM_DOWNLOAD_URL}")
 endif()
 
-external_dependency(fmt https://github.com/fmtlib/fmt.git master)
+external_dependency(fmt https://github.com/fmtlib/fmt.git 2b2cfdac1929b2c10a83cdff3884e4d974f4aac3)
 external_dependency(cppast https://github.com/Manu343726/cppast.git bytech)
 external_dependency(cppfs https://github.com/Manu343726/cppfs.git optional_libSSL2)
-external_dependency(masquerade https://gitlab.com/Manu343726/masquerade.git master)
+external_dependency(masquerade https://gitlab.com/Manu343726/masquerade.git 189afd15c1fa1cf97fce0adc6efb6cb3e4efad65)
 
 if(NOT LLVM_CONFIG_BINARY)
     message(FATAL_ERROR "llvm-config binary not set")
