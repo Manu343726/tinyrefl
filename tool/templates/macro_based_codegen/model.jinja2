@@ -82,6 +82,6 @@ TINYREFL_REFLECT_ENUM({{tinyrefl_string(enum.fullname)}}, {{tinyrefl_type(enum.f
 TINYREFL_REFLECT_CLASS({{tinyrefl_string(class.fullname)}}, {{tinyrefl_type(class.fullname)}}, {{tinyrefl_types(class.bases)}}, {{tinyrefl_sequence(class.constructors, 'tinyrefl_constructor')}}, {{tinyrefl_sequence(class.functions, 'tinyrefl_member_function')}}, {{tinyrefl_sequence(class.variables, 'tinyrefl_member_variable')}}, {{tinyrefl_types(class.classes)}}, {{tinyrefl_types(class.enums)}}, {{tinyrefl_attributes(class)}})
 {%- endmacro %}
 {% macro include_guard(file) -%}
-TINYREFL_TOOL_GENERATED_{{file.absolute_path | replace('/', '_')}}_INCLUDED
+TINYREFL_TOOL_GENERATED_{{file.absolute_path | replace('/', '_') | replace('.', '_') | replace('-', '_')}}_INCLUDED
 {%- endmacro %}
 {% block body scoped %}{% endblock %}
