@@ -4,6 +4,7 @@ add_tinyrefl_test(tinyrefl-tool-tests
     jinja2reflection.cpp
     cppast_jinja2reflection.cpp
     templates/macro_based_codegen/model.cpp
+    argument_parser.cpp
 )
 
 target_link_libraries(tinyrefl-tool-tests PRIVATE tinyrefl-tool-lib)

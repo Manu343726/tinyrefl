@@ -178,7 +178,7 @@ TEST_CASE("templates::macro_based_codegen::model")
             "{{include_guard(file)}}",
             "TINYREFL_TOOL_GENERATED_" +
                 boost::algorithm::replace_all_copy(
-                    std::string{TINYREFL_TOOL_SOURCE_DIR "/tests/class.hpp"},
+                    std::string{TINYREFL_TOOL_SOURCE_DIR "_tests_class_hpp"},
                     "/",
                     "_") +
                 "_INCLUDED");

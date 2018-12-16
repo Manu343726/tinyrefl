@@ -50,11 +50,17 @@ if(TINYREFL_CROSS_BUILDING)
     set(TINYREFL_TOOL_EXECUTABLE ${bindir}/tool/tinyrefl-tool CACHE STRING "")
     set(TINYREFL_TOOL_TARGET tinyrefl_tool_external CACHE STRING "")
 else()
-    set(TINYREFL_TOOL_INCLUDE_DIR "${TINYREFL_SOURCE_DIR}/tool/include")
     set(TINYREFL_TOOL_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+    set(TINYREFL_TOOL_INCLUDE_DIR "${TINYREFL_TOOL_SOURCE_DIR}/include")
+    set(TINYREFL_TOOL_TEMPLATES_DIR "${TINYREFL_TOOL_SOURCE_DIR}/templates")
+    if(NOT TINYREFL_TOOL_DEFAULT_TEMPLATE)
+        set(TINYREFL_TOOL_DEFAULT_TEMPLATE macro_based_codegen)
+    endif()
+
+    message(STATUS "Using \"${TINYREFL_TOOL_DEFAULT_TEMPLATE}\" as default template")
 
     include(external/externals.cmake)
-    require_targets(cppast cppfs jinja2cpp spdlog)
+    require_targets(cppast cppfs jinja2cpp spdlog string-view-lite fmt)
 
     # LLVM releases are compiled with old GCC ABI and RTTI disabled
     if(NOT TINYREFL_USE_LOCAL_LLVM)
@@ -63,15 +69,10 @@ else()
         endif()
     endif()
 
-    add_subdirectory(src)
+    add_subdirectory(lib)
 
     add_executable(tinyrefl-tool tool.cpp)
-    define_tinyrefl_version_variables(tinyrefl-tool)
-    define_llvm_version_variables(tinyrefl-tool)
-    target_compile_definitions(tinyrefl-tool PRIVATE -DFMT_HEADER_ONLY)
-
-    find_package(LLVM ${TINYREFL_LLVM_VERSION} REQUIRED EXACT CONFIG PATHS "${LLVM_CMAKE_PATH}" NO_DEFAULT_PATH)
-    target_link_libraries(tinyrefl-tool PRIVATE tinyrefl-tool-lib cppast cppfs LLVMSupport)
+    target_link_libraries(tinyrefl-tool PRIVATE fmt tinyrefl-tool-lib)
 
     set(TINYREFL_TOOL_EXECUTABLE $<TARGET_FILE:tinyrefl-tool> CACHE STRING "")
     set(TINYREFL_TOOL_TARGET tinyrefl-tool CACHE STRING "")
