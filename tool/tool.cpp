@@ -33,20 +33,20 @@ bool is_outdated_file(const std::string& file)
         !output_file.exists() ||
         input_file.modificationTime() > output_file.modificationTime();
 
-    if (!timestamp_outdated)
+    if(!timestamp_outdated)
     {
         auto        istream = output_file.createInputStream();
         std::string line;
 
         std::cout << "[info] checking generated code version...\n";
 
-        if (std::getline(*istream, line) && // Header
-            std::getline(*istream, line) && // Blank line
-            std::getline(*istream, line))   // commit line
+        if(std::getline(*istream, line) && // Header
+           std::getline(*istream, line) && // Blank line
+           std::getline(*istream, line))   // commit line
         {
             auto index = line.find_first_of(":");
 
-            if (index != std::string::npos)
+            if(index != std::string::npos)
             {
                 ++index; // Skip the space after the colon
                 ++index; // Point to hash substring begin
@@ -78,11 +78,11 @@ std::string sequence(
 {
     std::ostringstream os;
 
-    for (std::size_t i = 0; i < elems.size(); ++i)
+    for(std::size_t i = 0; i < elems.size(); ++i)
     {
         os << prefix << elems[i] << suffix;
 
-        if (i < elems.size() - 1)
+        if(i < elems.size() - 1)
         {
             os << separator;
         }
@@ -107,7 +107,7 @@ struct function_signature_t
 std::ostream&
     operator<<(std::ostream& os, const function_signature_t& function_signature)
 {
-    if (function_signature.is_member_function())
+    if(function_signature.is_member_function())
     {
         return os << function_signature.return_type << "("
                   << function_signature.class_type << "::*)"
@@ -128,12 +128,12 @@ namespace cppast
 std::ostream&
     operator<<(std::ostream& os, const cppast::cpp_attribute& attribute)
 {
-    if (attribute.scope().has_value())
+    if(attribute.scope().has_value())
     {
         os << attribute.scope().value() << "::";
     }
 
-    if (attribute.arguments().has_value())
+    if(attribute.arguments().has_value())
     {
         return os << attribute.name() << "("
                   << attribute.arguments().value().as_string() << ")";
@@ -167,21 +167,21 @@ std::string unqualified_name(const cppast::cpp_entity& entity)
 {
     auto rename_command = cppast::has_attribute(entity, "tinyrefl::rename");
 
-    if (rename_command)
+    if(rename_command)
     {
         const auto arguments = rename_command.value().arguments();
 
-        if (!arguments || arguments.value().empty())
+        if(!arguments || arguments.value().empty())
         {
             throw std::runtime_error{fmt::format(
                 "[error] expected argument for [[tinyrefl::rename(name)]] attribute")};
         }
-        else if (arguments.value().end() - arguments.value().begin() != 1)
+        else if(arguments.value().end() - arguments.value().begin() != 1)
         {
             throw std::runtime_error{fmt::format(
                 "[error] expected one argument for [[tinyrefl::rename(name)]] attribute")};
         }
-        else if (
+        else if(
             arguments.value().front().kind !=
             cppast::cpp_token_kind::string_literal)
         {
@@ -203,12 +203,12 @@ std::string full_qualified_name(const cppast::cpp_entity& entity)
 {
     std::string name = entity.name();
 
-    if (entity.kind() == cppast::cpp_entity_kind::base_class_t)
+    if(entity.kind() == cppast::cpp_entity_kind::base_class_t)
     {
         return cppast::to_string(
             static_cast<const cppast::cpp_base_class&>(entity).type());
     }
-    else if (
+    else if(
         entity.parent().has_value() &&
         entity.parent().value().kind() != cppast::cpp_entity_kind::file_t)
     {
@@ -241,7 +241,7 @@ void generate_string_definition(std::ostream& os, const std::string& str)
 
 void generate_string_definitions(std::ostream& os)
 {
-    for (const std::string& str : string_registry)
+    for(const std::string& str : string_registry)
     {
         generate_string_definition(os, str);
     }
@@ -328,7 +328,7 @@ template<typename Entity>
 std::string type_reference(const Entity& entity)
 {
     return fmt::format(
-        "TINYREFL_TYPE({}, {})", type(entity), full_qualified_type(entity));
+        "TINYREFL_TYPE(({}), ({}))", type(entity), full_qualified_type(entity));
 }
 
 template<
@@ -338,7 +338,7 @@ template<
 std::string value(const Entity& entity)
 {
     return fmt::format(
-        "TINYREFL_VALUE({}, {})",
+        "TINYREFL_VALUE(({}), ({}))",
         type_reference(entity),
         full_qualified_name(entity));
 }
@@ -355,7 +355,7 @@ std::string attribute(const cppast::cpp_attribute& attribute)
     std::ostringstream       full_attribute;
     std::string              namespace_;
 
-    if (attribute.scope().has_value())
+    if(attribute.scope().has_value())
     {
         namespace_ = attribute.scope().value();
         full_attribute << namespace_ << "::" << attribute.name();
@@ -365,19 +365,19 @@ std::string attribute(const cppast::cpp_attribute& attribute)
         full_attribute << attribute.name();
     }
 
-    if (attribute.arguments().has_value())
+    if(attribute.arguments().has_value())
     {
         const auto& attribute_arguments = attribute.arguments().value();
         full_attribute << "(" << attribute_arguments.as_string() << ")";
 
-        for (const auto& argument : attribute_arguments)
+        for(const auto& argument : attribute_arguments)
         {
             arguments.push_back(string_constant(argument.spelling));
         }
     }
 
     return fmt::format(
-        "TINYREFL_ATTRIBUTE({}, {}, {}, {})",
+        "TINYREFL_ATTRIBUTE(({}), ({}), ({}), ({}))",
         string_constant(attribute.name()),
         string_constant(namespace_),
         string_constant(full_attribute.str()),
@@ -388,7 +388,7 @@ std::string attributes(const cppast::cpp_entity& entity)
 {
     std::vector<std::string> attributes;
 
-    for (const auto& attribute : entity.attributes())
+    for(const auto& attribute : entity.attributes())
     {
         attributes.push_back(::attribute(attribute));
     }
@@ -399,7 +399,7 @@ std::string attributes(const cppast::cpp_entity& entity)
 std::string enum_value(const cppast::cpp_enum_value& enum_value)
 {
     return fmt::format(
-        "TINYREFL_ENUM_VALUE({}, {}, {}, {}, {})",
+        "TINYREFL_ENUM_VALUE(({}), ({}), ({}), ({}), ({}))",
         string_constant(enum_value.name()),
         string_constant(full_qualified_name(enum_value)),
         type_reference(enum_value.parent().value()),
@@ -411,7 +411,7 @@ template<typename Member>
 std::string member_pointer(const Member& member)
 {
     return fmt::format(
-        "TINYREFL_VALUE({}, &{})",
+        "TINYREFL_VALUE(({}), (&{}))",
         type_reference(member),
         full_qualified_name(member));
 }
@@ -420,7 +420,7 @@ std::string function_signature(const cppast::cpp_member_function& function)
 {
     std::vector<std::string> params;
 
-    for (const auto& param : function.parameters())
+    for(const auto& param : function.parameters())
     {
         params.push_back(cppast::to_string(param.type()));
     }
@@ -433,7 +433,7 @@ std::string member(const cppast::cpp_member_function& member)
     // TINYREFL_MEMBER_FUNCTION(name, fullname, parent_class_type, return_type,
     // signature, pointer, attributes)
     return fmt::format(
-        "TINYREFL_MEMBER_FUNCTION({}, {}, {}, {}, {}, {}, /* <attributes> */ {} /* </attributes> */)",
+        "TINYREFL_MEMBER_FUNCTION(({}), ({}), ({}), ({}), ({}), ({}), /* <attributes> */ ({}) /* </attributes> */)",
         string_constant(member.name()),
         string_constant(full_qualified_name(member)),
         type_reference(member.parent().value()),
@@ -448,7 +448,7 @@ std::string member(const cppast::cpp_member_variable& member)
     // TINYREFL_MEMBER_VARIABLE(name, fullname, parent_class_type, value_type,
     // pointer, attributes)
     return fmt::format(
-        "TINYREFL_MEMBER_VARIABLE({}, {}, {}, {}, {}, {})",
+        "TINYREFL_MEMBER_VARIABLE(({}), ({}), ({}), ({}), ({}), ({}))",
         string_constant(member.name()),
         string_constant(full_qualified_name(member)),
         type_reference(member.parent().value()),
@@ -470,19 +470,19 @@ std::string typelist_string(const std::string& str)
 
 void generate_member(std::ostream& os, const std::string& member)
 {
-    fmt::print(os, "TINYREFL_REFLECT_MEMBER({})\n", member);
+    fmt::print(os, "TINYREFL_REFLECT_MEMBER(({}))\n", member);
 }
 
 bool is_unknown_entity(const cppast::cpp_entity& entity)
 {
     auto parent = entity.parent();
 
-    if (entity.name().empty())
+    if(entity.name().empty())
     {
         std::cerr << "[warning] Found " << cppast::to_string(entity.kind())
                   << " with empty name";
 
-        if (parent.has_value())
+        if(parent.has_value())
         {
             std::cerr << " at " << full_qualified_name(parent.value());
         }
@@ -492,7 +492,7 @@ bool is_unknown_entity(const cppast::cpp_entity& entity)
         return true;
     }
 
-    if (parent.has_value() && is_unknown_entity(parent.value()))
+    if(parent.has_value() && is_unknown_entity(parent.value()))
     {
         return true;
     }
@@ -503,7 +503,7 @@ bool is_unknown_entity(const cppast::cpp_entity& entity)
 std::string constructor(const cppast::cpp_constructor& ctor)
 {
     return fmt::format(
-        "TINYREFL_CONSTRUCTOR({}, {}, {}, TINYREFL_SEQUENCE({}), {})",
+        "TINYREFL_CONSTRUCTOR(({}), ({}), ({}), (TINYREFL_SEQUENCE({})), ({}))",
         string_constant(ctor.parent().value().name() + ctor.signature()),
         string_constant(
             full_qualified_name(ctor.parent().value()) + ctor.signature()),
@@ -528,16 +528,16 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
     cppast::visit(
         class_,
         [&](const cppast::cpp_entity& child, const cppast::visitor_info& info) {
-            if (cppast::has_attribute(child, ATTRIBUTES_IGNORE) ||
-                info.is_old_entity() ||
-                info.access != cppast::cpp_access_specifier_kind::cpp_public ||
-                cppast::is_templated(child) || child.parent() != class_ ||
-                is_unknown_entity(child))
+            if(cppast::has_attribute(child, ATTRIBUTES_IGNORE) ||
+               info.is_old_entity() ||
+               info.access != cppast::cpp_access_specifier_kind::cpp_public ||
+               cppast::is_templated(child) || child.parent() != class_ ||
+               is_unknown_entity(child))
             {
                 return;
             }
 
-            switch (child.kind())
+            switch(child.kind())
             {
             case cppast::cpp_entity_kind::member_function_t:
             {
@@ -572,7 +572,7 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
             }
             case cppast::cpp_entity_kind::class_t:
             {
-                if (child.name() != class_.name())
+                if(child.name() != class_.name())
                 {
                     std::cout
                         << "    - (class) " << child.name() << " ("
@@ -617,9 +617,9 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
             }
         });
 
-    for (const auto& base_class : class_.bases())
+    for(const auto& base_class : class_.bases())
     {
-        if (!cppast::has_attribute(base_class, ATTRIBUTES_IGNORE))
+        if(!cppast::has_attribute(base_class, ATTRIBUTES_IGNORE))
         {
             std::cout << "    - (base) " << full_qualified_name(base_class)
                       << "\n";
@@ -629,7 +629,7 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
 
     fmt::print(
         os,
-        "TINYREFL_REFLECT_CLASS({}, {}, {}, {}, {}, {}, {}, {}, {})\n",
+        "TINYREFL_REFLECT_CLASS(({}), ({}), ({}), ({}), ({}), ({}), ({}), ({}), ({}))\n",
         string_constant(full_qualified_name(class_)),
         type_reference(class_),
         typelist(base_classes),
@@ -643,7 +643,7 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
 
 void generate_enum_value(std::ostream& os, const cppast::cpp_enum_value& value)
 {
-    fmt::print(os, "TINYREFL_REFLECT_ENUM_VALUE({})\n", enum_value(value));
+    fmt::print(os, "TINYREFL_REFLECT_ENUM_VALUE(({}))\n", enum_value(value));
 }
 
 void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
@@ -651,7 +651,7 @@ void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
     std::cout << " # " << full_qualified_name(enum_) << " [attributes: "
               << sequence(enum_.attributes(), ", ", "\"", "\"") << "]\n";
 
-    if (!cppast::has_attribute(enum_, ATTRIBUTES_IGNORE))
+    if(!cppast::has_attribute(enum_, ATTRIBUTES_IGNORE))
     {
         std::vector<std::string> values;
 
@@ -659,8 +659,8 @@ void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
             enum_,
             [&values, &os](
                 const cppast::cpp_entity& entity, const cppast::visitor_info&) {
-                if (entity.kind() == cppast::cpp_enum_value::kind() &&
-                    !is_unknown_entity(entity))
+                if(entity.kind() == cppast::cpp_enum_value::kind() &&
+                   !is_unknown_entity(entity))
                 {
                     const auto& value =
                         static_cast<const cppast::cpp_enum_value&>(entity);
@@ -678,7 +678,7 @@ void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
 
         fmt::print(
             os,
-            "TINYREFL_REFLECT_ENUM({}, {}, {}, {})\n",
+            "TINYREFL_REFLECT_ENUM(({}), ({}), ({}), ({}))\n",
             string_constant(full_qualified_name(enum_)),
             type_reference(enum_),
             typelist(values),
@@ -727,10 +727,10 @@ void visit_ast_and_generate(
                    !cppast::has_attribute(e, ATTRIBUTES_IGNORE);
         },
         [&body](const cppast::cpp_entity& e, const cppast::visitor_info& info) {
-            if (info.is_new_entity() && info.access == cppast::cpp_public &&
-                !is_unknown_entity(e))
+            if(info.is_new_entity() && info.access == cppast::cpp_public &&
+               !is_unknown_entity(e))
             {
-                switch (e.kind())
+                switch(e.kind())
                 {
                 case cppast::cpp_entity_kind::class_t:
                     generate_class(
@@ -766,7 +766,7 @@ cppast::cpp_standard get_cpp_standard(const std::string& cpp_standard)
 
     auto it = map.find(cpp_standard);
 
-    if (it != map.end())
+    if(it != map.end())
     {
         return it->second;
     }
@@ -790,7 +790,7 @@ compile_definition parse_compile_definition(const std::string& input)
 {
     std::size_t equal_sign = input.find_first_of('=');
 
-    if (equal_sign != std::string::npos)
+    if(equal_sign != std::string::npos)
     {
         return {input.substr(0, equal_sign), input.substr(equal_sign + 1)};
     }
@@ -829,7 +829,7 @@ bool reflect_file(
 {
     using parser_t = cppast::simple_file_parser<cppast::libclang_parser>;
 
-    if (!is_outdated_file(filepath))
+    if(!is_outdated_file(filepath))
     {
         std::cout << "file " << filepath
                   << " metadata is up to date, skipping\n";
@@ -849,12 +849,12 @@ bool reflect_file(
     definitions.addValue("TINYREFL_TOOL_RUNNING");
     definitions.addValue("__tinyrefl__");
 
-    for (const auto& definition : definitions)
+    for(const auto& definition : definitions)
     {
         compile_definition def{definition};
         std::cout << "-D" << def.macro << "=" << def.value << " ";
 
-        if (def.macro.empty())
+        if(def.macro.empty())
         {
             std::cout << "(empty, ignored) ";
         }
@@ -864,11 +864,11 @@ bool reflect_file(
         }
     }
 
-    for (const std::string& include_dir : include_dirs)
+    for(const std::string& include_dir : include_dirs)
     {
         std::cout << "-I" << include_dir << " ";
 
-        if (include_dir.empty())
+        if(include_dir.empty())
         {
             std::cout << "(empty, ignored) ";
         }
@@ -878,14 +878,14 @@ bool reflect_file(
         }
     }
 
-    for (const std::string& warning : warnings)
+    for(const std::string& warning : warnings)
     {
         auto warning_flag = "-W" + warning;
         std::cout << warning_flag << " ";
         config.add_flag(warning_flag);
     }
 
-    for (const auto& flag : custom_flags)
+    for(const auto& flag : custom_flags)
     {
         std::cout << flag << " ";
         config.add_flag(flag);
@@ -902,7 +902,7 @@ bool reflect_file(
     {
         auto file = parser.parse(filepath, config);
 
-        if (file.has_value())
+        if(file.has_value())
         {
             visit_ast_and_generate(file.value(), filepath);
             return true;
@@ -912,7 +912,7 @@ bool reflect_file(
             std::cerr << "error parsing input file\n";
         }
     }
-    catch (const cppast::libclang_error& error)
+    catch(const cppast::libclang_error& error)
     {
         std::cerr << "[error] " << error.what() << "\n";
     }
@@ -969,15 +969,15 @@ int main(int argc, char** argv)
     cl::SetVersionPrinter(+[] { print_version(std::cout); });
 #endif // TINYREFL_LLVM_VERSION_MAJOR
 
-    if (cl::ParseCommandLineOptions(argc, argv, "Tinyrefl codegen tool"))
+    if(cl::ParseCommandLineOptions(argc, argv, "Tinyrefl codegen tool"))
     {
-        if (reflect_file(
-                filename,
-                stdversion,
-                includes,
-                definitions,
-                warnings,
-                custom_flags))
+        if(reflect_file(
+               filename,
+               stdversion,
+               includes,
+               definitions,
+               warnings,
+               custom_flags))
         {
             return 0;
         }

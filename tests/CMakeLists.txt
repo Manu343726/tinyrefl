@@ -9,6 +9,7 @@ add_tinyrefl_test(tinyrefl-test
     example.cpp
 )
 target_link_libraries(tinyrefl-test PRIVATE tinyrefl)
+#target_compile_options(tinyrefl-test PRIVATE -E)
 
 tinyrefl_tool(TARGET tinyrefl-test
 HEADERS
