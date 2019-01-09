@@ -143,7 +143,7 @@ std::ostream&
         return os << attribute.name();
     }
 }
-}
+} // namespace cppast
 
 bool is_reflectable(const cppast::cpp_entity& e)
 {
@@ -265,7 +265,7 @@ std::ostream& operator<<(std::ostream& os, const cpp_type& type)
 {
     return os << cppast::to_string(type);
 }
-}
+} // namespace cppast
 
 std::string type(const cppast::cpp_member_function& function)
 {
@@ -931,7 +931,6 @@ void print_version(Stream& out)
         << "tinyrefl version minor: " << TINYREFL_VERSION_MINOR_STRING << "\n"
         << "tinyrefl version fix:   " << TINYREFL_VERSION_FIX_STRING << "\n\n"
         << "Compiled with LLVM  version: " << TINYREFL_LLVM_VERSION << "\n"
-        << "Compiled with cppast version: " << CPPAST_VERSION_STRING << "\n\n"
         << "This tool is part of tinyrefl, a C++ static reflection system\n"
         << "See https://gitlab.com/Manu343726/tinyrefl for docs and issues\n";
 }

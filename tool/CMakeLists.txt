@@ -56,24 +56,17 @@ else()
         set(CMAKE_CXX_STANDARD 14)
     endif()
 
-    add_subdirectory(external)
-    require_targets(cppast cppfs)
-
-    # LLVM releases are compiled with old GCC ABI and RTTI disabled
-    if(NOT TINYREFL_USE_LOCAL_LLVM)
-        if(NOT MSVC)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0 -fno-rtti")
-        endif()
-    endif()
+    include(external/external.cmake)
 
     add_executable(tinyrefl-tool tool.cpp)
     define_tinyrefl_version_variables(tinyrefl-tool)
     define_llvm_version_variables(tinyrefl-tool)
-    target_include_directories(tinyrefl-tool PRIVATE ${TINYREFL_INCLUDE_DIR} ${fmt-header-only_SOURCE_DIR}/include)
-    target_compile_definitions(tinyrefl-tool PRIVATE -DFMT_HEADER_ONLY)
 
-    find_package(LLVM ${TINYREFL_LLVM_VERSION} REQUIRED EXACT CONFIG PATHS "${LLVM_CMAKE_PATH}" NO_DEFAULT_PATH)
-    target_link_libraries(tinyrefl-tool PRIVATE cppast cppfs LLVMSupport)
+    target_link_libraries(tinyrefl-tool PRIVATE tinyrefl_externals_cppast tinyrefl_externals_cppfs tinyrefl_externals_fmt)
+    if(NOT MSVC)
+        # LLVMSupport is compiled with RTTI disabled
+        target_compile_options(tinyrefl-tool PRIVATE -fno-rtti)
+    endif()
 
     set(TINYREFL_TOOL_EXECUTABLE $<TARGET_FILE:tinyrefl-tool> CACHE STRING "")
     set(TINYREFL_TOOL_TARGET tinyrefl-tool CACHE STRING "")
