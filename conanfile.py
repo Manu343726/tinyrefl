@@ -24,3 +24,4 @@ class Tinyrefl(common.CMakePackage):
                 'cppast/master@Manu343726/testing',
                 'llvm_support/6.0.1@Manu343726/testing')
     default_options = 'fmt:header_only=True'
+    settings = 'os', 'compiler', 'build_type', 'arch'
