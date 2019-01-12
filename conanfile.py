@@ -25,3 +25,10 @@ class Tinyrefl(common.CMakePackage):
                 'llvm_support/6.0.1@Manu343726/testing')
     default_options = 'fmt:header_only=True'
     settings = 'os', 'compiler', 'build_type', 'arch'
+
+    def package(self):
+        super().package()
+
+        self.copy('tinyrefl-tool*',
+            src='bin',
+            dst='bin')
