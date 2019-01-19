@@ -32,6 +32,7 @@ if(TINYREFL_CROSS_BUILDING)
             ${cmake_c_compiler}
             -DTINYREFL_HOST_BUILDING_TOOL=ON
             -DTINYREFL_SOURCE_DIR=${TINYREFL_SOURCE_DIR}
+            -DTINYREFL_VERSION=${TINYREFL_VERSION}
             -DTINYREFL_BINARY_DIR=${TINYREFL_BINARY_DIR}
             -DTINYREFL_INCLUDE_DIR=${TINYREFL_INCLUDE_DIR}
             -DTINYREFL_LLVM_VERSION=${TINYREFL_LLVM_VERSION}
@@ -71,3 +72,9 @@ else()
     set(TINYREFL_TOOL_EXECUTABLE $<TARGET_FILE:tinyrefl-tool> CACHE STRING "")
     set(TINYREFL_TOOL_TARGET tinyrefl-tool CACHE STRING "")
 endif()
+
+include(CMakePackageConfigHelpers)
+
+# Generate version file for tinyrefl_tool consumers (Config module is in cmake/tinyrefl_tool-config.cmake)
+write_basic_package_version_file("${TINYREFL_BINARY_DIR}/tinyrefl_tool-version.cmake"
+    COMPATIBILITY ExactVersion)

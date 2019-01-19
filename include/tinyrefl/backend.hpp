@@ -910,8 +910,8 @@ constexpr
     typename enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes>::
         value_t enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes>::
             invalid_value;
-}
-}
+} // namespace backend
+} // namespace tinyrefl
 
 #ifndef TINYREFL_PP_CAT
 #define TINYREFL_PP_CAT_IMPL(x, y) x##y
@@ -945,7 +945,7 @@ constexpr
     } // namespace tinyrefl
 
 #define TINYREFL_API_CODEGEN_VERSION_MAJOR 0
-#define TINYREFL_API_CODEGEN_VERSION_MINOR 2
+#define TINYREFL_API_CODEGEN_VERSION_MINOR 3
 #define TINYREFL_API_CODEGEN_VERSION_FIX 0
 
 #define TINYREFL_SEQUENCE(elems) \
