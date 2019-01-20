@@ -59,3 +59,6 @@ build lasote/conangcc7-armv7 gcc7-armv7  gcc   g++     CROSS_BUILDING
 build lasote/conangcc7       gcc7-x86    gcc   g++
 build lasote/conangcc8-armv7 gcc8-armv7  gcc   g++     CROSS_BUILDING
 build lasote/conangcc8       gcc8-x86    gcc   g++
+
+docker build clang-format    -t manu343726/tinyrefl:clang-format    && docker push manu343726/tinyrefl:clang-format
+docker build clang-format-ci -t manu343726/tinyrefl:clang-format-ci && docker push manu343726/tinyrefl:clang-format-ci

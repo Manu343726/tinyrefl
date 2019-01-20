@@ -9,9 +9,9 @@ clang-format-check:
   tags:
     - linux
     - docker
-  image: manu343726/tinyrefl:clang40-x86
+  image: manu343726/tinyrefl:clang-format-ci
   script:
-    - ./ci/ci_clang_format_check.sh
+    - CLANG_FORMAT=clang-format ./ci/ci_clang_format_check.sh
     - echo clang-format was applied ok
 test-clang40-x86-llvm4.0.0:
   stage: test

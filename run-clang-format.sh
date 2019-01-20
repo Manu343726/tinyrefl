@@ -1,12 +1,15 @@
 #!/bin/bash
 
-CLANG_FORMAT=$1
+if [[ -z "$CLANG_FORMAT" ]]; then
+    CLANG_FORMAT=$1
+fi
+
 DIRECTORIES=(include src tests examples)
 
 root_dir=$(pwd)
 
 if [[ -z "$CLANG_FORMAT" ]]; then
-    CLANG_FORMAT="docker run --rm -v ${root_dir}:${root_dir} unibeautify/clang-format"
+    CLANG_FORMAT="docker run --rm -v ${root_dir}:${root_dir} manu343726/tinyrefl:clang-format"
 fi
 
 echo CLANG_FORMAT=$CLANG_FORMAT

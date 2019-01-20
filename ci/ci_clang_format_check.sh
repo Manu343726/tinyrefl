@@ -37,6 +37,8 @@ CLANG_FORMAT_SCRIPT=$(pwd)/run-clang-format.sh
 if [ ! -e $CLANG_FORMAT_SCRIPT ]; then
     echo clang-format script not found
     exit 3
+else
+    echo using clang-format script $CLANG_FORMAT_SCRIPT
 fi
 
 if bash $CLANG_FORMAT_SCRIPT; then
