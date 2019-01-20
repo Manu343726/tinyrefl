@@ -53,7 +53,7 @@ if(TINYREFL_CROSS_BUILDING)
 else()
     if(TINYREFL_HOST_BUILDING_TOOL)
         cmake_minimum_required(VERSION 3.0)
-        project(tinyrefl-tool)
+        project(tinyrefl-tool VERSION "${TINYREFL_VERSION}")
         set(CMAKE_CXX_STANDARD 14)
     endif()
 
