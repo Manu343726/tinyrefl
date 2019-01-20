@@ -63,7 +63,12 @@ else()
     define_tinyrefl_version_variables(tinyrefl-tool)
     define_llvm_version_variables(tinyrefl-tool)
 
-    target_link_libraries(tinyrefl-tool PRIVATE tinyrefl_externals_cppast tinyrefl_externals_cppfs tinyrefl_externals_fmt)
+    target_link_libraries(tinyrefl-tool PRIVATE
+        tinyrefl_externals_cppast
+        tinyrefl_externals_cppfs
+        tinyrefl_externals_fmt
+        tinyrefl_externals_llvm_support)
+
     if(NOT MSVC)
         # LLVMSupport is compiled with RTTI disabled
         target_compile_options(tinyrefl-tool PRIVATE -fno-rtti)

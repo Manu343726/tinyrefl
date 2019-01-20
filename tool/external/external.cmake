@@ -50,7 +50,11 @@ else()
 
     if(NOT fmt_FOUND)
         external_dependency(fmt-header-only ${TINYREFL_FMT_REPO_URL} ${TINYREFL_FMT_VERSION})
-        add_library(tinyrefl_externals_fmt ALIAS fmt::fmt-header-only)
+
+        # Here we cannot define an ALIAS library since fmt::fmt-header-only itself is
+        # already an alias
+        add_library(tinyrefl_externals_fmt INTERFACE)
+        target_link_libraries(tinyrefl_externals_fmt INTERFACE fmt::fmt-header-only)
     else()
         add_library(tinyrefl_externals_fmt INTERFACE)
         target_link_libraries(tinyrefl_externals_fmt INTERFACE fmt::fmt)
@@ -117,6 +121,10 @@ else()
 
         message(STATUS "llvm cmake path: ${LLVM_CMAKE_PATH}")
         message(STATUS "clang cmake path: ${CLANG_CMAKE_PATH}")
+
+        find_package(LLVM ${TINYREFL_LLVM_VERSION} REQUIRED EXACT CONFIG PATHS "${LLVM_CMAKE_PATH}" NO_DEFAULT_PATH)
+        add_library(tinyrefl_externals_llvm_support INTERFACE)
+        target_link_libraries(tinyrefl_externals_llvm_support INTERFACE LLVMSupport)
     else()
         add_library(tinyrefl_externals_cppast INTERFACE)
         target_link_libraries(tinyrefl_externals_cppast INTERFACE cppast::cppast)
