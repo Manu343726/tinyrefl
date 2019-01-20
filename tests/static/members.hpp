@@ -9,4 +9,4 @@ struct Foo
     void f(){};
     void f(int){};
 };
-}
+} // namespace foo

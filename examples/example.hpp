@@ -38,8 +38,8 @@ public:
     explicit C(const std::string& str){}[[C]] C(int a, int b){}
 
         [[ f, f1, f2 ]] void f(int a, int b) const {};
-    [[f]] void f(int a, int b){};
-    [[f]] void f(){};
+    [[f]] void f(int a, int b) {};
+    [[f]] void f() {};
     [[f]] void f() const {};
 
     enum class Enum
@@ -58,6 +58,6 @@ public:
 std::ostream& operator<<(std::ostream& os, const B& b);
 std::ostream& operator<<(std::ostream& os, const Enum& value);
 std::ostream& operator<<(std::ostream& os, const C::Enum& value);
-}
+} // namespace example
 
 #endif // TINYREFL_EXAMPLE_HPP

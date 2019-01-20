@@ -28,8 +28,8 @@ std::string demangle(const std::string& name)
         return name;
     }
 }
-}
-}
+} // namespace utils
+} // namespace tinyrefl
 #elif defined(__GNUC__) || defined(__llvm__)
 #include <cxxabi.h>
 
@@ -55,8 +55,8 @@ std::string demangle(const std::string& name)
 
     return result;
 }
-}
-}
+} // namespace utils
+} // namespace tinyrefl
 #else /* Others (Currently unsupported platforms. The name is returned as is) \
        */
 namespace tinyrefl
@@ -68,6 +68,6 @@ std::string demangle(const std::string& name)
 {
     return name;
 }
-}
-}
+} // namespace utils
+} // namespace tinyrefl
 #endif

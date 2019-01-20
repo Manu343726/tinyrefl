@@ -36,6 +36,6 @@ public:
 private:
     SessionData _sessionData;
 };
-}
+} // namespace userapi
 
 #endif // USERAPI_H

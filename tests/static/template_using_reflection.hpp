@@ -16,7 +16,7 @@ struct AssertMetadataAvailableForTemplateParam
         tinyrefl::has_metadata<T>(),
         "Expected metadata available inside class template");
 };
-}
-}
+} // namespace test
+} // namespace tinyrefl
 
 #endif // TINYREFL_TESTS_STATIC_TEMPLATEUSINGREFLECTION_H
