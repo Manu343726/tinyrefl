@@ -33,14 +33,14 @@ using member_type_t = typename member_type<MemberPtr>::type;
 } // namespace tinyrefl
 
 #define TINYREFL_API_CODEGEN_VERSION_MAJOR 0
-#define TINYREFL_API_CODEGEN_VERSION_MINOR 2
+#define TINYREFL_API_CODEGEN_VERSION_MINOR 3
 #define TINYREFL_API_CODEGEN_VERSION_FIX 0
 
 // Boost Fusion backend for tinyrefl metadata
 #define TINYREFL_GODMODE(...) // No Gods here
-#define TINYREFL_SEQUENCE(...) __VA_ARGS__
+#define TINYREFL_SEQUENCE(items) TINYREFL_PP_UNWRAP items
 #define TINYREFL_STRING(...) __VA_ARGS__
-#define TINYREFL_TYPE(name, fullname) fullname
+#define TINYREFL_TYPE(name, fullname) TINYREFL_PP_UNWRAP fullname
 #define TINYREFL_VALUE( \
     type,               \
     value) // We don't care about values (pointers to members, enums, etc)
@@ -62,7 +62,7 @@ using member_type_t = typename member_type<MemberPtr>::type;
     attributes) // we don't care about member functions
 #define TINYREFL_MEMBER_VARIABLE(                                       \
     name, fullname, parent_class_type, value_type, pointer, attributes) \
-    (value_type, name)
+    (TINYREFL_PP_UNWRAP value_type, TINYREFL_PP_UNWRAP name)
 #define TINYREFL_ENUM_VALUE( \
     name, fullname, type, value, attributes) // we don't care about enums
 #define TINYREFL_REFLECT_MEMBER( \
@@ -80,6 +80,7 @@ using member_type_t = typename member_type<MemberPtr>::type;
     classes,                    \
     enums,                      \
     attributes)                 \
-    BOOST_FUSION_ADAPT_STRUCT(classname, TINYREFL_PP_UNWRAP member_variables);
+    BOOST_FUSION_ADAPT_STRUCT(  \
+        TINYREFL_PP_UNWRAP classname, TINYREFL_PP_UNWRAP member_variables);
 
 #endif // TINYREFL_EXAMPLES_FUSION_HPP
