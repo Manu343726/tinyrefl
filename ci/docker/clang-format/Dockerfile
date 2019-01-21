@@ -8,7 +8,7 @@ ARG CLANG_FORMAT_VERSION_ARG=6.0
 ENV CLANG_FORMAT_VERSION=$CLANG_FORMAT_VERSION_ARG
 
 RUN apt-get update && \
-apt-get install -y clang-format-${CLANG_FORMAT_VERSION} git && \
+apt-get install -y clang-format-${CLANG_FORMAT_VERSION} git python-pip && \
 apt-get clean
 
 RUN update-alternatives \

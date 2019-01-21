@@ -4,12 +4,20 @@ stages:
   - clang-format-check
   - test
   - user-integration
+  - conan-integration
+
+before_script:
+  - conan remote add manu343726 https://api.bintray.com/conan/manu343726/conan-packages
+  - conan user manu343726 -p $manu343726_bintray_key -r manu343726
+
 clang-format-check:
   stage: clang-format-check
   tags:
     - linux
     - docker
   image: manu343726/tinyrefl:clang-format-ci
+  before_script: # Overrides global before_script with conan setup
+    - echo do nothing before script
   script:
     - CLANG_FORMAT=clang-format ./ci/ci_clang_format_check.sh
     - echo clang-format was applied ok
@@ -739,3 +747,108 @@ user-integration-gcc8-x86-llvm6.0.0:
   script:
     - ./ci/ci_user_integration.sh
     - echo finished ok
+
+conan-integration-clang40:
+  stage: conan-integration
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:clang40-x86
+  script:
+    - conan create . Manu343726/testing --build=missing
+  after_script:
+    - conan upload "llvm*"    --confirm --all -r manu343726
+    - conan upload "clang*"   --confirm --all -r manu343726
+    - conan upload "libclang" --confirm --all -r manu343726
+    - conan upload "cppast"   --confirm --all -r manu343726
+    - conan upload "tinyrefl" --confirm --all -r manu343726
+
+conan-integration-clang50:
+  stage: conan-integration
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:clang50-x86
+  script:
+    - conan create . Manu343726/testing --build=missing
+  after_script:
+    - conan upload "llvm*"    --confirm --all -r manu343726
+    - conan upload "clang*"   --confirm --all -r manu343726
+    - conan upload "libclang" --confirm --all -r manu343726
+    - conan upload "cppast"   --confirm --all -r manu343726
+    - conan upload "tinyrefl" --confirm --all -r manu343726
+
+conan-integration-clang60:
+  stage: conan-integration
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:clang60-x86
+  script:
+    - conan create . Manu343726/testing --build=missing
+  after_script:
+    - conan upload "llvm*"    --confirm --all -r manu343726
+    - conan upload "clang*"   --confirm --all -r manu343726
+    - conan upload "libclang" --confirm --all -r manu343726
+    - conan upload "cppast"   --confirm --all -r manu343726
+    - conan upload "tinyrefl" --confirm --all -r manu343726
+
+conan-integration-gcc5:
+  stage: conan-integration
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc5-x86
+  script:
+    - conan create . Manu343726/testing --build=missing
+  after_script:
+    - conan upload "llvm*"    --confirm --all -r manu343726
+    - conan upload "clang*"   --confirm --all -r manu343726
+    - conan upload "libclang" --confirm --all -r manu343726
+    - conan upload "cppast"   --confirm --all -r manu343726
+    - conan upload "tinyrefl" --confirm --all -r manu343726
+
+conan-integration-gcc6:
+  stage: conan-integration
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc6-x86
+  script:
+    - conan create . Manu343726/testing --build=missing
+  after_script:
+    - conan upload "llvm*"    --confirm --all -r manu343726
+    - conan upload "clang*"   --confirm --all -r manu343726
+    - conan upload "libclang" --confirm --all -r manu343726
+    - conan upload "cppast"   --confirm --all -r manu343726
+    - conan upload "tinyrefl" --confirm --all -r manu343726
+
+conan-integration-gcc7:
+  stage: conan-integration
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc7-x86
+  script:
+    - conan create . Manu343726/testing --build=missing
+  after_script:
+    - conan upload "llvm*"    --confirm --all -r manu343726
+    - conan upload "clang*"   --confirm --all -r manu343726
+    - conan upload "libclang" --confirm --all -r manu343726
+    - conan upload "cppast"   --confirm --all -r manu343726
+    - conan upload "tinyrefl" --confirm --all -r manu343726
+
+conan-integration-gcc8:
+  stage: conan-integration
+  tags:
+    - linux
+    - docker
+  image: manu343726/tinyrefl:gcc8-x86
+  script:
+    - conan create . Manu343726/testing --build=missing
+  after_script:
+    - conan upload "llvm*"    --confirm --all -r manu343726
+    - conan upload "clang*"   --confirm --all -r manu343726
+    - conan upload "libclang" --confirm --all -r manu343726
+    - conan upload "cppast"   --confirm --all -r manu343726
+    - conan upload "tinyrefl" --confirm --all -r manu343726

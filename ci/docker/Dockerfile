@@ -7,7 +7,8 @@ USER root
 # Install libtinfo required by LLVM
 RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ trusty multiverse" >> /etc/apt/sources.list && \
     apt update && \
-    apt install -y libtinfo-dev libz-dev
+    apt install -y libtinfo-dev libz-dev python3-pip && \
+    apt clean
 
 ADD toolchain.cmake /usr/share/toolchain.cmake
 ADD build_toolchain.sh build_toolchain.sh
@@ -17,6 +18,9 @@ ARG BOOST_VERSION
 ENV BOOST_VERSION=$BOOST_VERSION
 ADD install_boost.sh install_boost.sh
 RUN chmod +x install_boost.sh && ./install_boost.sh
+
+RUN pip uninstall conan -y
+RUN pip3 install conan
 
 USER conan
 WORKDIR /home/conan

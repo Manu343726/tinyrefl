@@ -12,7 +12,7 @@ if [[ -z "$NAME" ]]; then
     NAME="tinyrefl"
 fi
 if [[ -z "$BOOST_VERSION" ]]; then
-    BOOST_VERSION="1.66.0"
+    BOOST_VERSION="1.69.0"
 fi
 
 NO_CACHE=$1
@@ -60,5 +60,5 @@ build lasote/conangcc7       gcc7-x86    gcc   g++
 build lasote/conangcc8-armv7 gcc8-armv7  gcc   g++     CROSS_BUILDING
 build lasote/conangcc8       gcc8-x86    gcc   g++
 
-docker build clang-format    -t manu343726/tinyrefl:clang-format    && docker push manu343726/tinyrefl:clang-format
-docker build clang-format-ci -t manu343726/tinyrefl:clang-format-ci && docker push manu343726/tinyrefl:clang-format-ci
+docker build ${DOCKER_DIR}/clang-format    -t manu343726/tinyrefl:clang-format    && docker push manu343726/tinyrefl:clang-format
+docker build ${DOCKER_DIR}/clang-format-ci -t manu343726/tinyrefl:clang-format-ci && docker push manu343726/tinyrefl:clang-format-ci
