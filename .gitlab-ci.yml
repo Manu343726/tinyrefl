@@ -756,12 +756,12 @@ conan-integration-clang40:
   image: manu343726/tinyrefl:clang40-x86
   script:
     - conan create . Manu343726/testing --build=missing
-  after_script:
     - conan upload "llvm*"    --confirm --all -r manu343726
     - conan upload "clang*"   --confirm --all -r manu343726
+    - conan upload "compiler-rt*"   --confirm --all -r manu343726
     - conan upload "libclang" --confirm --all -r manu343726
     - conan upload "cppast"   --confirm --all -r manu343726
-    - conan upload "tinyrefl" --confirm --all -r manu343726
+    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl" --confirm --all -r manu343726; fi
 
 conan-integration-clang50:
   stage: conan-integration
@@ -771,12 +771,12 @@ conan-integration-clang50:
   image: manu343726/tinyrefl:clang50-x86
   script:
     - conan create . Manu343726/testing --build=missing
-  after_script:
     - conan upload "llvm*"    --confirm --all -r manu343726
     - conan upload "clang*"   --confirm --all -r manu343726
+    - conan upload "compiler-rt*"   --confirm --all -r manu343726
     - conan upload "libclang" --confirm --all -r manu343726
     - conan upload "cppast"   --confirm --all -r manu343726
-    - conan upload "tinyrefl" --confirm --all -r manu343726
+    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl" --confirm --all -r manu343726; fi
 
 conan-integration-clang60:
   stage: conan-integration
@@ -786,12 +786,12 @@ conan-integration-clang60:
   image: manu343726/tinyrefl:clang60-x86
   script:
     - conan create . Manu343726/testing --build=missing
-  after_script:
     - conan upload "llvm*"    --confirm --all -r manu343726
     - conan upload "clang*"   --confirm --all -r manu343726
+    - conan upload "compiler-rt*"   --confirm --all -r manu343726
     - conan upload "libclang" --confirm --all -r manu343726
     - conan upload "cppast"   --confirm --all -r manu343726
-    - conan upload "tinyrefl" --confirm --all -r manu343726
+    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl" --confirm --all -r manu343726; fi
 
 conan-integration-gcc5:
   stage: conan-integration
@@ -801,12 +801,12 @@ conan-integration-gcc5:
   image: manu343726/tinyrefl:gcc5-x86
   script:
     - conan create . Manu343726/testing --build=missing
-  after_script:
     - conan upload "llvm*"    --confirm --all -r manu343726
     - conan upload "clang*"   --confirm --all -r manu343726
+    - conan upload "compiler-rt*"   --confirm --all -r manu343726
     - conan upload "libclang" --confirm --all -r manu343726
     - conan upload "cppast"   --confirm --all -r manu343726
-    - conan upload "tinyrefl" --confirm --all -r manu343726
+    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl" --confirm --all -r manu343726; fi
 
 conan-integration-gcc6:
   stage: conan-integration
@@ -816,12 +816,12 @@ conan-integration-gcc6:
   image: manu343726/tinyrefl:gcc6-x86
   script:
     - conan create . Manu343726/testing --build=missing
-  after_script:
     - conan upload "llvm*"    --confirm --all -r manu343726
     - conan upload "clang*"   --confirm --all -r manu343726
+    - conan upload "compiler-rt*"   --confirm --all -r manu343726
     - conan upload "libclang" --confirm --all -r manu343726
     - conan upload "cppast"   --confirm --all -r manu343726
-    - conan upload "tinyrefl" --confirm --all -r manu343726
+    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl" --confirm --all -r manu343726; fi
 
 conan-integration-gcc7:
   stage: conan-integration
@@ -831,12 +831,12 @@ conan-integration-gcc7:
   image: manu343726/tinyrefl:gcc7-x86
   script:
     - conan create . Manu343726/testing --build=missing
-  after_script:
     - conan upload "llvm*"    --confirm --all -r manu343726
     - conan upload "clang*"   --confirm --all -r manu343726
+    - conan upload "compiler-rt*"   --confirm --all -r manu343726
     - conan upload "libclang" --confirm --all -r manu343726
     - conan upload "cppast"   --confirm --all -r manu343726
-    - conan upload "tinyrefl" --confirm --all -r manu343726
+    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl" --confirm --all -r manu343726; fi
 
 conan-integration-gcc8:
   stage: conan-integration
@@ -846,9 +846,9 @@ conan-integration-gcc8:
   image: manu343726/tinyrefl:gcc8-x86
   script:
     - conan create . Manu343726/testing --build=missing
-  after_script:
     - conan upload "llvm*"    --confirm --all -r manu343726
     - conan upload "clang*"   --confirm --all -r manu343726
+    - conan upload "compiler-rt*"   --confirm --all -r manu343726
     - conan upload "libclang" --confirm --all -r manu343726
     - conan upload "cppast"   --confirm --all -r manu343726
-    - conan upload "tinyrefl" --confirm --all -r manu343726
+    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl" --confirm --all -r manu343726; fi
