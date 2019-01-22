@@ -21,834 +21,333 @@ clang-format-check:
   script:
     - CLANG_FORMAT=clang-format ./ci/ci_clang_format_check.sh
     - echo clang-format was applied ok
+
+
+.test-job: &test-job
+  stage: test
+  tags:
+    - linux
+    - docker
+  script:
+    - export LLVM_VERSION=$(echo $CI_JOB_NAME | sed -E "s/${CI_JOB_STAGE}-(.+)-llvm(.+)/\2/g")
+    - ./ci/ci_test.sh
+    - echo finished ok
+
+
 test-clang40-x86-llvm4.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang40-x86
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
 test-clang40-x86-llvm5.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang40-x86
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
 test-clang40-x86-llvm6.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang40-x86
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
 test-clang50-x86-llvm4.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang50-x86
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
 test-clang50-x86-llvm5.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang50-x86
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
 test-clang50-x86-llvm6.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang50-x86
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
 test-clang60-x86-llvm4.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang60-x86
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
 test-clang60-x86-llvm5.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang60-x86
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
 test-clang60-x86-llvm6.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang60-x86
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
-test-gcc5-armv7-llvm4.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
-  image: manu343726/tinyrefl:gcc5-armv7
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
-test-gcc5-armv7-llvm5.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
-  image: manu343726/tinyrefl:gcc5-armv7
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
-test-gcc5-armv7-llvm6.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
-  image: manu343726/tinyrefl:gcc5-armv7
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
 test-gcc5-x86-llvm4.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc5-x86
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
 test-gcc5-x86-llvm5.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc5-x86
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
 test-gcc5-x86-llvm6.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc5-x86
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
-test-gcc6-armv7-llvm4.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
-  image: manu343726/tinyrefl:gcc6-armv7
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
-test-gcc6-armv7-llvm5.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
-  image: manu343726/tinyrefl:gcc6-armv7
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
-test-gcc6-armv7-llvm6.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
-  image: manu343726/tinyrefl:gcc6-armv7
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
+test-gcc5-armv7-llvm4.0.0:
+  image: manu343726/tinyrefl:gcc5-armv7
+  <<: *test-job
+
+test-gcc5-armv7-llvm5.0.0:
+  image: manu343726/tinyrefl:gcc5-armv7
+  <<: *test-job
+
+test-gcc5-armv7-llvm6.0.0:
+  image: manu343726/tinyrefl:gcc5-armv7
+  <<: *test-job
+
 test-gcc6-x86-llvm4.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc6-x86
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
 test-gcc6-x86-llvm5.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc6-x86
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
 test-gcc6-x86-llvm6.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc6-x86
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
-test-gcc7-armv7-llvm4.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
-  image: manu343726/tinyrefl:gcc7-armv7
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
-test-gcc7-armv7-llvm5.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
-  image: manu343726/tinyrefl:gcc7-armv7
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
-test-gcc7-armv7-llvm6.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
-  image: manu343726/tinyrefl:gcc7-armv7
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
+test-gcc6-armv7-llvm4.0.0:
+  image: manu343726/tinyrefl:gcc6-armv7
+  <<: *test-job
+
+test-gcc6-armv7-llvm5.0.0:
+  image: manu343726/tinyrefl:gcc6-armv7
+  <<: *test-job
+
+test-gcc6-armv7-llvm6.0.0:
+  image: manu343726/tinyrefl:gcc6-armv7
+  <<: *test-job
+
 test-gcc7-x86-llvm4.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc7-x86
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
 test-gcc7-x86-llvm5.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc7-x86
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
 test-gcc7-x86-llvm6.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc7-x86
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
-test-gcc8-armv7-llvm4.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
-  image: manu343726/tinyrefl:gcc8-armv7
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
-test-gcc8-armv7-llvm5.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
-  image: manu343726/tinyrefl:gcc8-armv7
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
-test-gcc8-armv7-llvm6.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
-  image: manu343726/tinyrefl:gcc8-armv7
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
+test-gcc7-armv7-llvm4.0.0:
+  image: manu343726/tinyrefl:gcc7-armv7
+  <<: *test-job
+
+test-gcc7-armv7-llvm5.0.0:
+  image: manu343726/tinyrefl:gcc7-armv7
+  <<: *test-job
+
+test-gcc7-armv7-llvm6.0.0:
+  image: manu343726/tinyrefl:gcc7-armv7
+  <<: *test-job
+
 test-gcc8-x86-llvm4.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc8-x86
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
 test-gcc8-x86-llvm5.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc8-x86
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_test.sh
-    - echo finished ok
+  <<: *test-job
+
 test-gcc8-x86-llvm6.0.0:
-  stage: test
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc8-x86
-  variables:
-    LLVM_VERSION: 6.0.0
+  <<: *test-job
+
+test-gcc8-armv7-llvm4.0.0:
+  image: manu343726/tinyrefl:gcc8-armv7
+  <<: *test-job
+
+test-gcc8-armv7-llvm5.0.0:
+  image: manu343726/tinyrefl:gcc8-armv7
+  <<: *test-job
+
+test-gcc8-armv7-llvm6.0.0:
+  image: manu343726/tinyrefl:gcc8-armv7
+  <<: *test-job
+
+.user-integration-job: &user-integration-job
+  stage: user-integration
+  tags:
+    - linux
+    - docker
   script:
-    - ./ci/ci_test.sh
+    - export LLVM_VERSION=$(echo $CI_JOB_NAME | sed -E "s/${CI_JOB_STAGE}-(.+)-llvm(.+)/\2/g")
+    - ./ci/ci_user_integration.sh
     - echo finished ok
+
 user-integration-clang40-x86-llvm4.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang40-x86
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-clang40-x86-llvm5.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang40-x86
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-clang40-x86-llvm6.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang40-x86
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-clang50-x86-llvm4.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang50-x86
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-clang50-x86-llvm5.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang50-x86
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-clang50-x86-llvm6.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang50-x86
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-clang60-x86-llvm4.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang60-x86
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-clang60-x86-llvm5.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang60-x86
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-clang60-x86-llvm6.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang60-x86
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc5-armv7-llvm4.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc5-armv7
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc5-armv7-llvm5.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc5-armv7
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc5-armv7-llvm6.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc5-armv7
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc5-x86-llvm4.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc5-x86
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc5-x86-llvm5.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc5-x86
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc5-x86-llvm6.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc5-x86
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc6-armv7-llvm4.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc6-armv7
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc6-armv7-llvm5.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc6-armv7
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc6-armv7-llvm6.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc6-armv7
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc6-x86-llvm4.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc6-x86
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc6-x86-llvm5.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc6-x86
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc6-x86-llvm6.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc6-x86
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc7-armv7-llvm4.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc7-armv7
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc7-armv7-llvm5.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc7-armv7
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc7-armv7-llvm6.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc7-armv7
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc7-x86-llvm4.0.0:
   stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc7-x86
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc7-x86-llvm5.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc7-x86
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc7-x86-llvm6.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc7-x86
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc8-armv7-llvm4.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc8-armv7
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc8-armv7-llvm5.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc8-armv7
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc8-armv7-llvm6.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc8-armv7
-  variables:
-    LLVM_VERSION: 6.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc8-x86-llvm4.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc8-x86
-  variables:
-    LLVM_VERSION: 4.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc8-x86-llvm5.0.0:
-  stage: user-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc8-x86
-  variables:
-    LLVM_VERSION: 5.0.0
-  script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+  <<: *user-integration-job
+
 user-integration-gcc8-x86-llvm6.0.0:
-  stage: user-integration
+  image: manu343726/tinyrefl:gcc8-x86
+  <<: *user-integration-job
+
+
+.conan-integration-job: &conan-integration-job
+  stage: conan-integration
   tags:
     - linux
     - docker
-  image: manu343726/tinyrefl:gcc8-x86
-  variables:
-    LLVM_VERSION: 6.0.0
   script:
-    - ./ci/ci_user_integration.sh
-    - echo finished ok
+    - conan create . Manu343726/testing --build=missing
+    - conan upload "llvm*"    --confirm --all -r manu343726
+    - conan upload "clang*"   --confirm --all -r manu343726
+    - conan upload "compiler-rt*"   --confirm --all -r manu343726
+    - conan upload "libclang" --confirm --all -r manu343726
+    - conan upload "cppast"   --confirm --all -r manu343726
+    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl" --confirm --all -r manu343726; fi
 
 conan-integration-clang40:
-  stage: conan-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang40-x86
-  script:
-    - conan create . Manu343726/testing --build=missing
-    - conan upload "llvm*"    --confirm --all -r manu343726
-    - conan upload "clang*"   --confirm --all -r manu343726
-    - conan upload "compiler-rt*"   --confirm --all -r manu343726
-    - conan upload "libclang" --confirm --all -r manu343726
-    - conan upload "cppast"   --confirm --all -r manu343726
-    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl" --confirm --all -r manu343726; fi
+  <<: *conan-integration-job
 
 conan-integration-clang50:
-  stage: conan-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang50-x86
-  script:
-    - conan create . Manu343726/testing --build=missing
-    - conan upload "llvm*"    --confirm --all -r manu343726
-    - conan upload "clang*"   --confirm --all -r manu343726
-    - conan upload "compiler-rt*"   --confirm --all -r manu343726
-    - conan upload "libclang" --confirm --all -r manu343726
-    - conan upload "cppast"   --confirm --all -r manu343726
-    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl" --confirm --all -r manu343726; fi
+  <<: *conan-integration-job
 
 conan-integration-clang60:
-  stage: conan-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:clang60-x86
-  script:
-    - conan create . Manu343726/testing --build=missing
-    - conan upload "llvm*"    --confirm --all -r manu343726
-    - conan upload "clang*"   --confirm --all -r manu343726
-    - conan upload "compiler-rt*"   --confirm --all -r manu343726
-    - conan upload "libclang" --confirm --all -r manu343726
-    - conan upload "cppast"   --confirm --all -r manu343726
-    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl" --confirm --all -r manu343726; fi
+  <<: *conan-integration-job
 
 conan-integration-gcc5:
-  stage: conan-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc5-x86
-  script:
-    - conan create . Manu343726/testing --build=missing
-    - conan upload "llvm*"    --confirm --all -r manu343726
-    - conan upload "clang*"   --confirm --all -r manu343726
-    - conan upload "compiler-rt*"   --confirm --all -r manu343726
-    - conan upload "libclang" --confirm --all -r manu343726
-    - conan upload "cppast"   --confirm --all -r manu343726
-    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl" --confirm --all -r manu343726; fi
+  <<: *conan-integration-job
 
 conan-integration-gcc6:
-  stage: conan-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc6-x86
-  script:
-    - conan create . Manu343726/testing --build=missing
-    - conan upload "llvm*"    --confirm --all -r manu343726
-    - conan upload "clang*"   --confirm --all -r manu343726
-    - conan upload "compiler-rt*"   --confirm --all -r manu343726
-    - conan upload "libclang" --confirm --all -r manu343726
-    - conan upload "cppast"   --confirm --all -r manu343726
-    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl" --confirm --all -r manu343726; fi
+  <<: *conan-integration-job
 
 conan-integration-gcc7:
-  stage: conan-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc7-x86
-  script:
-    - conan create . Manu343726/testing --build=missing
-    - conan upload "llvm*"    --confirm --all -r manu343726
-    - conan upload "clang*"   --confirm --all -r manu343726
-    - conan upload "compiler-rt*"   --confirm --all -r manu343726
-    - conan upload "libclang" --confirm --all -r manu343726
-    - conan upload "cppast"   --confirm --all -r manu343726
-    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl" --confirm --all -r manu343726; fi
+  <<: *conan-integration-job
 
 conan-integration-gcc8:
-  stage: conan-integration
-  tags:
-    - linux
-    - docker
   image: manu343726/tinyrefl:gcc8-x86
-  script:
-    - conan create . Manu343726/testing --build=missing
-    - conan upload "llvm*"    --confirm --all -r manu343726
-    - conan upload "clang*"   --confirm --all -r manu343726
-    - conan upload "compiler-rt*"   --confirm --all -r manu343726
-    - conan upload "libclang" --confirm --all -r manu343726
-    - conan upload "cppast"   --confirm --all -r manu343726
-    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl" --confirm --all -r manu343726; fi
+  <<: *conan-integration-job
