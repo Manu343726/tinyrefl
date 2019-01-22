@@ -8,7 +8,7 @@ stages:
 
 before_script:
   - conan remote add manu343726 https://api.bintray.com/conan/manu343726/conan-packages
-  - conan user manu343726 -p $manu343726_bintray_key -r manu343726
+  - conan user manu343726 -p $manu343726_bintray_key -r manu343726 || true
 
 clang-format-check:
   stage: clang-format-check
