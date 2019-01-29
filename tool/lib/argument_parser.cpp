@@ -31,24 +31,29 @@ compile_definition::compile_definition(std::string macro, std::string value)
 {
 }
 
-template<typename Stream>
-void print_version(Stream& out)
-{
-    out << "tinyrefl-tool v" << TINYREFL_VERSION << "\n\n"
-        << "tinyrefl commit: " << TINYREFL_GIT_COMMIT << "\n"
-        << "tinyrefl branch: " << TINYREFL_GIT_BRANCH << "\n"
-        << "tinyrefl version: " << TINYREFL_VERSION << "\n"
-        << "tinyrefl version major: " << TINYREFL_VERSION_MAJOR_STRING << "\n"
-        << "tinyrefl version minor: " << TINYREFL_VERSION_MINOR_STRING << "\n"
-        << "tinyrefl version fix:   " << TINYREFL_VERSION_FIX_STRING << "\n\n"
-        << "Compiled with LLVM  version: " << TINYREFL_LLVM_VERSION << "\n"
-        << "Compiled with cppast version: " << CPPAST_VERSION_STRING << "\n\n"
-        << "This tool is part of tinyrefl, a C++ static reflection system\n"
-        << "See https://gitlab.com/Manu343726/tinyrefl for docs and issues\n";
-}
+static constexpr const char* version_string =
+    "tinyrefl-tool v" TINYREFL_VERSION "\n\n"
+    "tinyrefl commit: " TINYREFL_GIT_COMMIT "\n"
+    "tinyrefl branch: " TINYREFL_GIT_BRANCH "\n"
+    "tinyrefl version: " TINYREFL_VERSION "\n"
+    "tinyrefl version major: " TINYREFL_VERSION_MAJOR_STRING "\n"
+    "tinyrefl version minor: " TINYREFL_VERSION_MINOR_STRING "\n"
+    "tinyrefl version fix:   " TINYREFL_VERSION_FIX_STRING "\n\n"
+    "Compiled with LLVM  version: " TINYREFL_LLVM_VERSION "\n"
+    "Compiled with cppast version: " CPPAST_VERSION_STRING "\n\n"
+    "This tool is part of tinyrefl, a C++ static reflection system\n"
+    "See https://gitlab.com/Manu343726/tinyrefl for docs and issues\n";
 
 config parse_arguments(const int argc, const char** argv)
 {
+    argagg::parser parser{{
+        {"help", {"-h", "--help"}, "displays help information", 0},
+        {"version", {"--version"}, "displays versio0n information", 0},
+        {"includes", {"-I"}, "include directories (can be repeated)", 1},
+        {"defines", {"-D"}, "compile definitions (can be repeated)", 1},
+        {"warnings", {"-W"}, "warnings (can be repeated)", 1},
+    }};
+
     struct options
     {
         cl::opt<std::string> filename{

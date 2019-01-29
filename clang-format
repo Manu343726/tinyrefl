@@ -1,4 +1,3 @@
 #!/bin/bash
 
-echo clang-format $@
 docker run --rm -v $(pwd):$(pwd) -w $(pwd) manu343726/tinyrefl:clang-format $@
