@@ -16,39 +16,10 @@ class Tinyrefl(common.CMakePackage):
     }
     custom_cmake_defs = {
         'TINYREFL_BUILD_TESTS': False,
-        'TINYREFL_BUILD_EXAMPLES': False
+        'TINYREFL_BUILD_EXAMPLES': False,
+        'TINYREFL_BUILD_TOOL': False
     }
     generators = 'cmake'
     requires = ('jsonformoderncpp/3.5.0@vthiery/stable',
-                'fmt/5.2.1@bincrafters/stable',
-                'ctti/0.0.2@Manu343726/testing',
-                ('cppast/master@Manu343726/testing', 'private'),
-                ('llvm_support/6.0.1@Manu343726/testing', 'private'))
-    default_options = 'fmt:header_only=True'
+               'ctti/0.0.2@Manu343726/testing')
     settings = 'os', 'compiler', 'build_type', 'arch'
-
-    def package(self):
-        super().package()
-
-        self.copy('tinyrefl-tool*',
-            src='bin',
-            dst='bin')
-
-        self.copy('utils.cmake',
-            src=os.path.join(self._repository_path, 'cmake'),
-            dst='cmake',
-            keep_path=False)
-
-        self.copy('driver.cmake',
-            src=os.path.join(self._repository_path, 'tool'),
-            dst='cmake',
-            keep_path=False)
-
-        self.copy('tinyrefl_tool-config.cmake',
-            src=os.path.join(self._repository_path, 'cmake'),
-            dst='cmake',
-            keep_path=False)
-
-        self.copy('tinyrefl_tool-version.cmake',
-            dst='cmake',
-            keep_path=False)

@@ -316,8 +316,10 @@ user-integration-gcc8-x86-llvm6.0.0:
     - linux
     - docker
   script:
-    - conan create . Manu343726/testing --build=missing
-    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl" --confirm --all -r manu343726; fi
+    - conan create tool Manu343726/testing --build=missing --build=tinyrefl-tool
+    - conan create .    Manu343726/testing --build=missing --build=tinyrefl
+    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl-tool" --confirm --all -r manu343726; fi
+    - if [[ ! -z "$CI_COMMIT_TAG" ]]; then conan upload "tinyrefl"      --confirm --all -r manu343726; fi
 
 conan-integration-clang60:
   image: manu343726/tinyrefl:clang60-x86

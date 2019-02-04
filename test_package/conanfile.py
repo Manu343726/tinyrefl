@@ -7,6 +7,7 @@ class DefaultNameConan(ConanFile):
     version = "0.1"
     settings = "os", "compiler", "arch", "build_type"
     generators = "cmake"
+    build_requires = 'tinyrefl-tool/0.3.1@Manu343726/testing'
 
     def build(self):
         cmake = CMake(self, parallel=False)

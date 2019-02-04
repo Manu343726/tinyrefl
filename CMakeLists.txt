@@ -22,6 +22,7 @@ option(TINYREFL_USE_LOCAL_LLVM "Use local LLVM install instead of downloading LL
 option(TINYREFL_LLVM_DOWNLOAD_FROM_OFFICIAL_SERVER "Download LLVM from official LLVM server instead of artifactory" OFF)
 option(TINYREFL_BUILD_TESTS "Build tinyrefl tests" ${TINYREFL_IS_ROOT_PROJECT})
 option(TINYREFL_BUILD_EXAMPLES "Build tinyrefl examples" ${TINYREFL_IS_ROOT_PROJECT})
+option(TINYREFL_BUILD_TOOL "Build tinyrefl-tool" ON)
 
 if(NOT DEFINED TINYREFL_LLVM_VERSION)
     set(TINYREFL_LLVM_VERSION "6.0.1")
@@ -69,8 +70,11 @@ message(STATUS "Configuring tinyrefl external dependencies...")
 include(external/external.cmake)
 message(STATUS "Configuring tinyrefl library...")
 add_subdirectory(src)
-message(STATUS "Configuring tinyrefl tool...")
-add_subdirectory(tool)
+
+if(TINYREFL_BUILD_TOOL)
+    message(STATUS "Configuring tinyrefl tool...")
+    add_subdirectory(tool)
+endif()
 
 # Implicitly add driver for users
 include(${TINYREFL_SOURCE_DIR}/tool/driver.cmake)
