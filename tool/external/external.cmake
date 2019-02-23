@@ -99,6 +99,8 @@ else()
 
             # LLVM releases are compiled with old GCC ABI
             add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
+            # Force cppast to be compiled with old GCC ABI
+            set(CPPAST_USE_OLD_LIBSTDCPP_ABI ON CACHE INTERNAL "")
 
             set(LLVM_DOWNLOAD_URL "${TINYREFL_LLVM_DOWNLOAD_URL}")
             message(STATUS "Using LLVM download URL: ${TINYREFL_LLVM_DOWNLOAD_URL}")
