@@ -71,6 +71,11 @@ function(tinyrefl_tool)
         list(APPEND definitions "-D${definition}")
     endforeach()
 
+    if(TINYREFL_TOOL_CLANGPP_EXECUTABLE)
+        message(STATUS "tinyrefl-tool using clang++ binary: ${TINYREFL_TOOL_CLANGPP_EXECUTABLE}")
+        set(clang_executable_option "--clang-binary=\"${TINYREFL_TOOL_CLANGPP_EXECUTABLE}\"")
+    endif()
+
     string(REGEX REPLACE ";" " " header_list "${ARGS_HEADERS}")
     string(REGEX REPLACE ";" " " includes_list "${includes}")
     string(REGEX REPLACE ";" " " options_list "${compile_options}")
@@ -95,7 +100,7 @@ function(tinyrefl_tool)
 
         add_prebuild_command(TARGET ${ARGS_TARGET}
             NAME "${command_target_name}"
-            COMMAND ${TINYREFL_TOOL_EXECUTABLE} ${header} -std=c++${CMAKE_CXX_STANDARD} ${definitions} ${includes} ${compile_options}
+            COMMAND ${TINYREFL_TOOL_EXECUTABLE} ${header} ${clang_executable_option} -std=c++${CMAKE_CXX_STANDARD} ${definitions} ${includes} ${compile_options}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "Generating tinyrefl metadata for ${ARGS_TARGET}/${header}"
             DEPENDS ${TINYREFL_TOOL_TARGET}

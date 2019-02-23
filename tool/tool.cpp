@@ -825,7 +825,8 @@ bool reflect_file(
     cl::list<std::string>&          include_dirs,
     cl::list<std::string>&          definitions,
     cl::list<std::string>&          warnings,
-    const std::vector<std::string>& custom_flags)
+    const std::vector<std::string>& custom_flags,
+    const std::string&              clang_binary)
 {
     using parser_t = cppast::simple_file_parser<cppast::libclang_parser>;
 
@@ -840,6 +841,17 @@ bool reflect_file(
     parser_t                 parser{type_safe::ref(index)};
     parser_t::config         config;
     config.set_flags(cpp_standard);
+
+    if(!clang_binary.empty())
+    {
+        if(!config.set_clang_binary(clang_binary))
+        {
+            std::cerr
+                << "error configuring cppast libclang parser: Clang binary \""
+                << clang_binary << "\" not found\n";
+            std::exit(1);
+        }
+    }
 
     std::cout << "parsing file " << filepath << " "
               << cppast::to_string(cpp_standard) << " ";
@@ -961,6 +973,11 @@ int main(int argc, char** argv)
                 cppast::cpp_standard::cpp_1z, "c++17", "C++ 2017 standard"))};
     cl::list<std::string> custom_flags{cl::Sink,
                                        cl::desc("Custom compiler flags")};
+    cl::opt<std::string>  clang_binary{
+        "clang-binary",
+        cl::ValueOptional,
+        cl::desc(
+            "clang++ binary. If not given, tinyrefl-tool will search in your PATH")};
 
 #if TINYREFL_LLVM_VERSION_MAJOR >= 6
     cl::SetVersionPrinter([](llvm::raw_ostream& out) { print_version(out); });
@@ -976,7 +993,8 @@ int main(int argc, char** argv)
                includes,
                definitions,
                warnings,
-               custom_flags))
+               custom_flags,
+               clang_binary))
         {
             return 0;
         }

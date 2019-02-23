@@ -315,6 +315,7 @@ user-integration-gcc8-x86-llvm6.0.0:
   tags:
     - linux
     - docker
+  retry: 2
   script:
     - conan create tool Manu343726/testing --build=missing --build=tinyrefl-tool
     - conan create .    Manu343726/testing --build=missing --build=tinyrefl
