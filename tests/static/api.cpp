@@ -264,27 +264,30 @@ EXPECT_TRUE(tinyrefl::has_entity_metadata<
 EXPECT_TRUE(
     (std::is_same<
         tinyrefl::entity_metadata<"my_namespace::MyClass::overloaded()"_id>,
-        tinyrefl::metadata<TINYREFL_STATIC_VALUE(
-            static_cast<void (my_namespace::MyClass::*)()>(
-                &my_namespace::MyClass::overloaded))>>::value));
+        tinyrefl::metadata<::ctti::static_value<
+            void (my_namespace::MyClass::*)(),
+            &my_namespace::MyClass::overloaded>>>::value));
+
 EXPECT_TRUE((std::is_same<
              tinyrefl::entity_metadata<
                  "my_namespace::MyClass::overloaded() const"_id>,
-             tinyrefl::metadata<TINYREFL_STATIC_VALUE(
-                 static_cast<void (my_namespace::MyClass::*)() const>(
-                     &my_namespace::MyClass::overloaded))>>::value));
+             tinyrefl::metadata<::ctti::static_value<
+                 void (my_namespace::MyClass::*)() const,
+                 &my_namespace::MyClass::overloaded>>>::value));
+
 EXPECT_TRUE(
     (std::is_same<
         tinyrefl::entity_metadata<"my_namespace::MyClass::overloaded(int)"_id>,
-        tinyrefl::metadata<TINYREFL_STATIC_VALUE(
-            static_cast<void (my_namespace::MyClass::*)(int)>(
-                &my_namespace::MyClass::overloaded))>>::value));
+        tinyrefl::metadata<::ctti::static_value<
+            void (my_namespace::MyClass::*)(int),
+            &my_namespace::MyClass::overloaded>>>::value));
+
 EXPECT_TRUE((std::is_same<
              tinyrefl::entity_metadata<
                  "my_namespace::MyClass::overloaded(int) const"_id>,
-             tinyrefl::metadata<TINYREFL_STATIC_VALUE(
-                 static_cast<void (my_namespace::MyClass::*)(int) const>(
-                     &my_namespace::MyClass::overloaded))>>::value));
+             tinyrefl::metadata<::ctti::static_value<
+                 void (my_namespace::MyClass::*)(int) const,
+                 &my_namespace::MyClass::overloaded>>>::value));
 
 EXPECT_EQ(
     tinyrefl::entity_metadata<
