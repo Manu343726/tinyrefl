@@ -55,9 +55,12 @@ using member_type_t = typename member_type<MemberPtr>::type;
 #define TINYREFL_MEMBER_FUNCTION( \
     name,                         \
     fullname,                     \
+    display_name,                 \
+    full_display_name,            \
     parent_class_type,            \
     return_type,                  \
     signature,                    \
+    arg_names,                    \
     pointer,                      \
     attributes) // we don't care about member functions
 #define TINYREFL_MEMBER_VARIABLE(                                       \

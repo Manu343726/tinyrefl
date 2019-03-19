@@ -238,3 +238,60 @@ EXPECT_EQ(
         .get_attribute("Foo")
         .namespace_.name(),
     "");
+
+using namespace tinyrefl::literals;
+
+EXPECT_TRUE(tinyrefl::has_entity_metadata<"my_namespace::MyClass::Foo"_id>());
+
+EXPECT_TRUE((std::is_same<
+             tinyrefl::entity_metadata<"my_namespace::MyClass::Foo"_id>,
+             tinyrefl::metadata<my_namespace::MyClass::Foo>>::value));
+
+EXPECT_TRUE(
+    tinyrefl::has_entity_metadata<"my_namespace::MyClass::overloaded()"_id>());
+
+EXPECT_TRUE((std::is_same<
+             tinyrefl::entity_metadata<"my_namespace::MyClass::Foo"_id>,
+             tinyrefl::metadata<my_namespace::MyClass::Foo>>::value));
+
+EXPECT_TRUE(tinyrefl::has_entity_metadata<
+            "my_namespace::MyClass::overloaded() const"_id>());
+EXPECT_TRUE(tinyrefl::has_entity_metadata<
+            "my_namespace::MyClass::overloaded(int)"_id>());
+EXPECT_TRUE(tinyrefl::has_entity_metadata<
+            "my_namespace::MyClass::overloaded(int) const"_id>());
+
+EXPECT_TRUE(
+    (std::is_same<
+        tinyrefl::entity_metadata<"my_namespace::MyClass::overloaded()"_id>,
+        tinyrefl::metadata<TINYREFL_STATIC_VALUE(
+            static_cast<void (my_namespace::MyClass::*)()>(
+                &my_namespace::MyClass::overloaded))>>::value));
+EXPECT_TRUE((std::is_same<
+             tinyrefl::entity_metadata<
+                 "my_namespace::MyClass::overloaded() const"_id>,
+             tinyrefl::metadata<TINYREFL_STATIC_VALUE(
+                 static_cast<void (my_namespace::MyClass::*)() const>(
+                     &my_namespace::MyClass::overloaded))>>::value));
+EXPECT_TRUE(
+    (std::is_same<
+        tinyrefl::entity_metadata<"my_namespace::MyClass::overloaded(int)"_id>,
+        tinyrefl::metadata<TINYREFL_STATIC_VALUE(
+            static_cast<void (my_namespace::MyClass::*)(int)>(
+                &my_namespace::MyClass::overloaded))>>::value));
+EXPECT_TRUE((std::is_same<
+             tinyrefl::entity_metadata<
+                 "my_namespace::MyClass::overloaded(int) const"_id>,
+             tinyrefl::metadata<TINYREFL_STATIC_VALUE(
+                 static_cast<void (my_namespace::MyClass::*)(int) const>(
+                     &my_namespace::MyClass::overloaded))>>::value));
+
+EXPECT_EQ(
+    tinyrefl::entity_metadata<
+        "my_namespace::MyClass::overloaded(int)"_id>::arg_names.size(),
+    2); // 1 arg plus extra dummy array item
+
+EXPECT_EQ(
+    tinyrefl::entity_metadata<
+        "my_namespace::MyClass::overloaded(int)"_id>::arg_names[0],
+    "firstArg");

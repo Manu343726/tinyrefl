@@ -221,6 +221,42 @@ std::string full_qualified_name(const cppast::cpp_entity& entity)
     }
 }
 
+std::string display_name(const cppast::cpp_entity& entity)
+{
+    if(entity.kind() == cppast::cpp_entity_kind::member_function_t)
+    {
+        return entity.name() +
+               static_cast<const cppast::cpp_member_function&>(entity)
+                   .signature();
+    }
+    else
+    {
+        return entity.name();
+    }
+}
+
+std::string full_qualified_display_name(const cppast::cpp_entity& entity)
+{
+    std::string name = display_name(entity);
+
+    if(entity.kind() == cppast::cpp_entity_kind::base_class_t)
+    {
+        return cppast::to_string(
+            static_cast<const cppast::cpp_base_class&>(entity).type());
+    }
+    else if(
+        entity.parent().has_value() &&
+        entity.parent().value().kind() != cppast::cpp_entity_kind::file_t)
+    {
+        return fmt::format(
+            "{}::{}", full_qualified_name(entity.parent().value()), name);
+    }
+    else
+    {
+        return fmt::format("{}", name);
+    }
+}
+
 std::string typelist(const std::vector<std::string>& args)
 {
     return fmt::format("TINYREFL_SEQUENCE(({}))", sequence(args, ", "));
@@ -428,17 +464,32 @@ std::string function_signature(const cppast::cpp_member_function& function)
     return typelist(params);
 }
 
+std::string function_parameters(const cppast::cpp_member_function& function)
+{
+    std::vector<std::string> params;
+
+    for(const auto& param : function.parameters())
+    {
+        params.push_back(string_constant(param.name()));
+    }
+
+    return typelist(params);
+}
+
 std::string member(const cppast::cpp_member_function& member)
 {
     // TINYREFL_MEMBER_FUNCTION(name, fullname, parent_class_type, return_type,
     // signature, pointer, attributes)
     return fmt::format(
-        "TINYREFL_MEMBER_FUNCTION(({}), ({}), ({}), ({}), ({}), ({}), /* <attributes> */ ({}) /* </attributes> */)",
+        "TINYREFL_MEMBER_FUNCTION(({}), ({}), ({}), ({}), ({}), ({}), ({}), ({}), ({}), /* <attributes> */ ({}) /* </attributes> */)",
         string_constant(member.name()),
         string_constant(full_qualified_name(member)),
+        string_constant(display_name(member)),
+        string_constant(full_qualified_display_name(member)),
         type_reference(member.parent().value()),
         type_reference(member.return_type()),
         function_signature(member),
+        function_parameters(member),
         member_pointer(member),
         attributes(member));
 }
@@ -748,6 +799,11 @@ void visit_ast_and_generate(
 
     generate_string_definitions(os);
     os << body.str();
+
+    os << "\n#undef TINYREFL_TOOL_CODEGEN_VERSION_MAJOR\n"
+          "#undef TINYREFL_TOOL_CODEGEN_VERSION_MINOR\n"
+          "#undef TINYREFL_TOOL_CODEGEN_VERSION_FIX\n"
+          "#undef TINYREFL_TOOL_CODEGEN_VERSION\n";
 
     os << "\n#endif // " << include_guard << "\n";
 

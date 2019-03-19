@@ -26,8 +26,8 @@ public:
     }
     void overloaded() const {};
     void overloaded(){};
-    void overloaded(int) const {};
-    void overloaded(int){};
+    void overloaded(int firstArg) const {};
+    void overloaded(int firstArg){};
 
     [[str]] std::string str;
 

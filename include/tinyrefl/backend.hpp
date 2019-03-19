@@ -11,6 +11,9 @@
 #include <stdexcept>
 #include <tinyrefl/utils/typename.hpp>
 
+#define TINYREFL_STATIC_VALUE(...) \
+    ::ctti::static_value<decltype(__VA_ARGS__), (__VA_ARGS__)>
+
 namespace tinyrefl
 {
 
@@ -50,8 +53,25 @@ struct metadata_registered_for_type
 {
 };
 
+template<typename Hash>
+struct metadata_of_entity_name
+{
+    using type = no_metadata;
+};
+
+template<typename Hash>
+struct metadata_registered_for_name
+    : public tinyrefl::meta::bool_<!std::is_same<
+          typename metadata_of_entity_name<Hash>::type,
+          no_metadata>::value>
+{
+};
+
 template<typename T>
 using metadata_of_type = typename metadata_of<T>::type;
+
+template<typename Hash>
+using metadata_of_entity = typename metadata_of_entity_name<Hash>::type;
 
 enum class entity_kind
 {
@@ -477,6 +497,103 @@ struct member : public Pointer, public metadata_with_attributes<Attributes>
 
 template<typename Name, typename Pointer, typename Attributes>
 constexpr ctti::name_t member<Name, Pointer, Attributes>::name;
+
+template<
+    typename Name,
+    typename DisplayName,
+    typename FullDisplayName,
+    typename Signature,
+    typename ArgNames,
+    typename Pointer,
+    typename Attributes>
+struct member_function;
+
+template<
+    typename Name,
+    typename DisplayName,
+    typename FullDisplayName,
+    typename Signature,
+    typename... ArgNames,
+    typename Pointer,
+    typename Attributes>
+struct member_function<
+    Name,
+    DisplayName,
+    FullDisplayName,
+    Signature,
+    tinyrefl::meta::list<ArgNames...>,
+    Pointer,
+    Attributes> : public member<Name, Pointer, Attributes>
+{
+    static constexpr ctti::detail::cstring display_name =
+        tinyrefl::backend::string_constant<DisplayName>();
+    static constexpr ctti::detail::cstring full_display_name =
+        tinyrefl::backend::string_constant<FullDisplayName>();
+    using arg_names_array =
+        std::array<ctti::detail::cstring, sizeof...(ArgNames) + 1>;
+    static constexpr arg_names_array arg_names = {
+        {tinyrefl::backend::string_constant<ArgNames>()..., ""}};
+    using signature = Signature;
+};
+
+template<
+    typename Name,
+    typename DisplayName,
+    typename FullDisplayName,
+    typename Signature,
+    typename... ArgNames,
+    typename Pointer,
+    typename Attributes>
+constexpr typename member_function<
+    Name,
+    DisplayName,
+    FullDisplayName,
+    Signature,
+    tinyrefl::meta::list<ArgNames...>,
+    Pointer,
+    Attributes>::arg_names_array
+    member_function<
+        Name,
+        DisplayName,
+        FullDisplayName,
+        Signature,
+        tinyrefl::meta::list<ArgNames...>,
+        Pointer,
+        Attributes>::arg_names;
+
+template<
+    typename Name,
+    typename DisplayName,
+    typename FullDisplayName,
+    typename Signature,
+    typename... ArgNames,
+    typename Pointer,
+    typename Attributes>
+constexpr ctti::detail::cstring member_function<
+    Name,
+    DisplayName,
+    FullDisplayName,
+    Signature,
+    tinyrefl::meta::list<ArgNames...>,
+    Pointer,
+    Attributes>::display_name;
+
+template<
+    typename Name,
+    typename DisplayName,
+    typename FullDisplayName,
+    typename Signature,
+    typename... ArgNames,
+    typename Pointer,
+    typename Attributes>
+constexpr ctti::detail::cstring member_function<
+    Name,
+    DisplayName,
+    FullDisplayName,
+    Signature,
+    tinyrefl::meta::list<ArgNames...>,
+    Pointer,
+    Attributes>::full_display_name;
 
 template<
     typename Name,
@@ -910,6 +1027,48 @@ constexpr
     typename enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes>::
         value_t enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes>::
             invalid_value;
+
+template<typename Entity>
+constexpr ctti::detail::cstring display_name(Entity = Entity{})
+{
+    return Entity::name.name();
+}
+
+template<typename Entity>
+struct has_custom_display_name
+    : tinyrefl::meta::bool_<
+          Entity::kind == tinyrefl::backend::entity_kind::MEMBER_FUNCTION>
+{
+};
+
+template<typename Entity>
+constexpr auto full_display_name(Entity = Entity{}) -> std::
+    enable_if_t<!has_custom_display_name<Entity>::value, ctti::detail::cstring>
+{
+    return Entity::name.full_name();
+}
+
+template<typename Entity>
+constexpr auto display_name(Entity = Entity{}) -> std::
+    enable_if_t<!has_custom_display_name<Entity>::value, ctti::detail::cstring>
+{
+    return Entity::name.name();
+}
+
+template<typename Entity>
+constexpr auto full_display_name(Entity = Entity{}) -> std::
+    enable_if_t<has_custom_display_name<Entity>::value, ctti::detail::cstring>
+{
+    return Entity::full_display_name;
+}
+
+template<typename Entity>
+constexpr auto display_name(Entity = Entity{}) -> std::
+    enable_if_t<has_custom_display_name<Entity>::value, ctti::detail::cstring>
+{
+    return Entity::display_name;
+}
+
 } // namespace backend
 } // namespace tinyrefl
 
@@ -966,17 +1125,24 @@ constexpr
         TINYREFL_PP_UNWRAP class_type,                 \
         TINYREFL_PP_UNWRAP signature,                  \
         TINYREFL_PP_UNWRAP attributes>
-#define TINYREFL_MEMBER_FUNCTION(    \
-    name,                            \
-    fullname,                        \
-    parent_class_type,               \
-    return_type,                     \
-    signature,                       \
-    pointer,                         \
-    attributes)                      \
-    ::tinyrefl::backend::member<     \
-        TINYREFL_PP_UNWRAP fullname, \
-        TINYREFL_PP_UNWRAP pointer,  \
+#define TINYREFL_MEMBER_FUNCTION(           \
+    name,                                   \
+    fullname,                               \
+    displayName,                            \
+    fullDisplayName,                        \
+    parent_class_type,                      \
+    return_type,                            \
+    signature,                              \
+    argNames,                               \
+    pointer,                                \
+    attributes)                             \
+    ::tinyrefl::backend::member_function<   \
+        TINYREFL_PP_UNWRAP fullname,        \
+        TINYREFL_PP_UNWRAP displayName,     \
+        TINYREFL_PP_UNWRAP fullDisplayName, \
+        TINYREFL_PP_UNWRAP signature,       \
+        TINYREFL_PP_UNWRAP argNames,        \
+        TINYREFL_PP_UNWRAP pointer,         \
         TINYREFL_PP_UNWRAP attributes>
 #define TINYREFL_MEMBER_VARIABLE(                                       \
     name, fullname, parent_class_type, value_type, pointer, attributes) \
@@ -990,17 +1156,24 @@ constexpr
         TINYREFL_PP_UNWRAP value,                                    \
         TINYREFL_PP_UNWRAP attributes>
 
-#define TINYREFL_REFLECT_MEMBER_IMPL(...)                          \
-    namespace tinyrefl                                             \
-    {                                                              \
-    namespace backend                                              \
-    {                                                              \
-    template<>                                                     \
-    struct metadata_of<typename __VA_ARGS__::pointer_static_value> \
-    {                                                              \
-        using type = __VA_ARGS__;                                  \
-    };                                                             \
-    } /* namespace backend */                                      \
+#define TINYREFL_REFLECT_MEMBER_IMPL(...)                                \
+    namespace tinyrefl                                                   \
+    {                                                                    \
+    namespace backend                                                    \
+    {                                                                    \
+    template<>                                                           \
+    struct metadata_of<typename __VA_ARGS__::pointer_static_value>       \
+    {                                                                    \
+        using type = __VA_ARGS__;                                        \
+    };                                                                   \
+                                                                         \
+    template<>                                                           \
+    struct metadata_of_entity_name<TINYREFL_STATIC_VALUE(                \
+        (::tinyrefl::backend::full_display_name<__VA_ARGS__>().hash()))> \
+    {                                                                    \
+        using type = __VA_ARGS__;                                        \
+    };                                                                   \
+    } /* namespace backend */                                            \
     } // namespace tinyrefl
 
 #define TINYREFL_REFLECT_MEMBER(member) \
@@ -1016,58 +1189,77 @@ constexpr
     {                                                            \
         using type = __VA_ARGS__;                                \
     };                                                           \
+                                                                 \
+    template<>                                                   \
+    struct metadata_of_entity_name<TINYREFL_STATIC_VALUE(        \
+        __VA_ARGS__::name.full_name().hash())>                   \
+    {                                                            \
+        using type = __VA_ARGS__;                                \
+    };                                                           \
     } /* namespace backend */                                    \
     } // namespace tinyrefl
 
 #define TINYREFL_REFLECT_ENUM_VALUE(value) \
     TINYREFL_REFLECT_ENUM_VALUE_IMPL(TINYREFL_PP_UNWRAP value)
 
-#define TINYREFL_REFLECT_CLASS(                      \
-    classname,                                       \
-    classtype,                                       \
-    bases,                                           \
-    ctors,                                           \
-    functions,                                       \
-    variables,                                       \
-    classes,                                         \
-    enums,                                           \
-    attributes)                                      \
-    namespace tinyrefl                               \
-    {                                                \
-    namespace backend                                \
-    {                                                \
-    template<>                                       \
-    struct metadata_of<TINYREFL_PP_UNWRAP classtype> \
-    {                                                \
-        using type = class_<                         \
-            TINYREFL_PP_UNWRAP classname,            \
-            TINYREFL_PP_UNWRAP classtype,            \
-            TINYREFL_PP_UNWRAP bases,                \
-            TINYREFL_PP_UNWRAP ctors,                \
-            TINYREFL_PP_UNWRAP functions,            \
-            TINYREFL_PP_UNWRAP variables,            \
-            TINYREFL_PP_UNWRAP classes,              \
-            TINYREFL_PP_UNWRAP enums,                \
-            TINYREFL_PP_UNWRAP attributes>;          \
-    };                                               \
-    } /* namespace backend */                        \
+#define TINYREFL_REFLECT_CLASS(                                      \
+    classname,                                                       \
+    classtype,                                                       \
+    bases,                                                           \
+    ctors,                                                           \
+    functions,                                                       \
+    variables,                                                       \
+    classes,                                                         \
+    enums,                                                           \
+    attributes)                                                      \
+    namespace tinyrefl                                               \
+    {                                                                \
+    namespace backend                                                \
+    {                                                                \
+    template<>                                                       \
+    struct metadata_of<TINYREFL_PP_UNWRAP classtype>                 \
+    {                                                                \
+        using type = class_<                                         \
+            TINYREFL_PP_UNWRAP classname,                            \
+            TINYREFL_PP_UNWRAP classtype,                            \
+            TINYREFL_PP_UNWRAP bases,                                \
+            TINYREFL_PP_UNWRAP ctors,                                \
+            TINYREFL_PP_UNWRAP functions,                            \
+            TINYREFL_PP_UNWRAP variables,                            \
+            TINYREFL_PP_UNWRAP classes,                              \
+            TINYREFL_PP_UNWRAP enums,                                \
+            TINYREFL_PP_UNWRAP attributes>;                          \
+    };                                                               \
+                                                                     \
+    template<>                                                       \
+    struct metadata_of_entity_name<TINYREFL_PP_UNWRAP classname>     \
+    {                                                                \
+        using type = metadata_of_type<TINYREFL_PP_UNWRAP classtype>; \
+    };                                                               \
+    } /* namespace backend */                                        \
     } // namespace tinyrefl
 
-#define TINYREFL_REFLECT_ENUM(name, enum_type, values, attributes) \
-    namespace tinyrefl                                             \
-    {                                                              \
-    namespace backend                                              \
-    {                                                              \
-    template<>                                                     \
-    struct metadata_of<TINYREFL_PP_UNWRAP enum_type>               \
-    {                                                              \
-        using type = enum_<                                        \
-            TINYREFL_PP_UNWRAP name,                               \
-            TINYREFL_PP_UNWRAP enum_type,                          \
-            TINYREFL_PP_UNWRAP values,                             \
-            TINYREFL_PP_UNWRAP attributes>;                        \
-    };                                                             \
-    } /* namespace backend */                                      \
+#define TINYREFL_REFLECT_ENUM(name, enum_type, values, attributes)   \
+    namespace tinyrefl                                               \
+    {                                                                \
+    namespace backend                                                \
+    {                                                                \
+    template<>                                                       \
+    struct metadata_of<TINYREFL_PP_UNWRAP enum_type>                 \
+    {                                                                \
+        using type = enum_<                                          \
+            TINYREFL_PP_UNWRAP name,                                 \
+            TINYREFL_PP_UNWRAP enum_type,                            \
+            TINYREFL_PP_UNWRAP values,                               \
+            TINYREFL_PP_UNWRAP attributes>;                          \
+    };                                                               \
+                                                                     \
+    template<>                                                       \
+    struct metadata_of_entity_name<TINYREFL_PP_UNWRAP name>          \
+    {                                                                \
+        using type = metadata_of_type<TINYREFL_PP_UNWRAP enum_type>; \
+    };                                                               \
+    } /* namespace backend */                                        \
     } // namespace tinyrefl
 
 #define TINYREFL_GODMODE                                        \

@@ -16,3 +16,5 @@ HEADERS
     example.hpp
     dummy_folder/dummy_header.hpp
 )
+
+add_dependencies(tinyrefl-test-static tinyrefl-test)

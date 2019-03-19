@@ -10,8 +10,6 @@
 #include <tinyrefl/backend.hpp>
 #include <tinyrefl/utils/typename.hpp>
 
-#define TINYREFL_STATIC_VALUE(...) CTTI_STATIC_VALUE(__VA_ARGS__)
-
 namespace tinyrefl
 {
 
@@ -57,6 +55,28 @@ constexpr bool has_metadata()
 {
     return tinyrefl::backend::metadata_registered_for_type<T>::value;
 }
+
+template<ctti::detail::hash_t Hash>
+constexpr bool has_entity_metadata()
+{
+    return tinyrefl::backend::metadata_registered_for_name<
+        TINYREFL_STATIC_VALUE(Hash)>::value;
+}
+
+template<ctti::detail::hash_t Hash>
+using entity_metadata =
+    tinyrefl::backend::metadata_of_entity<TINYREFL_STATIC_VALUE(Hash)>;
+
+namespace literals
+{
+
+constexpr ctti::detail::hash_t
+    operator""_id(const char* id, const std::size_t /* length */)
+{
+    return ctti::detail::cstring{id}.hash();
+}
+
+} // namespace literals
 
 template<typename Metadata>
 constexpr bool has_attribute(
