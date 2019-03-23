@@ -1,7 +1,7 @@
 include(external/external.cmake)
 
 add_library(tinyrefl-example-lib example.cpp)
-tinyrefl_tool(TARGET tinyrefl-example-lib HEADERS example.hpp)
+tinyrefl_tool(TARGET tinyrefl-example-lib HEADERS example.hpp example2.hpp)
 
 add_tinyrefl_example(tinyrefl-example api.cpp)
 

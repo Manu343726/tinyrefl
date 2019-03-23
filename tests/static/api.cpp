@@ -4,7 +4,12 @@
 #include <tinyrefl/utils/enum_value_attributes.hpp>
 #include "../example.hpp.tinyrefl"
 #include "members.hpp.tinyrefl"
+#include <tinyrefl/entities.hpp>
 #include CTTI_STATIC_TESTS_HEADER
+
+#if TINYREFL_GENERATED_FILE_COUNT != 2
+#error "Expected two tinyrefl codegen headers"
+#endif
 
 using check = tinyrefl::test::AssertMetadataAvailableForTemplateParam<foo::Foo>;
 EXPECT_TRUE(std::is_pointer<check*>::value);
@@ -298,3 +303,14 @@ EXPECT_EQ(
     tinyrefl::entity_metadata<
         "my_namespace::MyClass::overloaded(int)"_id>::arg_names[0],
     "firstArg");
+
+EXPECT_TRUE(tinyrefl::has_entity_metadata<"my_namespace::MyClass::Enum"_id>());
+EXPECT_TRUE(std::is_same<
+            tinyrefl::entity_metadata<"my_namespace::MyClass::Enum"_id>,
+            tinyrefl::metadata<my_namespace::MyClass::Enum>>::value);
+
+EXPECT_TRUE(
+    std::is_same<
+        tinyrefl::meta::
+            filter_t<tinyrefl::meta::defer<std::is_class>, tinyrefl::entities>,
+        tinyrefl::entities>::value);

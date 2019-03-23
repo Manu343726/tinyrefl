@@ -15,6 +15,12 @@ namespace tinyrefl
 
 using entity = tinyrefl::backend::entity_kind;
 
+template<entity Kind>
+using kind_tag = TINYREFL_STATIC_VALUE(Kind);
+
+template<entity Kind>
+constexpr kind_tag<Kind> kind_tag_value{};
+
 template<typename T>
 using type_tag = ctti::type_tag<T>;
 

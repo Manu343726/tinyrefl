@@ -78,14 +78,18 @@ std::string sequence(
 {
     std::ostringstream os;
 
-    for(std::size_t i = 0; i < elems.size(); ++i)
+    std::size_t i = 0;
+
+    for(const auto& elem : elems)
     {
-        os << prefix << elems[i] << suffix;
+        os << prefix << elem << suffix;
 
         if(i < elems.size() - 1)
         {
             os << separator;
         }
+
+        i++;
     }
 
     return os.str();
@@ -257,7 +261,8 @@ std::string full_qualified_display_name(const cppast::cpp_entity& entity)
     }
 }
 
-std::string typelist(const std::vector<std::string>& args)
+template<typename Sequence>
+std::string typelist(const Sequence& args)
 {
     return fmt::format("TINYREFL_SEQUENCE(({}))", sequence(args, ", "));
 }
@@ -563,6 +568,24 @@ std::string constructor(const cppast::cpp_constructor& ctor)
         attributes(ctor));
 }
 
+static std::unordered_set<std::string> entities;
+
+template<typename Entity>
+void register_entity(const Entity& entity)
+{
+    bool already_registered =
+        !entities.insert(string_constant(full_qualified_display_name(entity)))
+             .second;
+
+    if(already_registered)
+    {
+        fmt::print(
+            stderr,
+            "WARNING: An entity named \"{}\" already exists!\n",
+            full_qualified_display_name(entity));
+    }
+}
+
 void generate_class(std::ostream& os, const cppast::cpp_class& class_)
 {
     std::vector<std::string> member_variables;
@@ -575,6 +598,7 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
     std::cout << " # " << full_qualified_name(class_) << " [attributes: "
               << sequence(class_.attributes(), ", ", "\"", "\"") << "]\n";
 
+    register_entity(class_);
 
     cppast::visit(
         class_,
@@ -606,6 +630,8 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
                     static_cast<const cppast::cpp_member_function&>(child));
                 member_functions.push_back(member);
                 generate_member(os, member);
+                register_entity(
+                    static_cast<const cppast::cpp_member_function&>(child));
                 break;
             }
             case cppast::cpp_entity_kind::member_variable_t:
@@ -619,6 +645,8 @@ void generate_class(std::ostream& os, const cppast::cpp_class& class_)
                     static_cast<const cppast::cpp_member_variable&>(child));
                 member_variables.push_back(member);
                 generate_member(os, member);
+                register_entity(
+                    static_cast<const cppast::cpp_member_variable&>(child));
                 break;
             }
             case cppast::cpp_entity_kind::class_t:
@@ -706,6 +734,8 @@ void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
     {
         std::vector<std::string> values;
 
+        register_entity(enum_);
+
         cppast::visit(
             enum_,
             [&values, &os](
@@ -721,7 +751,7 @@ void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
                               << sequence(value.attributes(), ", ", "\"", "\"")
                               << "]\n";
 
-
+                    register_entity(value);
                     generate_enum_value(os, value);
                     values.push_back(enum_value(value));
                 }
@@ -734,6 +764,50 @@ void generate_enum(std::ostream& os, const cppast::cpp_enum& enum_)
             type_reference(enum_),
             typelist(values),
             attributes(enum_));
+    }
+}
+
+void generate_global_metadata_list(std::ostream& os)
+{
+    const auto entities_sequence = typelist(entities);
+
+    os << "#ifndef TINYREFL_GENERATED_FILE_COUNT\n"
+          "    #define TINYREFL_GENERATED_FILE_COUNT 0\n"
+          "    #define TINYREFL_ENTITIES_0 "
+       << entities_sequence
+       << "\n"
+          "    #define TINYREFL_ENTITIES TINYREFL_ENTITIES_0\n"
+          "#endif // TINYREFL_GENERATED_FILE_COUNT\n"
+          "\n";
+
+    static constexpr int TINYREFL_TOOL_MAX_GENERATED_FILES = 128;
+
+    for(int i = 0; i <= TINYREFL_TOOL_MAX_GENERATED_FILES; ++i)
+    {
+        if(i < TINYREFL_TOOL_MAX_GENERATED_FILES)
+        {
+            fmt::print(
+                os,
+                "#{if} TINYREFL_GENERATED_FILE_COUNT == {i}\n"
+                "    #undef TINYREFL_GENERATED_FILE_COUNT\n"
+                "    #define TINYREFL_GENERATED_FILE_COUNT {next}\n"
+                "    #define TINYREFL_ENTITIES_{next} TINYREFL_SEQUENCE_CAT((TINYREFL_ENTITIES_{i}), ({entities}))\n"
+                "    #undef TINYREFL_ENTITIES\n"
+                "    #define TINYREFL_ENTITIES TINYREFL_ENTITIES_{next}\n",
+                fmt::arg("if", (i == 0 ? "if" : "elif")),
+                fmt::arg("i", i),
+                fmt::arg("next", i + 1),
+                fmt::arg("entities", entities_sequence));
+        }
+        else
+        {
+            fmt::print(
+                os,
+                "#else\n"
+                "    #error Only up to {} tinyrefl generated code headers can be included in the same translation unit\n"
+                "#endif // TINYREFL_GENERATED_FILE_COUNT\n\n",
+                TINYREFL_TOOL_MAX_GENERATED_FILES);
+        }
     }
 }
 
@@ -799,6 +873,7 @@ void visit_ast_and_generate(
 
     generate_string_definitions(os);
     os << body.str();
+    generate_global_metadata_list(os);
 
     os << "\n#undef TINYREFL_TOOL_CODEGEN_VERSION_MAJOR\n"
           "#undef TINYREFL_TOOL_CODEGEN_VERSION_MINOR\n"

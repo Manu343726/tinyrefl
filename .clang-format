@@ -27,6 +27,8 @@ DerivePointerAlignment: 'false'
 IncludeCategories:
   - Regex:    '.*\.tinyrefl'
     Priority: 10000
+  - Regex:    'tinyrefl/entities.hpp'
+    Priority: 20000
 IndentCaseLabels: 'false'
 IndentWidth: '4'
 IndentWrappedFunctionNames: 'true'

@@ -57,7 +57,7 @@ auto register_rttr_type() -> std::enable_if_t<
     std::is_enum<Enum>::value && tinyrefl::has_metadata<Enum>()>
 {
     register_rttr_enum<Enum>(rttr::registration::enumeration<Enum>(
-        tinyrefl::metadata<Enum>().name().full_name().begin()));
+        tinyrefl::metadata<Enum>::name.full_name().begin()));
 }
 
 template<typename Enum, typename Class>
@@ -66,7 +66,7 @@ auto register_rttr_member_enum(rttr::registration::class_<Class>& registration)
         std::is_enum<Enum>::value && tinyrefl::has_metadata<Enum>()>
 {
     register_rttr_enum<Enum>(registration.template enumeration<Enum>(
-        tinyrefl::metadata<Enum>().name().full_name().begin()));
+        tinyrefl::metadata<Enum>::name.full_name().begin()));
 }
 
 template<typename Class>

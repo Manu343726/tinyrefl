@@ -1,8 +1,11 @@
 #include "example.hpp"
+#include "example2.hpp"
 #include <iostream>
 #include <sstream>
 #include <tinyrefl/api.hpp>
 #include "example.hpp.tinyrefl"
+#include "example2.hpp.tinyrefl"
+#include <tinyrefl/entities.hpp>
 
 
 /*
@@ -203,4 +206,41 @@ int main()
                 .get_attribute(0) == "A",
         "Expected [[A]] as first attribute");
 #endif // TINYREFL_HAS_ENUM_VALUE_ATTRIBUTES
+
+    // Print all reflected entities
+    tinyrefl::visit_entities(
+        [](auto /* display_name */, auto index, auto entity, auto /* kind */) {
+            using Index  = decltype(index);
+            using Entity = decltype(entity);
+
+            std::cout << "[entity " << Index::value << "] " << Entity::kind
+                      << " '" << tinyrefl::full_display_name<Entity>() << "'\n";
+        });
+
+    // Print all enums
+    tinyrefl::visit_enums([](auto /* display_name */, auto entity) {
+        using Entity = decltype(entity);
+
+        std::cout << "enum " << Entity::name.full_name() << "\n";
+
+        for(const auto value : entity)
+        {
+            std::cout << " - " << value.name() << "\n";
+        }
+    });
+
+    // Print all classes
+    tinyrefl::visit_classes([](auto /* display_name */, auto entity) {
+        using Entity = decltype(entity);
+
+        std::cout << "class " << Entity::name.full_name() << "\n";
+    });
+
+    // Print all member variables
+    tinyrefl::visit_entities<tinyrefl::entity::MEMBER_VARIABLE>(
+        [](auto /* display_name */, auto entity) {
+            using Entity = decltype(entity);
+
+            std::cout << "member variable " << Entity::name.full_name() << "\n";
+        });
 }

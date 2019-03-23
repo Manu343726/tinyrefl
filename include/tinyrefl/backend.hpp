@@ -814,7 +814,7 @@ struct enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes>
     : public metadata_with_attributes<Attributes>
 {
     static constexpr entity_kind  kind = entity_kind::ENUM;
-    static constexpr ctti::name_t enum_name =
+    static constexpr ctti::name_t name =
         tinyrefl::backend::string_constant<Name>();
     using values          = tinyrefl::meta::list<Values...>;
     using enum_type       = Enum;
@@ -932,9 +932,9 @@ struct enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes>
         return values::size;
     }
 
-    constexpr const ctti::name_t& name() const
+    constexpr const ctti::name_t& name_() const
     {
-        return enum_::enum_name;
+        return enum_::name;
     }
 
     constexpr const value_t& get_value(const ctti::detail::cstring& name) const
@@ -1021,18 +1021,12 @@ constexpr
                 enum_values;
 template<typename Name, typename Enum, typename... Values, typename Attributes>
 constexpr ctti::name_t
-    enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes>::enum_name;
+    enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes>::name;
 template<typename Name, typename Enum, typename... Values, typename Attributes>
 constexpr
     typename enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes>::
         value_t enum_<Name, Enum, tinyrefl::meta::list<Values...>, Attributes>::
             invalid_value;
-
-template<typename Entity>
-constexpr ctti::detail::cstring display_name(Entity = Entity{})
-{
-    return Entity::name.name();
-}
 
 template<typename Entity>
 struct has_custom_display_name
@@ -1042,30 +1036,34 @@ struct has_custom_display_name
 };
 
 template<typename Entity>
-constexpr auto full_display_name(Entity = Entity{}) -> std::
+constexpr auto full_display_name() -> std::
     enable_if_t<!has_custom_display_name<Entity>::value, ctti::detail::cstring>
 {
+    static_assert(std::is_class<Entity>::value, "");
     return Entity::name.full_name();
 }
 
 template<typename Entity>
-constexpr auto display_name(Entity = Entity{}) -> std::
+constexpr auto display_name() -> std::
     enable_if_t<!has_custom_display_name<Entity>::value, ctti::detail::cstring>
 {
+    static_assert(std::is_class<Entity>::value, "");
     return Entity::name.name();
 }
 
 template<typename Entity>
-constexpr auto full_display_name(Entity = Entity{}) -> std::
+constexpr auto full_display_name() -> std::
     enable_if_t<has_custom_display_name<Entity>::value, ctti::detail::cstring>
 {
+    static_assert(std::is_class<Entity>::value, "");
     return Entity::full_display_name;
 }
 
 template<typename Entity>
-constexpr auto display_name(Entity = Entity{}) -> std::
+constexpr auto display_name() -> std::
     enable_if_t<has_custom_display_name<Entity>::value, ctti::detail::cstring>
 {
+    static_assert(std::is_class<Entity>::value, "");
     return Entity::display_name;
 }
 
@@ -1109,6 +1107,8 @@ constexpr auto display_name(Entity = Entity{}) -> std::
 
 #define TINYREFL_SEQUENCE(elems) \
     ::tinyrefl::meta::list<TINYREFL_PP_UNWRAP elems>
+#define TINYREFL_SEQUENCE_CAT(x, y) \
+    ::tinyrefl::meta::cat_t<TINYREFL_PP_UNWRAP x, TINYREFL_PP_UNWRAP y>
 #define TINYREFL_TYPE(name, fullname) TINYREFL_PP_UNWRAP fullname
 #define TINYREFL_VALUE(type, value) \
     ::ctti::static_value<TINYREFL_PP_UNWRAP type, TINYREFL_PP_UNWRAP value>
