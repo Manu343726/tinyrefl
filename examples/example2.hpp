@@ -35,13 +35,12 @@ public:
     B                                subobject;
 
     C() = default;
-    explicit C(const std::string& str) {}
-    [[C]] C(int a, int b) {}
+    explicit C(const std::string& str){}[[C]] C(int a, int b){}
 
-    [[f, f1, f2]] void f(int a, int b) const {};
-    [[f]] void         f(int a, int b){};
-    [[f]] void         f(){};
-    [[f]] void         f() const {};
+        [[ f, f1, f2 ]] void f(int a, int b) const {};
+    [[f]] void f(int a, int b) {};
+    [[f]] void f() {};
+    [[f]] void f() const {};
 
     enum class Enum
     {
