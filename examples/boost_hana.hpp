@@ -9,7 +9,7 @@
 
 #define TINYREFL_API_CODEGEN_VERSION_MAJOR 0
 #define TINYREFL_API_CODEGEN_VERSION_MINOR 4
-#define TINYREFL_API_CODEGEN_VERSION_FIX 0
+#define TINYREFL_API_CODEGEN_VERSION_FIX 1
 
 // Boost Hana backend for tinyrefl metadata
 #define TINYREFL_GODMODE(...) // No Gods here

@@ -3,7 +3,7 @@ import os
 
 class TinyreflTool(ConanFile):
     name = 'tinyrefl-tool'
-    version = '0.4.0'
+    version = '0.4.1'
     url = 'https://github.com/Manu343726/tinyrefl'
     description = ' A work in progress minimal C++ static reflection API and codegen tool'
     scm = {
