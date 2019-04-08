@@ -1,9 +1,22 @@
 include(external/external.cmake)
+include(${TINYREFL_SOURCE_DIR}/cmake/CheckCXXConcepts.cmake)
 
-add_library(tinyrefl-example-lib example.cpp)
+add_library(tinyrefl-example-lib example.cpp example2.cpp)
 tinyrefl_tool(TARGET tinyrefl-example-lib HEADERS example.hpp example2.hpp)
 
 add_tinyrefl_example(tinyrefl-example api.cpp)
+
+set(concepts_feature_flags -fconcepts)
+
+set(CMAKE_REQUIRED_FLAGS ${concepts_feature_flags})
+check_cxx_concepts(CXX_COMPILER_HAS_CONCEPTS)
+
+if(TRUE)
+    target_compile_options(tinyrefl-example PRIVATE ${concepts_feature_flags})
+    message(STATUS "tinyrefl-example compiled with Concepts TS support")
+else()
+    message(STATUS "tinyrefl-example compiled witouth Concepts TS support")
+endif()
 
 target_link_libraries(tinyrefl-example PRIVATE tinyrefl-example-lib)
 

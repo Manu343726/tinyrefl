@@ -29,38 +29,55 @@ endif()
 if(NOT TINYREFL_CPPFS_VERSION)
     set(TINYREFL_CPPFS_VERSION optional_libSSL2)
 endif()
+if(NOT TINYREFL_TYPE_SAFE_URL)
+    set(TINYREFL_TYPE_SAFE_URL "https://github.com/foonathan/type_safe")
+endif()
+if(NOT TINYREFL_TYPE_SAFE_VERSION)
+    set(TINYREFL_TYPE_SAFE_VERSION v0.2.1)
+endif()
 
-if(TINYREFL_USING_CONAN_TARGETS)
+if(TINYREFL_TOOL_USING_CONAN_TARGETS)
+    message(STATUS "tinyrefl-tool build using conan targets")
+
     add_library(tinyrefl_externals_fmt          INTERFACE)
     add_library(tinyrefl_externals_cppast       INTERFACE)
     add_library(tinyrefl_externals_llvm_support INTERFACE)
+    add_library(tinyrefl_externals_type_safe    INTERFACE)
 
     target_link_libraries(tinyrefl_externals_fmt          INTERFACE CONAN_PKG::fmt)
     target_link_libraries(tinyrefl_externals_cppast       INTERFACE CONAN_PKG::cppast)
     target_link_libraries(tinyrefl_externals_llvm_support INTERFACE CONAN_PKG::llvm_support)
+    target_link_libraries(tinyrefl_externals_type_safe    INTERFACE CONAN_PKG::type_safe)
 
     # TODO: Create conan recipe for cppfs
     external_dependency(cppfs ${TINYREFL_CPPFS_REPO_URL} ${TINYREFL_CPPFS_VERSION})
     add_library(tinyrefl_externals_cppfs ALIAS cppfs)
 else()
-    find_package(fmt)
-    find_package(cppast)
-    find_package(llvm_support)
-    find_package(cppfs)
+    find_package(fmt          QUIET)
+    find_package(cppast       QUIET)
+    find_package(llvm_support QUIET)
+    find_package(cppfs        QUIET)
+    find_package(type_safe    QUIET)
 
-    if(NOT fmt_FOUND)
+    if(fmt_FOUND)
+        message(STATUS "tinyrefl-tool build using fmt from find_package() module")
+
+        add_library(tinyrefl_externals_fmt INTERFACE)
+        target_link_libraries(tinyrefl_externals_fmt INTERFACE fmt::fmt)
+    else()
+        message(STATUS "tinyrefl-tool build using fmt from sources")
+
         external_dependency(fmt-header-only ${TINYREFL_FMT_REPO_URL} ${TINYREFL_FMT_VERSION})
 
         # Here we cannot define an ALIAS library since fmt::fmt-header-only itself is
         # already an alias
         add_library(tinyrefl_externals_fmt INTERFACE)
         target_link_libraries(tinyrefl_externals_fmt INTERFACE fmt::fmt-header-only)
-    else()
-        add_library(tinyrefl_externals_fmt INTERFACE)
-        target_link_libraries(tinyrefl_externals_fmt INTERFACE fmt::fmt)
     endif()
 
     if(NOT cppast_FOUND OR NOT llvm_support_FOUND)
+        message(STATUS "tinyrefl-tool build using cppast from sources")
+
         if(TINYREFL_USE_LOCAL_LLVM)
             # Find local llvm-config tool for cppast setup
             find_program(llvm-config NAMES llvm-config llvm-config-${TINYREFL_LLVM_VERSION_MAJOR}.${TINYREFL_LLVM_VERSION_MINOR})
@@ -108,6 +125,7 @@ else()
 
         external_dependency(cppast ${TINYREFL_CPPAST_REPO_URL} ${TINYREFL_CPPAST_VERSION})
         add_library(tinyrefl_externals_cppast ALIAS cppast)
+        add_library(tinyrefl_externals_type_safe ALIAS type_safe)
 
         if(NOT LLVM_CONFIG_BINARY)
             message(FATAL_ERROR "llvm-config binary not set")
@@ -128,16 +146,50 @@ else()
         add_library(tinyrefl_externals_llvm_support INTERFACE)
         target_link_libraries(tinyrefl_externals_llvm_support INTERFACE LLVMSupport)
     else()
-        add_library(tinyrefl_externals_cppast INTERFACE)
-        target_link_libraries(tinyrefl_externals_cppast INTERFACE cppast::cppast)
+        if(cppast_FOUND)
+            message(STATUS "tibyrefl-tool build using cppast from find_package() module")
+
+            add_library(tinyrefl_externals_cppast INTERFACE)
+            target_link_libraries(tinyrefl_externals_cppast INTERFACE cppast::cppast)
+        else()
+            message(FATAL_ERROR "cppast library dependency not found")
+        endif()
+
+        if(llvm_support_FOUND)
+            message(STATUS "tinyrefl-tool build using llvm_support from find_package() module")
+            message(STATUS "tinyrefl-tool build using cppast from find_package() module")
+
+            add_library(tinyrefl_externals_llvm_support INTERFACE)
+            target_link_libraries(tinyrefl_externals_llvm_support INTERFACE llvm_support::llvm_support)
+        else()
+            message(FATAL_ERROR "LLVMSupport library dependency not found")
+        endif()
     endif()
 
     if(NOT cppfs_FOUND)
+        message(STATUS "tinyrefl-tool build using cppfs from sources")
+
         external_dependency(cppfs ${TINYREFL_CPPFS_REPO_URL} ${TINYREFL_CPPFS_VERSION})
         add_library(tinyrefl_externals_cppfs ALIAS cppfs)
     else()
+        message(STATUS "tinyrefl-tool build using cppfs from find_package() module")
+
         add_library(tinyrefl_externals_cppfs INTERFACE)
         target_link_libraries(tinyrefl_externals_cppfs INTERFACE cppfs::cppfs)
+    endif()
+
+    if(NOT TARGET tinyrefl_externals_type_safe)
+        if(NOT type_safe_FOUND)
+            message(STATUS "tinyrefl-tool build using type_safe from sources")
+
+            external_dependency(type_safe ${TINYREFL_TYPE_SAFE_URL} ${TINYREFL_TYPE_SAFE_VERSION})
+            add_library(tinyrefl_externals_type_safe ALIAS type_safe)
+        else()
+            message(STATUS "tinyrefl-tool build using type_safe from find_package() module")
+
+            add_library(tinyrefl_externals_type_safe INTERFACE)
+            target_link_libraries(tinyrefl_externals_type_safe INTERFACE type_safe::type_safe)
+        endif()
     endif()
 endif()
 

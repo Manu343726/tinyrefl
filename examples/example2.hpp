@@ -4,6 +4,20 @@
 #include <string>
 #include <tinyrefl/utils/enum_value_attributes.hpp>
 
+namespace example
+{
+
+struct type_in_example_namespace_declared_in_example2_file
+{
+};
+
+constexpr int function_declared_in_example2_header()
+{
+    return 42;
+}
+
+} // namespace example
+
 namespace example2
 {
 

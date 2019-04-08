@@ -57,16 +57,22 @@ else()
         set(CMAKE_CXX_STANDARD 14)
     endif()
 
+    set(TINYREFL_TOOL_USING_CONAN_TARGETS ${TINYREFL_USING_CONAN_TARGETS})
+
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
     include(external/external.cmake)
+
+    set(TINYREFL_TOOL_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+    add_subdirectory(src)
 
     add_executable(tinyrefl-tool tool.cpp)
     define_tinyrefl_version_variables(tinyrefl-tool)
     define_llvm_version_variables(tinyrefl-tool)
 
     target_link_libraries(tinyrefl-tool PRIVATE
-        tinyrefl_externals_cppast
+        tinyrefl-tool-lib
         tinyrefl_externals_cppfs
-        tinyrefl_externals_fmt
         tinyrefl_externals_llvm_support)
 
     if(NOT MSVC)
@@ -76,6 +82,9 @@ else()
 
     set(TINYREFL_TOOL_EXECUTABLE $<TARGET_FILE:tinyrefl-tool> CACHE STRING "")
     set(TINYREFL_TOOL_TARGET tinyrefl-tool CACHE STRING "")
+
+    add_executable(string-debugger string_debugger.cpp)
+    target_link_libraries(string-debugger PRIVATE tinyrefl)
 endif()
 
 include(CMakePackageConfigHelpers)

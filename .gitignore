@@ -1,3 +1,4 @@
 build*/
 .ycm_extra_conf.py
 *.tinyrefl
+.color_coded

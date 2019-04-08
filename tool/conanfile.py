@@ -12,12 +12,13 @@ class TinyreflTool(ConanFile):
       'revision': 'auto',
       'subfolder': 'tinyrefl'
     }
-    generators = 'cmake'
+    generators = 'cmake', 'cmake_find_package'
     build_requires = ('jsonformoderncpp/3.5.0@vthiery/stable',
                 'fmt/5.2.1@bincrafters/stable',
                 'ctti/0.0.2@Manu343726/testing',
                 'cppast/master@Manu343726/testing',
-                'llvm_support/6.0.1@Manu343726/testing')
+                'llvm_support/6.0.1@Manu343726/testing',
+                'type_safe/0.3@Manu343726/testing')
     requires = 'clang_executables/6.0.1@Manu343726/testing'
     default_options = 'fmt:header_only=True'
     settings = 'os', 'compiler', 'build_type', 'arch'

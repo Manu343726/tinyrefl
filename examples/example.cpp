@@ -4,6 +4,9 @@
 
 namespace example
 {
+
+int C::static_member_variable;
+
 std::ostream& operator<<(std::ostream& os, const B& b)
 {
     return os << tinyrefl::to_string(b);

@@ -53,11 +53,31 @@ public:
     };
 
     [[e]] Enum e = Enum::A;
+
+    static void static_member_function() {}
+    static int  static_member_variable;
 };
+
+constexpr int variable = 42;
+
+constexpr int function()
+{
+    return 42;
+}
 
 std::ostream& operator<<(std::ostream& os, const B& b);
 std::ostream& operator<<(std::ostream& os, const Enum& value);
 std::ostream& operator<<(std::ostream& os, const C::Enum& value);
+
+namespace nested_namespace
+{
+class Foo
+{
+};
+} // namespace nested_namespace
+
 } // namespace example
+
+namespace example_namespace = example;
 
 #endif // TINYREFL_EXAMPLE_HPP

@@ -3,17 +3,25 @@
 
 #include <algorithm>
 #include <cassert>
+#include <sstream>
+
+#include <tinyrefl/backend/backend.hpp>
+#include <tinyrefl/backend/metadata.hpp>
+#include <tinyrefl/object_visitor.hpp>
+#include <tinyrefl/utils/language_features.hpp>
+#include <tinyrefl/utils/overloaded_function.hpp>
+#include <tinyrefl/utils/typename.hpp>
+#include <tinyrefl/visitor.hpp>
+
 #include <ctti/detailed_nameof.hpp>
 #include <ctti/type_tag.hpp>
+
 #include <nlohmann/json.hpp>
-#include <sstream>
-#include <tinyrefl/backend.hpp>
-#include <tinyrefl/utils/typename.hpp>
 
 namespace tinyrefl
 {
 
-using entity = tinyrefl::backend::entity_kind;
+using entity = tinyrefl::entities::entity_kind;
 
 template<entity Kind>
 using kind_tag = TINYREFL_STATIC_VALUE(Kind);
@@ -31,6 +39,8 @@ struct as_static_value
 {
 };
 
+using json = nlohmann::json;
+
 namespace detail
 {
 
@@ -45,117 +55,10 @@ struct SelectOverloadedMemberFunction
         return Ptr;
     }
 };
-} // namespace detail
 
 template<typename... Args>
 constexpr detail::SelectOverloadedMemberFunction<Args...> select_overload =
     detail::SelectOverloadedMemberFunction<Args...>{};
-
-using json = nlohmann::json;
-
-template<typename T>
-using metadata = typename tinyrefl::backend::metadata_of_type<T>;
-
-template<typename T>
-constexpr bool has_metadata()
-{
-    return tinyrefl::backend::metadata_registered_for_type<T>::value;
-}
-
-template<ctti::detail::hash_t Hash>
-constexpr bool has_entity_metadata()
-{
-    return tinyrefl::backend::metadata_registered_for_name<
-        TINYREFL_STATIC_VALUE(Hash)>::value;
-}
-
-template<ctti::detail::hash_t Hash>
-using entity_metadata =
-    tinyrefl::backend::metadata_of_entity<TINYREFL_STATIC_VALUE(Hash)>;
-
-namespace literals
-{
-
-constexpr ctti::detail::hash_t
-    operator""_id(const char* id, const std::size_t /* length */)
-{
-    return ctti::detail::cstring{id}.hash();
-}
-
-} // namespace literals
-
-template<typename Metadata>
-constexpr bool has_attribute(
-    const Metadata& metadata, const ctti::detail::cstring& attribute)
-{
-    return tinyrefl::backend::has_attribute(metadata, attribute);
-}
-
-template<typename T>
-constexpr auto has_attribute(const ctti::detail::cstring& attribute)
-    -> tinyrefl::meta::enable_if_t<has_metadata<T>(), bool>
-{
-    return tinyrefl::backend::has_attribute(metadata<T>{}, attribute);
-}
-
-template<typename T>
-constexpr auto has_attribute(const ctti::detail::cstring & /* attribute */)
-    -> tinyrefl::meta::enable_if_t<!has_metadata<T>(), bool>
-{
-    return false;
-}
-
-template<typename T>
-std::string default_object_name(const T& object)
-{
-    return "<" << tinyrefl::utils::type_name<T>() << " object @" << &object
-               << ">";
-}
-
-namespace detail
-{
-
-template<typename Functions>
-struct overloaded_function;
-
-template<typename Head, typename Second, typename... Tail>
-struct overloaded_function<tinyrefl::meta::list<Head, Second, Tail...>>
-    : public Head,
-      public overloaded_function<tinyrefl::meta::list<Second, Tail...>>
-{
-    using Head::operator();
-    using overloaded_function<tinyrefl::meta::list<Second, Tail...>>::
-        operator();
-
-    constexpr overloaded_function(Head head, Second second, Tail... tail)
-        : Head{head},
-          overloaded_function<tinyrefl::meta::list<Second, Tail...>>{second,
-                                                                     tail...}
-    {
-    }
-};
-
-template<typename Function, typename Args, typename = void>
-struct is_invokable : public std::false_type
-{
-};
-
-template<typename Function, typename... Args>
-struct is_invokable<
-    Function,
-    tinyrefl::meta::list<Args...>,
-    tinyrefl::meta::void_t<typename std::result_of<Function(Args...)>::type>>
-    : std::true_type
-{
-};
-
-template<typename Head>
-struct overloaded_function<tinyrefl::meta::list<Head>> : public Head
-{
-    constexpr overloaded_function(Head head) : Head{head} {}
-
-    using Head::operator();
-};
 
 template<typename... Ts, typename Function, std::size_t... Indices>
 auto tuple_map_impl(
@@ -246,102 +149,6 @@ struct is_comparable<
 {
 };
 
-template<typename Class, typename Visitor, std::size_t Depth, entity ClassKind>
-tinyrefl::meta::enable_if_t<
-    !std::is_class<Class>::value || !has_metadata<Class>()>
-    visit_class(
-        Visitor visitor,
-        tinyrefl::meta::size_t<Depth>,
-        ctti::static_value<entity, ClassKind>)
-{
-    visitor(
-        tinyrefl::utils::type_name<Class>(),
-        tinyrefl::meta::size_t<Depth>(),
-        tinyrefl::type_tag<Class>(),
-        TINYREFL_STATIC_VALUE(ClassKind)());
-}
-
-template<typename Class, typename Visitor, std::size_t Depth, entity ClassKind>
-tinyrefl::meta::enable_if_t<
-    std::is_class<Class>::value && has_metadata<Class>()>
-    visit_class(
-        Visitor visitor,
-        tinyrefl::meta::size_t<Depth>,
-        ctti::static_value<entity, ClassKind>)
-{
-    // visit base classes first (if reflected)
-    tinyrefl::meta::foreach<typename metadata<Class>::base_classes>(
-        [visitor](auto Base, auto /* Index */) {
-            using base_class = typename decltype(Base)::type;
-
-            tinyrefl::detail::visit_class<base_class>(
-                visitor,
-                tinyrefl::meta::size_t<Depth + 1>(),
-                TINYREFL_STATIC_VALUE(entity::BASE_CLASS)());
-        });
-
-    visitor(
-        tinyrefl::utils::type_name<Class>(),
-        tinyrefl::meta::size_t<Depth>(),
-        tinyrefl::type_tag<Class>(),
-        TINYREFL_STATIC_VALUE(ClassKind)());
-
-    tinyrefl::meta::foreach<typename metadata<Class>::constructors>(
-        [visitor](auto Ctor, auto /* Index */) {
-            using ctor = typename decltype(Ctor)::type;
-
-            visitor(
-                ctor::name.str(),
-                tinyrefl::meta::size_t<Depth>(),
-                ctor(),
-                TINYREFL_STATIC_VALUE(entity::CONSTRUCTOR)());
-        });
-
-    tinyrefl::meta::foreach<typename metadata<Class>::member_variables>(
-        [visitor](auto Member, auto /* Index */) {
-            using member = typename decltype(Member)::type;
-
-            visitor(
-                member::name.name().str(),
-                tinyrefl::meta::size_t<Depth>(),
-                member(),
-                TINYREFL_STATIC_VALUE(entity::MEMBER_VARIABLE)());
-        });
-
-    tinyrefl::meta::foreach<typename metadata<Class>::member_functions>(
-        [visitor](auto Member, auto /* Index */) {
-            using member = typename decltype(Member)::type;
-
-            visitor(
-                member::name.name().str(),
-                tinyrefl::meta::size_t<Depth>(),
-                member(),
-                TINYREFL_STATIC_VALUE(entity::MEMBER_FUNCTION)());
-        });
-
-    tinyrefl::meta::foreach<typename metadata<Class>::classes>(
-        [visitor](auto class_, auto /* Index */) {
-            using class_type = typename decltype(class_)::type;
-
-            visitor(
-                ctti::detailed_nameof<class_type>().name().str(),
-                tinyrefl::meta::size_t<Depth>(),
-                class_,
-                TINYREFL_STATIC_VALUE(entity::MEMBER_CLASS)());
-        });
-
-    tinyrefl::meta::foreach<typename metadata<Class>::enums>(
-        [visitor](auto enum_, auto /* Index */) {
-            using enum_type = typename decltype(enum_)::type;
-
-            visitor(
-                ctti::detailed_nameof<enum_type>().name().str(),
-                tinyrefl::meta::size_t<Depth>(),
-                enum_,
-                TINYREFL_STATIC_VALUE(entity::MEMBER_ENUM)());
-        });
-}
-
 template<typename BaseClass, typename Class>
 const BaseClass& cast(const Class& object)
 {
@@ -363,200 +170,10 @@ struct sink_visitor
 };
 } // namespace detail
 
-template<typename... Functions>
-using overloaded_function_t =
-    tinyrefl::detail::overloaded_function<tinyrefl::meta::list<Functions...>>;
-
-template<typename... Functions>
-auto overloaded_function(Functions... functions)
-{
-    return overloaded_function_t<Functions...>{functions...};
-}
-
-namespace detail
-{
-
-template<typename Function>
-struct function_fallback
-{
-    template<typename... Args>
-    constexpr auto operator()(Args&&... args) const
-        -> std::enable_if_t<!tinyrefl::detail::is_invokable<
-            Function,
-            tinyrefl::meta::list<decltype(std::forward<Args>(args))...>>::value>
-    {
-    }
-};
-} // namespace detail
-
-template<typename... Functions>
-auto overloaded_function_default(Functions... functions)
-{
-    using overloaded_t = overloaded_function_t<Functions...>;
-    return overloaded_function(
-        functions..., tinyrefl::detail::function_fallback<overloaded_t>{});
-}
-
 template<typename Class, typename... Visitors>
-void visit_class(Visitors... visitors)
+void visit_class(Visitors&&... visitors)
 {
-    tinyrefl::detail::visit_class<Class>(
-        tinyrefl::overloaded_function_default(visitors...),
-        tinyrefl::meta::size_t<0>(),
-        TINYREFL_STATIC_VALUE(entity::CLASS)());
-}
-
-template<typename Class, typename... Visitors>
-void visit_object(const Class& object, Visitors... visitors)
-{
-    auto visitor = tinyrefl::overloaded_function_default(visitors...);
-
-    visit_class<typename std::decay<Class>::type>(
-        [&](const std::string& name,
-            auto               depth,
-            auto               entity,
-            TINYREFL_STATIC_VALUE(tinyrefl::entity::BASE_CLASS)) {
-            visitor(
-                name,
-                depth,
-                tinyrefl::detail::cast<typename decltype(entity)::type>(object),
-                TINYREFL_STATIC_VALUE(tinyrefl::entity::OBJECT)());
-        },
-        [&](const std::string& name,
-            auto               depth,
-            auto               entity,
-            TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)) {
-            visitor(
-                name,
-                depth,
-                entity.get(object),
-                TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)());
-        });
-}
-
-template<typename Class, typename... Visitors>
-void visit_object(Class& object, Visitors... visitors)
-{
-    auto visitor = tinyrefl::overloaded_function_default(visitors...);
-
-    visit_class<typename std::decay<Class>::type>(
-        [&](const std::string& name,
-            auto               depth,
-            auto               entity,
-            TINYREFL_STATIC_VALUE(tinyrefl::entity::BASE_CLASS)) {
-            visitor(
-                name,
-                depth,
-                tinyrefl::detail::cast<typename decltype(entity)::type>(object),
-                TINYREFL_STATIC_VALUE(tinyrefl::entity::OBJECT)());
-        },
-        [&](const std::string& name,
-            auto               depth,
-            auto               entity,
-            TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)) {
-            visitor(
-                name,
-                depth,
-                entity.get(object),
-                TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)());
-        });
-}
-
-template<typename... Class, typename... Visitors>
-auto visit_objects(const std::tuple<Class...>& objects, Visitors... visitors)
-{
-    auto visitor = tinyrefl::overloaded_function_default(visitors...);
-
-    visit_class<
-        typename std::decay<tinyrefl::meta::pack_head_t<Class...>>::type>(
-        [&objects, visitor](
-            const std::string& name,
-            auto               depth,
-            auto               entity,
-            TINYREFL_STATIC_VALUE(tinyrefl::entity::BASE_CLASS)) {
-            visitor(
-                name,
-                depth,
-                tinyrefl::detail::tuple_map(
-                    objects,
-                    [](auto&& object) -> decltype(auto) {
-                        return tinyrefl::detail::cast<typename decltype(
-                            entity)::type>(
-                            std::forward<decltype(object)>(object));
-                    }),
-                TINYREFL_STATIC_VALUE(tinyrefl::entity::OBJECT)());
-        },
-        [&objects, visitor](
-            const std::string& name,
-            auto               depth,
-            auto               entity,
-            TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)) {
-            visitor(
-                name,
-                depth,
-                tinyrefl::detail::tuple_map(
-                    objects,
-                    [entity](auto&& object) -> decltype(auto) {
-                        return entity.get(
-                            std::forward<decltype(object)>(object));
-                    }),
-                TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)());
-        });
-}
-
-template<typename... Class>
-auto visit_objects(Class&&... objects)
-{
-    return
-        [objects = std::forward_as_tuple(std::forward<Class>(objects)...)](
-            auto... visitors) { return visit_objects(objects, visitors...); };
-}
-
-template<typename Class, typename... Visitors>
-void visit_member_variables(const Class& object, Visitors... visitors)
-{
-    visit_object(
-        object,
-        [visitor = overloaded_function(visitors...)](
-            const auto& name,
-            auto /* depth */,
-            const auto& member,
-            TINYREFL_STATIC_VALUE(entity::MEMBER_VARIABLE)) {
-            visitor(name, member);
-        });
-}
-
-template<typename Class, typename... Visitors>
-void visit_member_variables(Class& object, Visitors... visitors)
-{
-    visit_object(
-        object,
-        [visitor = overloaded_function(visitors...)](
-            const auto& name,
-            auto /* depth */,
-            auto& member,
-            TINYREFL_STATIC_VALUE(entity::MEMBER_VARIABLE)) {
-            visitor(name, member);
-        });
-}
-
-template<typename... Class>
-auto visit_objects_member_variables(Class&&... objects)
-{
-    return [objects = std::forward_as_tuple(std::forward<Class>(objects)...)](
-               auto... visitors) {
-        auto make_visitor = [](auto visitor) {
-            return [visitor](
-                       const auto& name,
-                       auto /* depth */,
-                       auto&& entities,
-                       TINYREFL_STATIC_VALUE(entity::MEMBER_VARIABLE)) {
-                visitor(name, entities);
-            };
-        };
-
-        return visit_objects(objects, make_visitor(visitors)...);
-    };
+    tinyrefl::visit<Class>(std::forward<Visitors>(visitors)...);
 }
 
 template<typename Class>
@@ -646,7 +263,7 @@ constexpr auto to_string(const Enum value) -> std::enable_if_t<
     std::is_enum<Enum>::value && tinyrefl::has_metadata<Enum>(),
     ctti::detail::cstring>
 {
-    return tinyrefl::metadata<Enum>().get_value(value).name();
+    return tinyrefl::metadata<Enum>()[value].name();
 }
 
 template<typename T>
@@ -725,8 +342,8 @@ auto to_json(const Class& object) -> std::enable_if_t<
     auto result = json::object();
 
     visit_member_variables(
-        object, [&result](const std::string& name, const auto& member) {
-            result[name] = to_json(member);
+        object, [&result](const tinyrefl::string& name, const auto& member) {
+            result[name.str()] = to_json(member);
         });
 
     return result;

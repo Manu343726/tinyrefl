@@ -1,73 +1,57 @@
 #ifndef TINYREFL_ENTITIES_HPP_INCLUDED
 #define TINYREFL_ENTITIES_HPP_INCLUDED
 
-#include <type_traits>
+#include <tinyrefl/entities/entity_kind.hpp>
+#include <tinyrefl/entities/namespace.hpp>
+#include <tinyrefl/types/string.hpp>
+#include <tinyrefl/utils/meta.hpp>
 
-#if !defined(TINYREFL_API_HPP) || !defined(TINYREFL_ENTITIES)
+#ifndef TINYREFL_ENTITIES
 #error \
-    "To use this header, first include your reflected headers, then <tinyrefl/api.hpp>, then your reflected headers generated code (.tinyrefl header files), and then this header"
-#endif
+    "Global entities list TINYREFL_ENTITIES not defined, make sure you have at least one metadata .tinyrefl file included in your translation unit"
+#define TINYREFL_ENTITIES \
+    tinyrefl::meta::list<> // dummy list to hide IDE diagnostics
+#endif                     // TINYREFL_ENTITIES
 
 namespace tinyrefl
 {
 
-using entities = tinyrefl::meta::fmap_t<
-    tinyrefl::meta::defer<tinyrefl::backend::metadata_of_entity_name>,
-    TINYREFL_ENTITIES>;
+namespace impl
+{
 
 template<typename Entity>
-constexpr ctti::detail::cstring display_name(Entity entity = Entity{})
+struct namespace_filter
 {
-    static_assert(std::is_class<Entity>::value, "");
-    return tinyrefl::backend::display_name<Entity>();
-}
+    using type = tinyrefl::meta::bool_<
+        Entity{}.kind() == tinyrefl::entities::entity_kind::NAMESPACE>;
+};
 
-template<typename Entity>
-constexpr ctti::detail::cstring full_display_name(Entity entity = Entity{})
+template<tinyrefl::hash_t Fullname>
+struct specific_namespace_filter
 {
-    static_assert(std::is_class<Entity>::value, "");
-    return tinyrefl::backend::full_display_name<Entity>();
-}
+    template<typename Entity>
+    struct apply
+    {
+        using type = tinyrefl::meta::bool_<
+            Entity{}.kind() == tinyrefl::entities::entity_kind::NAMESPACE &&
+            Entity{}.full_name().hash() == Fullname>;
+    };
+};
 
-template<typename... Visitors>
-void visit_entities(Visitors... visitors)
-{
-    tinyrefl::meta::foreach<tinyrefl::entities>(
-        [visitor = tinyrefl::overloaded_function_default(visitors...)](
-            auto type, auto index) {
-            using Entity = typename decltype(type)::type;
+} // namespace impl
 
-            static_assert(std::is_class<Entity>::value, "");
+using all_entities = TINYREFL_ENTITIES;
+using namespaces   = tinyrefl::meta::filter_t<
+    tinyrefl::meta::defer<tinyrefl::impl::namespace_filter>,
+    all_entities>;
 
-            visitor(
-                tinyrefl::display_name<Entity>(),
-                index,
-                Entity{},
-                kind_tag_value<Entity::kind>);
-        });
-}
+template<tinyrefl::hash_t FullName>
+using namespace_ =
+    tinyrefl::entities::merge_all_namespaces<tinyrefl::meta::filter_t<
+        tinyrefl::impl::specific_namespace_filter<FullName>,
+        namespaces>>;
 
-template<tinyrefl::entity Kind, typename Visitor>
-void visit_entities(Visitor visitor)
-{
-    visit_entities(
-        [visitor](
-            auto display_name, auto /* index */, auto entity, kind_tag<Kind>) {
-            visitor(display_name, entity);
-        });
-}
 
-template<typename Visitor>
-void visit_classes(Visitor visitor)
-{
-    visit_entities<tinyrefl::entity::CLASS>(visitor);
-}
-
-template<typename Visitor>
-void visit_enums(Visitor visitor)
-{
-    visit_entities<tinyrefl::entity::ENUM>(visitor);
-}
 } // namespace tinyrefl
 
 #endif // TINYREFL_ENTITIES_HPP_INCLUDED

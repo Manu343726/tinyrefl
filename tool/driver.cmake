@@ -86,6 +86,12 @@ function(tinyrefl_tool)
         add_custom_target(clean-tinyrefl)
     endif()
 
+    if(CMAKE_CXX_STANDARD GREATER 17)
+        set(cxx_standard 17)
+    else()
+        set(cxx_standard ${CMAKE_CXX_STANDARD})
+    endif()
+
     foreach(header ${ARGS_HEADERS})
         set(command_target_name "tinyrefl_tool_${ARGS_TARGET}_${header}.tinyrefl")
         string(REGEX REPLACE "\\/" "_" command_target_name "${command_target_name}")
@@ -100,7 +106,7 @@ function(tinyrefl_tool)
 
         add_prebuild_command(TARGET ${ARGS_TARGET}
             NAME "${command_target_name}"
-            COMMAND ${TINYREFL_TOOL_EXECUTABLE} ${header} ${clang_executable_option} -std=c++${CMAKE_CXX_STANDARD} ${definitions} ${includes} ${compile_options}
+            COMMAND ${TINYREFL_TOOL_EXECUTABLE} ${header} ${clang_executable_option} -std=c++${cxx_standard} ${definitions} ${includes} ${compile_options}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "Generating tinyrefl metadata for ${ARGS_TARGET}/${header}"
             DEPENDS ${TINYREFL_TOOL_TARGET}

@@ -1,5 +1,9 @@
 add_library(tinyrefl utils/demangle.cpp)
 
+if(NOT MSVC)
+    target_compile_options(tinyrefl INTERFACE -Wno-gnu-string-literal-operator-template)
+endif()
+
 target_link_libraries(tinyrefl PUBLIC tinyrefl_externals_ctti tinyrefl_externals_jsonformoderncpp)
 target_include_directories(tinyrefl PUBLIC "${TINYREFL_INCLUDE_DIR}")
 define_tinyrefl_version_variables(tinyrefl)

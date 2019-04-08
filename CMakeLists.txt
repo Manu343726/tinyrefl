@@ -29,7 +29,7 @@ if(NOT DEFINED TINYREFL_LLVM_VERSION)
 endif()
 parse_version_number(${TINYREFL_LLVM_VERSION} TINYREFL_LLVM_VERSION_MAJOR TINYREFL_LLVM_VERSION_MINOR TINYREFL_LLVM_VERSION_FIX)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 
 if(NOT MSVC)
     check_cxx_compiler_flag("-Wnoexcept-type" HAS_NOEXCEPT_ABI_WARNING)
@@ -92,6 +92,8 @@ if(TINYREFL_BUILD_EXAMPLES)
 endif()
 
 if(TINYREFL_IS_ROOT_PROJECT)
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
     message(STATUS "Generate vim YCM config file for tinyrefl at ${TINYREFL_SOURCE_DIR} ...")
     configure_file(
         ${TINYREFL_SOURCE_DIR}/.ycm_extra_conf.py.in
