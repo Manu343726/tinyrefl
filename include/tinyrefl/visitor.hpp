@@ -84,19 +84,16 @@ struct constexpr_recurive_visitor
     }
 
     template<typename Entity>
-    static constexpr bool callable_with_kind = !std::is_same<
-        decltype(std::declval<Visitor>()(
-            Entity{}, tinyrefl::entities::kind_constant_v<Entity{}.kind()>)),
-        tinyrefl::function_fallback_result>::value;
+    using callable_with_kind = decltype(std::declval<Visitor>()(
+        Entity{}, tinyrefl::entities::kind_constant_v<Entity{}.kind()>));
 
     template<typename Entity>
-    static constexpr bool callable_without_kind = !std::is_same<
-        decltype(std::declval<Visitor>()(Entity{})),
-        tinyrefl::function_fallback_result>::value;
+    using callable_without_kind = decltype(std::declval<Visitor>()(Entity{}));
 
     template<typename Entity>
     constexpr auto operator()(const Entity&) const -> std::enable_if_t<
-        callable_with_kind<Entity> && !callable_without_kind<Entity>>
+        tinyrefl::meta::is_detected_v<callable_with_kind, Entity> &&
+        !tinyrefl::meta::is_detected_v<callable_without_kind, Entity>>
     {
         visitor(Entity{}, tinyrefl::entities::kind_constant_v<Entity{}.kind()>);
 
@@ -104,8 +101,8 @@ struct constexpr_recurive_visitor
     }
 
     template<typename Entity>
-    constexpr auto operator()(const Entity&) const
-        -> std::enable_if_t<callable_without_kind<Entity>>
+    constexpr auto operator()(const Entity&) const -> std::enable_if_t<
+        tinyrefl::meta::is_detected_v<callable_without_kind, Entity>>
     {
         visitor(Entity{});
 
@@ -114,7 +111,8 @@ struct constexpr_recurive_visitor
 
     template<typename Entity>
     constexpr auto operator()(const Entity&) const -> std::enable_if_t<
-        !callable_with_kind<Entity> && !callable_without_kind<Entity>>
+        !tinyrefl::meta::is_detected_v<callable_with_kind, Entity> &&
+        !tinyrefl::meta::is_detected_v<callable_without_kind, Entity>>
     {
         tinyrefl::meta::foreach(Entity{}.children(), *this);
     }
