@@ -61,10 +61,8 @@ struct zip
 };
 
 template<
-    template<typename...>
-    class Zipper,
-    template<typename...>
-    class... Sequences,
+    template<typename...> class Zipper,
+    template<typename...> class... Sequences,
     typename... Tails>
 struct zip<Zipper, Sequences<Tails>...>
 {
@@ -172,8 +170,7 @@ template<
     typename Head,
     typename... Tail,
     typename... Out,
-    template<typename...>
-    class Seq>
+    template<typename...> class Seq>
 struct remove_duplicates<Seq<Head, Tail...>, Seq<Out...>>
 {
     using type = typename remove_duplicates<
