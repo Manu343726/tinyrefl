@@ -23,42 +23,10 @@ namespace tinyrefl
 
 using entity = tinyrefl::entities::entity_kind;
 
-template<entity Kind>
-using kind_tag = TINYREFL_STATIC_VALUE(Kind);
-
-template<entity Kind>
-constexpr kind_tag<Kind> kind_tag_value{};
-
-template<typename T>
-using type_tag = ctti::type_tag<T>;
-
-template<typename T, T Value>
-using static_value = ctti::static_value<T, Value>;
-
-struct as_static_value
-{
-};
-
 using json = nlohmann::json;
 
 namespace detail
 {
-
-template<typename... Args>
-struct SelectOverloadedMemberFunction
-{
-    constexpr SelectOverloadedMemberFunction() = default;
-
-    template<typename R, typename Class>
-    constexpr auto operator()(R (Class::*Ptr)(Args...)) const
-    {
-        return Ptr;
-    }
-};
-
-template<typename... Args>
-constexpr detail::SelectOverloadedMemberFunction<Args...> select_overload =
-    detail::SelectOverloadedMemberFunction<Args...>{};
 
 template<typename... Ts, typename Function, std::size_t... Indices>
 auto tuple_map_impl(

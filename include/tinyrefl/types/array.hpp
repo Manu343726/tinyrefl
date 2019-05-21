@@ -8,6 +8,19 @@
 namespace tinyrefl
 {
 
+inline namespace types
+{
+
+/**
+ * @brief zero-sizable inmutable constexpr array.
+ * `tinyrefl::array` implements constexpr array type similar to `std::array` but
+ * with the following features:
+ *
+ *  - **Allows zero sized arrays** making possible to generate arrays as part of
+ * constexpr processing and not take the case of empty result as a corner case.
+ *  - **All public methods are constexpr**
+ *  - **Elements are inmutable**
+ */
 template<typename T, std::size_t N>
 struct array
 {
@@ -19,13 +32,16 @@ struct array
     constexpr array(const array&) = default;
     constexpr array(array&&)      = default;
 
+    /// Inmutable iterator type returned by `begin()` and `end()`
     using const_iterator = const T*;
 
+    /// Returns an iterator to the beginning of the array
     constexpr const_iterator begin() const
     {
         return &_items[0];
     }
 
+    /// Returns an iterator to the past-the-end item of the array
     constexpr const_iterator end() const
     {
         return &_items[N];
@@ -45,6 +61,7 @@ public:
     std::array<T, N> _items;
 };
 
+#ifndef DOXYGEN_PROCESSING_TINYREFL
 template<typename T>
 struct array<T, 0>
 {
@@ -140,6 +157,7 @@ struct array<T, 0>
         return *static_cast<const T*>(nullptr);
     }
 };
+#endif // DOXYGEN_PROCESSING_TINYREFL
 
 template<
     typename List,
@@ -306,6 +324,7 @@ struct typelist_to_array<tinyrefl::meta::list<>, void, Transform>
 template<typename Transform>
 constexpr tinyrefl::array<int, 0>
     typelist_to_array<tinyrefl::meta::list<>, void, Transform>::value;
+} // namespace types
 } // namespace tinyrefl
 
 #endif // TINYREFL_TYPES_ARRAY_HPP_INCLUDED

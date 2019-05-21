@@ -11,6 +11,12 @@ struct Type
     using type       = T;
 };
 
+template<typename T>
+using type_tag = Type<T>;
+
+template<typename T>
+constexpr type_tag<T> type_constant{};
+
 } // namespace tinyrefl
 
 #endif // TINYREFL_TYPES_TYPE_HPP_INCLUDED

@@ -1,0 +1,90 @@
+
+
+///< The main tinyrefl API namespace
+namespace tinyrefl
+{
+
+///< This namespace contains classes representing reflection metadata
+namespace entities
+{
+
+/**
+ * @brief Provides the basic interface to access reflection information
+ *
+ * @tparam Kind Kind of reflected entity (namespace, class, file, etc)
+ * @tparam Name Non qualified name
+ * @tparam FullName Full qualified name
+ * @tparam Parent_ Handle to the parent entity
+ * @tparam Children_ List of children entities
+ * @tparam SourceLocation_ @ref tinyrefl::entities::source_location of the
+ *         entity
+ * @tparam DisplayName Non qualified display name, if it's
+ *         different form the non qualified name.
+ * @tparam FullDisplayName Full qualified display name, if it's different from
+ *         the full qualified name
+ *
+ * This class is the common base class for all reflection metadata
+ * entities. An entity class represents a C++ entity (A source file, a
+ * namespace, a member function, etc) and returns information such as its full
+ * qualified name, the kind of entity (A function, a namespace, a class, etc) or
+ * its source location.
+ *
+ * > In dynamically typed languages like Python language entities, such as
+ * > types, are part of the language object system (A Python class is an
+ * > object); and users can manipulate that entities as if they where normal
+ * > entities of their program. There's no difference between the class in the
+ * > context of the type system and the class object the user manipulates for
+ * > introspection purposes. C++ has no bultin support for reflection, so
+ * > there's a difference between **the reflected entity** (The namespace in
+ * > your C++ sources) and **the class that represents the reflected entity
+ * > within the reflection system** (`tinyrefl::entities::entity` subclasses in
+ * > tinyrefl).
+ * >
+ * > When talking about *"entity children"*, *"entity name"*, and other
+ * > properties of a reflected entity this documentation assumes the user
+ * > understands the distinction between the reflected entities and the entity
+ * > classes, and may name the entity metadata classes and their instances as if
+ * > they were the reflected entities themselves.
+ *
+ * All entity classes are default-constexpr-constructible, and the constructor
+ * always returns instances with the same entity metadata. This allows to
+ * arbitrarily switch between type and value domains depending on the way the
+ * reflection metadata is being manipulated:
+ *
+ * ``` cpp
+ *  using entities = typelist<NamespaceEntity, ClassEntity, EnumEntity>;
+ *
+ *  // Equivalent, same metadata:
+ *  constexpr std::tuple<NamespaceEntity, ClassEntity, EnumEntity> entities{};
+ * ```
+ *
+ * it also helps to bring metadata back to a constexpr context:
+ *
+ * ``` cpp
+ * tinyrefl::visit<Class>(tinyrefl::member_function_visitor([](const auto&
+ * member_function))
+ * {
+ *      // member_function is not constexpr in this context, so neither name is:
+ *      const auto name = member_function.name();
+ *
+ *      // This is constexpr and has the same data:
+ *      constexpr auto constexpr_name = decltype(member_function){}.name();
+ * }));
+ * ```
+ *
+ * All entities are guaranteed to have a unique full display name. The easiest
+ * way to request a unique id for the entity is to read the hash of the full
+ * display name:
+ *
+ * ``` cpp
+ * constexpr std::size_t id = entity.full_display_name().hash();
+ * ```
+ *
+ * Querying the reflection database with that id  should return the same
+ * entity:
+ *
+ * ``` cpp
+ * static_assert(
+ *    tinyrefl::metadata_by_id(tinyrefl::hash_constant_v<id>) == entity);
+ * ```
+ */

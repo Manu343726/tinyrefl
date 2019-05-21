@@ -76,13 +76,12 @@ constexpr bool has_child_named(Entity entity, const tinyrefl::string name)
     bool result = false;
 
     tinyrefl::recursive_visit(
-        entity, [&result, name ](const auto& entity, auto kind) constexpr {
+        entity, [&result, name ](const auto& entity) constexpr {
             result |= (entity.name() == name);
         });
 
     return result;
 }
-
 static_assert(has_child_named("example::C"_id, "f"), "");
 static_assert(has_child_named(TINYREFL_ENTITIES_NAMESPACE(example), "f"), "");
 #endif // TINYREFL_HAS_CONSTEXPR_LAMBDAS

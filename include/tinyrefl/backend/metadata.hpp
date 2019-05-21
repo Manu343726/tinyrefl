@@ -1,6 +1,7 @@
 #ifndef TINYREFL_BACKEND_METADATA_HPP_INCLUDED
 #define TINYREFL_BACKEND_METADATA_HPP_INCLUDED
 
+#include <tinyrefl/entities/attribute.hpp>
 #include <tinyrefl/entities/entity_kind.hpp>
 #include <tinyrefl/types/string.hpp>
 
@@ -13,9 +14,30 @@ namespace backend
 {
 
 struct no_metadata
+    : public tinyrefl::entities::attributes_metadata<tinyrefl::meta::list<>>
 {
     struct tinyrefl_entity_tag
     {
+    };
+
+    struct dummy_source_location
+    {
+        constexpr dummy_source_location() = default;
+
+        constexpr std::size_t line() const
+        {
+            return 0;
+        }
+
+        constexpr std::size_t column() const
+        {
+            return 0;
+        }
+
+        constexpr no_metadata file() const
+        {
+            return {};
+        }
     };
 
     constexpr no_metadata() = default;
@@ -56,6 +78,16 @@ struct no_metadata
     constexpr tinyrefl::string full_display_name() const
     {
         return "";
+    }
+
+    constexpr dummy_source_location source_location() const
+    {
+        return {};
+    }
+
+    constexpr no_metadata root() const
+    {
+        return {};
     }
 };
 
