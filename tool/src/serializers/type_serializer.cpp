@@ -1,5 +1,53 @@
+#include <ostream>
 #include <tinyrefl/tool/serializers/type_serializer.hpp>
 #include <tinyrefl/tool/type_visitor.hpp>
+
+namespace cppast
+{
+std::ostream& operator<<(std::ostream& os, const cpp_type_kind kind)
+{
+    switch(kind)
+    {
+    case cppast::cpp_type_kind::builtin_t:
+        return os << "builtin";
+    case cppast::cpp_type_kind::user_defined_t:
+        return os << "user_defined";
+    case cppast::cpp_type_kind::auto_t:
+        return os << "auto";
+    case cppast::cpp_type_kind::decltype_t:
+        return os << "decltype";
+    case cppast::cpp_type_kind::decltype_auto_t:
+        return os << "decltype_auto";
+    case cppast::cpp_type_kind::cv_qualified_t:
+        return os << "cv_qualified";
+    case cppast::cpp_type_kind::pointer_t:
+        return os << "pointer";
+    case cppast::cpp_type_kind::reference_t:
+        return os << "reference";
+    case cppast::cpp_type_kind::array_t:
+        return os << "array";
+    case cppast::cpp_type_kind::function_t:
+        return os << "function";
+    case cppast::cpp_type_kind::member_function_t:
+        return os << "member_function";
+    case cppast::cpp_type_kind::member_object_t:
+        return os << "member_object";
+    case cppast::cpp_type_kind::template_parameter_t:
+        return os << "template_parameter";
+    case cppast::cpp_type_kind::template_instantiation_t:
+        return os << "template_instantiation";
+    case cppast::cpp_type_kind::dependent_t:
+        return os << "dependent";
+    case cppast::cpp_type_kind::unexposed_t:
+        return os << "unexposed";
+    }
+
+    return os;
+}
+} // namespace cppast
+
+#include <fmt/ostream.h>
+#include <spdlog/spdlog.h>
 
 using namespace tinyrefl::tool;
 
@@ -89,6 +137,10 @@ std::string type_serializer::type(
         [&](const cppast::cpp_user_defined_type& type) {
             const auto& referenced_entities = type.entity().get(_index);
 
+            spdlog::trace(
+                "type_serializer::type(user defined type \"{}\")",
+                type.entity().name());
+
             if(!referenced_entities.empty())
             {
                 result = _entity_names.full_display_name(
@@ -99,7 +151,20 @@ std::string type_serializer::type(
                 result = type.entity().name();
             }
         },
-        [&](const auto& type) { result = cppast::to_string(type); });
+        [&](const auto& type) {
+            result = cppast::to_string(type);
+
+            if(result.empty())
+            {
+                spdlog::warn(
+                    "type_serializer::type(type (kind: {})): Result string empty",
+                    type.kind());
+            }
+            else
+            {
+                spdlog::debug("type \"{}\"", cppast::to_string(type));
+            }
+        });
 
     return string(decorator(result));
 }
@@ -147,9 +212,18 @@ std::string type_serializer::type(
         break;
     }
 
+    const auto return_type = type(function.return_type());
+
+    if(return_type.empty())
+    {
+        spdlog::error(
+            "type_serializer::type(member function \"{}\"): Return type empty",
+            _entity_names.full_display_name(function));
+    }
+
     return string(decorator(fmt::format(
         "{}({}::*){}{}",
-        type(function.return_type()),
+        return_type,
         _entity_names.full_name(function.parent().value()),
         function_signature(function),
         qualifier)));

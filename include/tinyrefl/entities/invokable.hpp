@@ -16,6 +16,14 @@ namespace entities
 namespace detail
 {
 
+template<typename Signature, typename FunctionPointerArgs>
+struct check_invokable_signature
+{
+    static_assert(
+        std::is_same<FunctionPointerArgs, Signature>::value,
+        "Given pointer does not match the reflected signature");
+};
+
 template<typename Pointer, typename Signature_, typename ArgNames>
 struct invokable_base : public tinyrefl::entities::pointer<Pointer>
 {
@@ -26,11 +34,7 @@ struct invokable_base : public tinyrefl::entities::pointer<Pointer>
         tinyrefl::meta::fmap_t<tinyrefl::meta::defer<std::decay>, ArgNames>,
         Signature>;
 
-    static_assert(
-        std::is_same<
-            tinyrefl::invokable_traits::arguments<Pointer>,
-            Signature>::value,
-        "Given pointer does not match the reflected signature");
+    using return_type = tinyrefl::invokable_traits::return_type<Pointer>;
 
     constexpr Arguments arguments() const
     {
@@ -41,6 +45,13 @@ struct invokable_base : public tinyrefl::entities::pointer<Pointer>
     {
         return {};
     }
+
+private:
+    struct _check : check_invokable_signature<
+                        Signature,
+                        tinyrefl::invokable_traits::arguments<Pointer>>
+    {
+    };
 };
 
 } // namespace detail

@@ -26,9 +26,13 @@ struct constructor_trampoline_for_impl;
 template<typename Class, typename... Args>
 struct constructor_trampoline_for_impl<Class, tinyrefl::meta::list<Args...>>
 {
-    using type = tinyrefl::static_value<
-        constructor_trampoline_t<Class, Args...>,
-        constructor_trampoline<Class, Args...>>;
+    static constexpr Class call(Args... args)
+    {
+        return constructor_trampoline<Class>(args...);
+    }
+
+    using type =
+        tinyrefl::static_value<constructor_trampoline_t<Class, Args...>, &call>;
 };
 
 template<typename Class, typename Args>

@@ -29,6 +29,8 @@ struct variable : public tinyrefl::entities::entity_with_attributes<
                   public tinyrefl::entities::pointer<Pointer>
 {
     constexpr variable() = default;
+
+    using value_type = tinyrefl::invokable_traits::return_type<Pointer>;
 };
 } // namespace entities
 } // namespace tinyrefl

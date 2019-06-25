@@ -434,7 +434,7 @@ struct entity
                               RhsDisplayName,
                               RhsFullDisplayName> other) const
     {
-        return std::is_same_v<entity, decltype(other)>;
+        return std::is_same<entity, decltype(other)>::value;
     }
 
     template<

@@ -29,6 +29,7 @@ struct member_variable : public tinyrefl::entities::entity_with_attributes<
                          public tinyrefl::entities::pointer<Pointer>
 {
     using class_type = tinyrefl::invokable_traits::class_type<Pointer>;
+    using value_type = tinyrefl::invokable_traits::return_type<Pointer>;
 
     constexpr member_variable() = default;
 

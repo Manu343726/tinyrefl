@@ -1,10 +1,12 @@
 #ifndef TINYREFL_TESTPACKAGE_EXAMPLE_HPP
 #define TINYREFL_TESTPACKAGE_EXAMPLE_HPP
 
+#include <tinyrefl/api.hpp>
+
 namespace example
 {
 
-class Example
+class [[foobar]] Example
 {
 public:
     Example() = default;
@@ -26,6 +28,14 @@ public:
     Enum e = Enum::A;
 };
 
+/*
+
+inline void to_json(tinyrefl::json& json, const Example& ex)
+{
+    json["i"] = 42;
+    json["e"] = "A";
+}
+*/
 }; // namespace example
 
 #endif // TINYREFL_TESTPACKAGE_EXAMPLE_HPP

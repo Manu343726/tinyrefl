@@ -18,5 +18,6 @@ target_link_libraries(tinyrefl-tool-lib PUBLIC
     tinyrefl_externals_fmt
     tinyrefl_externals_type_safe
     tinyrefl_externals_cppfs
+    tinyrefl_externals_spdlog
     tinyrefl
 )

@@ -26,6 +26,8 @@
 #include <cppfs/FilePath.h>
 #include <cppfs/fs.h>
 
+#include <spdlog/spdlog.h>
+
 namespace cl = llvm::cl;
 
 bool is_outdated_file(const std::string& file)
@@ -473,6 +475,18 @@ int main(int argc, char** argv)
         "force",
         cl::desc(
             "Force parsing and metadata generation even if the existing metadata is up to date")};
+    cl::opt<spdlog::level::level_enum> log_level{
+        "log-level",
+        cl::desc("Log level"),
+        cl::ValueOptional,
+        cl::values(
+            clEnumValN(spdlog::level::trace, "TRACE", "Trace logging"),
+            clEnumValN(spdlog::level::debug, "DEBUG", "Debug logging"),
+            clEnumValN(spdlog::level::info, "INFO", "Info logging"),
+            clEnumValN(spdlog::level::warn, "WARNING", "Warning logging"),
+            clEnumValN(spdlog::level::err, "ERROR", "Error logging"),
+            clEnumValN(
+                spdlog::level::critical, "CRITICAL", "Critical logging"))};
 
 #if TINYREFL_LLVM_VERSION_MAJOR >= 6
     cl::SetVersionPrinter([](llvm::raw_ostream& out) { print_version(out); });
@@ -482,6 +496,11 @@ int main(int argc, char** argv)
 
     if(cl::ParseCommandLineOptions(argc, argv, "Tinyrefl codegen tool"))
     {
+        if(log_level)
+        {
+            spdlog::set_level(log_level);
+        }
+
         if(reflect_file(
                filename,
                stdversion,

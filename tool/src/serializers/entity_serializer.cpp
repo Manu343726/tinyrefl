@@ -282,6 +282,7 @@ const std::string& entity_serializer::serialize(
         {
             tinyrefl::tool::visit_entity(
                 class_,
+                cppast::cpp_access_specifier_kind::cpp_public,
                 [this,
                  &class_contents](const cppast::cpp_constructor& constructor) {
                     class_contents.serialized_constructors.push_back(

@@ -61,8 +61,10 @@ struct zip
 };
 
 template<
-    template<typename...> class Zipper,
-    template<typename...> class... Sequences,
+    template<typename...>
+    class Zipper,
+    template<typename...>
+    class... Sequences,
     typename... Tails>
 struct zip<Zipper, Sequences<Tails>...>
 {
@@ -129,10 +131,29 @@ constexpr void foreach(
     (void)std::array<int, sizeof...(Ts)>{
         {(visitor(std::get<Indices>(tuple)), 0)...}};
 }
+
+template<typename... Ts, typename Visitor, std::size_t... Indices>
+constexpr void foreach(
+    std::tuple<Ts...>& tuple,
+    Visitor && visitor,
+    std::index_sequence<Indices...>)
+{
+    (void)std::array<int, sizeof...(Ts)>{
+        {(visitor(std::get<Indices>(tuple)), 0)...}};
+}
 } // namespace impl
 
 template<typename... Ts, typename Visitor>
 constexpr void foreach(const std::tuple<Ts...>& tuple, Visitor && visitor)
+{
+    ::tinyrefl::meta::impl::foreach(
+        tuple,
+        std::forward<Visitor>(visitor),
+        std::index_sequence_for<Ts...>{});
+}
+
+template<typename... Ts, typename Visitor>
+constexpr void foreach(std::tuple<Ts...>& tuple, Visitor && visitor)
 {
     ::tinyrefl::meta::impl::foreach(
         tuple,
@@ -170,7 +191,8 @@ template<
     typename Head,
     typename... Tail,
     typename... Out,
-    template<typename...> class Seq>
+    template<typename...>
+    class Seq>
 struct remove_duplicates<Seq<Head, Tail...>, Seq<Out...>>
 {
     using type = typename remove_duplicates<

@@ -4,7 +4,7 @@ function(tinyrefl_tool)
     cmake_parse_arguments(
         ARGS
         ""
-        "TARGET"
+        "TARGET;LOG_LEVEL"
         "HEADERS;COMPILE_OPTIONS;COMPILE_DEFINITIONS"
         ${ARGN}
     )
@@ -14,6 +14,10 @@ function(tinyrefl_tool)
     endif()
     if(NOT ARGS_HEADERS)
         message(FATAL_ERROR "No HEADERS given to tinyrefl tool driver")
+    endif()
+
+    if(ARGS_LOG_LEVEL)
+        set(log_level --log-level=${ARGS_LOG_LEVEL})
     endif()
 
     if(TARGET tinyrefl)
@@ -106,7 +110,7 @@ function(tinyrefl_tool)
 
         add_prebuild_command(TARGET ${ARGS_TARGET}
             NAME "${command_target_name}"
-            COMMAND ${TINYREFL_TOOL_EXECUTABLE} ${header} ${clang_executable_option} -std=c++${cxx_standard} ${definitions} ${includes} ${compile_options}
+            COMMAND ${TINYREFL_TOOL_EXECUTABLE} ${header} ${clang_executable_option} ${log_level} -std=c++${cxx_standard} ${definitions} ${includes} ${compile_options}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "Generating tinyrefl metadata for ${ARGS_TARGET}/${header}"
             DEPENDS ${TINYREFL_TOOL_TARGET}

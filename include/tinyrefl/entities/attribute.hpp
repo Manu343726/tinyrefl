@@ -119,13 +119,15 @@ struct attributes_interface
 {
     constexpr bool has_attribute(const tinyrefl::string& name) const
     {
-        return tinyrefl::entities::has_attribute(*this, name);
+        return tinyrefl::entities::has_attribute(
+            static_cast<const Derived&>(*this), name);
     }
 
     constexpr const tinyrefl::entities::attribute&
         attribute(tinyrefl::string name) const
     {
-        return *tinyrefl::entities::find_attribute(*this, name);
+        return *tinyrefl::entities::find_attribute(
+            static_cast<const Derived&>(*this), name);
     }
 
     constexpr const tinyrefl::entities::attribute&

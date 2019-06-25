@@ -5,7 +5,7 @@ common = python_requires('conan_common_recipes/0.0.8@Manu343726/testing')
 
 class Tinyrefl(common.CMakePackage):
     name = 'tinyrefl'
-    version = '0.4.1'
+    version = '0.5.0'
     url = 'https://github.com/Manu343726/tinyrefl'
     description = ' A work in progress minimal C++ static reflection API and codegen tool'
     scm = {

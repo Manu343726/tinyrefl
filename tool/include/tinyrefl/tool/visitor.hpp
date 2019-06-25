@@ -104,7 +104,10 @@ constexpr void
 }
 
 template<typename... Visitors>
-void visit_entity(const cppast::cpp_entity& root, Visitors... visitors)
+void visit_entity(
+    const cppast::cpp_entity&               root,
+    const cppast::cpp_access_specifier_kind access,
+    Visitors... visitors)
 {
     const auto filter = [&root](const cppast::cpp_entity& entity) {
         constexpr tinyrefl::array_view<const cppast::cpp_entity_kind>
@@ -123,16 +126,21 @@ void visit_entity(const cppast::cpp_entity& root, Visitors... visitors)
     cppast::visit(
         root,
         filter,
-        [visitors = tinyrefl::overloaded_function_default(visitors...)](
+        [visitors = tinyrefl::overloaded_function_default(visitors...), access](
             const cppast::cpp_entity&   entity,
             const cppast::visitor_info& info) {
-            if(info.is_new_entity())
+            if(info.is_new_entity() && info.access <= access)
             {
                 tinyrefl::tool::entity_cast(entity, visitors);
             }
         });
+}
 
-    return;
+template<typename... Visitors>
+void visit_entity(const cppast::cpp_entity& root, Visitors... visitors)
+{
+    visit_entity(
+        root, cppast::cpp_access_specifier_kind::cpp_private, visitors...);
 }
 
 } // namespace tool

@@ -7,6 +7,7 @@
 #include <type_safe/reference.hpp>
 #include <type_safe/variant.hpp>
 
+#include <cppast/cpp_template.hpp>
 #include <cppast/cpp_type.hpp>
 
 #include <tinyrefl/types/array_view.hpp>
@@ -53,7 +54,10 @@ using cppast_types_to_kinds = tinyrefl::meta::slow_map<
         cppast::cpp_type_kind::cv_qualified_t>,
     detail::type_to_kind<
         cppast::cpp_user_defined_type,
-        cppast::cpp_type_kind::user_defined_t>>;
+        cppast::cpp_type_kind::user_defined_t>,
+    detail::type_to_kind<
+        cppast::cpp_template_instantiation_type,
+        cppast::cpp_type_kind::template_instantiation_t>>;
 
 using cppast_kinds_to_types =
     tinyrefl::meta::inverted_map<cppast_types_to_kinds>;
