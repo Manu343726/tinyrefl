@@ -12,7 +12,7 @@ namespace detail
 {
 
 template<typename Class, typename... Args>
-constexpr Class constructor_trampoline(Args... args)
+constexpr Class constructor_trampoline(Args&&... args)
 {
     return Class{std::forward<Args>(args)...};
 }
@@ -28,7 +28,7 @@ struct constructor_trampoline_for_impl<Class, tinyrefl::meta::list<Args...>>
 {
     static constexpr Class call(Args... args)
     {
-        return constructor_trampoline<Class>(args...);
+        return constructor_trampoline<Class>(std::move(args)...);
     }
 
     using type =
