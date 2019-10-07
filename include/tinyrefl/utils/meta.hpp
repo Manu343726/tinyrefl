@@ -115,7 +115,7 @@ struct slow_map<tinyrefl::meta::pair<Keys, Values>...>
 template<typename... Ts>
 constexpr std::tuple<Ts...> make_tuple(tinyrefl::meta::list<Ts...>)
 {
-    return {Ts{}...};
+    return std::make_tuple(Ts{}...);
 }
 
 namespace impl

@@ -31,7 +31,7 @@ constexpr auto switch_(Value value, Seq<Keys...>)
 template<typename Sequence, typename Value>
 constexpr auto switch_(Value value)
 {
-    return tinyrefl::impl::switch_(value, Sequence{});
+    return ::tinyrefl::impl::switch_(value, Sequence{});
 }
 } // namespace tinyrefl
 

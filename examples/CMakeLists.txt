@@ -7,15 +7,25 @@ tinyrefl_tool(TARGET tinyrefl-example-lib HEADERS example.hpp example2.hpp)
 add_tinyrefl_example(tinyrefl-example api.cpp)
 
 set(concepts_feature_flags -fconcepts)
+set(template_max_depth_flag -ftemplate-depth)
 
 set(CMAKE_REQUIRED_FLAGS ${concepts_feature_flags})
 check_cxx_concepts(CXX_COMPILER_HAS_CONCEPTS)
 
-if(TRUE)
+if(CXX_COMPILER_HAS_CONCEPTS)
     target_compile_options(tinyrefl-example PRIVATE ${concepts_feature_flags})
     message(STATUS "tinyrefl-example compiled with Concepts TS support")
 else()
     message(STATUS "tinyrefl-example compiled witouth Concepts TS support")
+endif()
+
+if(NOT MSVC)
+    if(NOT TINYREFL_MAX_TEMPLATE_DEPTH)
+        set(TINYREFL_MAX_TEMPLATE_DEPTH 10000)
+    endif()
+
+    message(STATUS "Example configured with ${TINYREFL_MAX_TEMPLATE_DEPTH} max template instantiation depth")
+    target_compile_options(tinyrefl-example PRIVATE -ftemplate-depth=${TINYREFL_MAX_TEMPLATE_DEPTH})
 endif()
 
 target_link_libraries(tinyrefl-example PRIVATE tinyrefl-example-lib)

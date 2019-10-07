@@ -34,7 +34,7 @@ using namespace tinyrefl::literals;
 void dump_pretty_function(
     int i, bool b, tinyrefl::string str, const std::string& str2)
 {
-    constexpr auto function_id = tinyrefl::string{__PRETTY_FUNCTION__}.hash();
+    const auto function_id = tinyrefl::string{__PRETTY_FUNCTION__}.hash();
 
     std::cout << __PRETTY_FUNCTION__ << " (id: " << function_id << ")\n";
 }

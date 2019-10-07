@@ -31,8 +31,9 @@ struct constructor_trampoline_for_impl<Class, tinyrefl::meta::list<Args...>>
         return constructor_trampoline<Class>(std::move(args)...);
     }
 
-    using type =
-        tinyrefl::static_value<constructor_trampoline_t<Class, Args...>, &call>;
+    using type = tinyrefl::static_value<
+        constructor_trampoline_t<Class, Args...>,
+        &constructor_trampoline_for_impl::call>;
 };
 
 template<typename Class, typename Args>

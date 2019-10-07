@@ -98,8 +98,8 @@ constexpr constexpr_member_function_visitor<
 template<typename Class, typename... Visitors>
 constexpr void visit_member_variables(Class& object, Visitors&&... visitors)
 {
-    tinyrefl::visit<std::decay_t<Class>>(
-        tinyrefl::impl::make_constexpr_member_variable_visitor(
+    ::tinyrefl::visit<std::decay_t<Class>>(
+        ::tinyrefl::impl::make_constexpr_member_variable_visitor(
             object, std::forward<Visitors>(visitors))...);
 }
 
@@ -107,8 +107,8 @@ constexpr void visit_member_variables(Class& object, Visitors&&... visitors)
 template<typename Class, typename... Visitors>
 constexpr void visit_member_functions(Class& object, Visitors&&... visitors)
 {
-    tinyrefl::visit<std::decay_t<Class>>(
-        tinyrefl::impl::make_constexpr_member_function_visitor(
+    ::tinyrefl::visit<std::decay_t<Class>>(
+        ::tinyrefl::impl::make_constexpr_member_function_visitor(
             object, std::forward<Visitors>(visitors))...);
 }
 } // namespace tinyrefl

@@ -130,9 +130,8 @@ constexpr constexpr_recurive_visitor<std::decay_t<Visitor>>
 template<typename Visitor>
 struct constexpr_kind_restricted_visitor_base
 {
-    template<typename Visitor_>
-    constexpr constexpr_kind_restricted_visitor_base(Visitor_&& visitor)
-        : visitor{std::forward<Visitor_>(visitor)}
+    constexpr constexpr_kind_restricted_visitor_base(Visitor visitor)
+        : visitor{std::move(visitor)}
     {
     }
 
@@ -154,8 +153,12 @@ struct constexpr_kind_restricted_visitor<
     tinyrefl::meta::list<tinyrefl::entities::kind_constant<Kind>>>
     : public constexpr_kind_restricted_visitor_base<Visitor>
 {
-    using constexpr_kind_restricted_visitor_base<
-        Visitor>::constexpr_kind_restricted_visitor_base;
+    using base = constexpr_kind_restricted_visitor_base<Visitor>;
+
+    constexpr constexpr_kind_restricted_visitor(Visitor visitor)
+        : base{std::move(visitor)}
+    {
+    }
 
     template<typename Entity>
     constexpr void operator()(
@@ -188,7 +191,11 @@ struct constexpr_kind_restricted_visitor<
             tinyrefl::entities::kind_constant<Second>,
             tinyrefl::entities::kind_constant<Tail>...>>;
 
-    using base::base;
+    constexpr constexpr_kind_restricted_visitor(Visitor visitor)
+        : base{std::move(visitor)}
+    {
+    }
+
     using base::operator();
 
     template<typename Entity>
@@ -214,9 +221,9 @@ template<typename... Entities, typename... Visitors>
 constexpr void
     visit(const std::tuple<Entities...>& entities, Visitors&&... visitors)
 {
-    tinyrefl::meta::foreach(
+    ::tinyrefl::meta::foreach(
         entities,
-        tinyrefl::impl::make_constexpr_visitor(tinyrefl::overloaded_function(
+        ::tinyrefl::impl::make_constexpr_visitor(tinyrefl::overloaded_function(
             std::forward<Visitors>(visitors)...)));
 }
 
@@ -243,7 +250,7 @@ constexpr void visit(Visitors&&... visitors)
 template<typename Entity, typename... Visitors>
 constexpr void recursive_visit(Entity entity, Visitors&&... visitors)
 {
-    const auto visitor = tinyrefl::impl::make_constexpr_recurive_visitor(
+    const auto visitor = ::tinyrefl::impl::make_constexpr_recurive_visitor(
         tinyrefl::overloaded_function_default(
             std::forward<Visitors>(visitors)...));
 
@@ -254,9 +261,9 @@ template<typename... Entities, typename... Visitors>
 constexpr void recursive_visit(
     const std::tuple<Entities...>& entities, Visitors&&... visitors)
 {
-    tinyrefl::meta::foreach(
+    ::tinyrefl::meta::foreach(
         entities,
-        tinyrefl::impl::make_constexpr_recurive_visitor(
+        ::tinyrefl::impl::make_constexpr_recurive_visitor(
             tinyrefl::overloaded_function_default(
                 std::forward<Visitors>(visitors)...)));
 }
@@ -290,13 +297,13 @@ constexpr void recursive_visit(Visitors&&... visitors)
         std::forward<Visitors>(visitors)...);
 }
 
-#define TINYREFL_VISITOR_FUNCTION(kind, Kind)                          \
-    template<typename Visitor>                                         \
-    constexpr auto TINYREFL_PP_CAT(kind, _visitor)(Visitor && visitor) \
-    {                                                                  \
-        return tinyrefl::impl::make_constexpr_kind_restricted_visitor< \
-            tinyrefl::entities::entity_kind::Kind>(                    \
-            std::forward<Visitor>(visitor));                           \
+#define TINYREFL_VISITOR_FUNCTION(kind, Kind)                            \
+    template<typename Visitor>                                           \
+    constexpr auto TINYREFL_PP_CAT(kind, _visitor)(Visitor && visitor)   \
+    {                                                                    \
+        return ::tinyrefl::impl::make_constexpr_kind_restricted_visitor< \
+            tinyrefl::entities::entity_kind::Kind>(                      \
+            std::forward<Visitor>(visitor));                             \
     }
 
 TINYREFL_VISITOR_FUNCTION(namespace, NAMESPACE);

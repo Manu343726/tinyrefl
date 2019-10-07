@@ -165,7 +165,7 @@ template<
     typename Transform = tinyrefl::meta::defer<tinyrefl::meta::identity>>
 struct typelist_to_array;
 
-namespace impl
+namespace tinyrefl_types_impl
 {
 
 template<typename Transform, typename Value>
@@ -269,7 +269,7 @@ struct apply_transform<Transform, Value, false, false, true>
     }
 };
 
-} // namespace impl
+} // namespace tinyrefl_types_impl
 
 template<
     typename Value,
@@ -282,11 +282,14 @@ struct typelist_to_array<
     Transform>
 {
     using value_type = std::remove_reference_t<decltype(
-        tinyrefl::impl::apply_transform<Transform, Value>::value())>;
+        ::tinyrefl::tinyrefl_types_impl::apply_transform<Transform, Value>::
+            value())>;
 
     static constexpr tinyrefl::array<value_type, sizeof...(Values) + 1> value{
-        tinyrefl::impl::apply_transform<Transform, Value>::value(),
-        tinyrefl::impl::apply_transform<Transform, Values>::value()...};
+        ::tinyrefl::tinyrefl_types_impl::apply_transform<Transform, Value>::
+            value(),
+        ::tinyrefl::tinyrefl_types_impl::apply_transform<Transform, Values>::
+            value()...};
 };
 
 template<
