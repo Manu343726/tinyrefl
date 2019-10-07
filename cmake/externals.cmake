@@ -15,14 +15,20 @@ function(require_targets)
 endfunction()
 
 macro(external_dependency NAME URL COMMIT)
-    message(STATUS "external dependency ${NAME} from ${URL} at ${COMMIT}")
-    download_project(
-        PROJ "${NAME}"
-        GIT_REPOSITORY "${URL}"
-        GIT_TAG "${COMMIT}"
-        UPDATE_DISCONNECTED 1
-    )
-    add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
-    set(${NAME}_SOURCE_DIR "${${NAME}_SOURCE_DIR}" CACHE PATH "")
-    set(${NAME}_BINARY_DIR "${${NAME}_BINARY_DIR}" CACHE PATH "")
+    if(TARGET ${NAME})
+        message(STATUS "Skipping external dependency ${NAME}")
+    else()
+        message(STATUS "external dependency ${NAME} from ${URL} at ${COMMIT}")
+        download_project(
+            PROJ "${NAME}"
+            GIT_REPOSITORY "${URL}"
+            GIT_TAG "${COMMIT}"
+            UPDATE_DISCONNECTED 1
+            PREFIX "${CMAKE_CURRENT_BINARY_DIR}"
+            INSTALL ""
+        )
+        add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
+        set(${NAME}_SOURCE_DIR "${${NAME}_SOURCE_DIR}" CACHE PATH "")
+        set(${NAME}_BINARY_DIR "${${NAME}_BINARY_DIR}" CACHE PATH "")
+    endif()
 endmacro()

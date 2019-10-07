@@ -45,6 +45,8 @@ if(TINYREFL_CROSS_BUILDING)
             -DTINYREFL_FMT_VERSION=${TINYREFL_FMT_VERSION}
             -DTINYREFL_CPPFS_REPO_URL=${TINYREFL_CPPFS_REPO_URL}
             -DTINYREFL_CPPFS_VERSION=${TINYREFL_CPPFS_VERSION}
+            -DTINYREFL_CTTI_REPO_URL=${TINYREFL_CTTI_REPO_URL}
+            -DTINYREFL_CTTI_VERSION=${TINYREFL_CTTI_VERSION}
         INSTALL_COMMAND ""
     )
 
@@ -84,7 +86,7 @@ else()
     set(TINYREFL_TOOL_TARGET tinyrefl-tool CACHE STRING "")
 
     add_executable(string-debugger string_debugger.cpp)
-    target_link_libraries(string-debugger PRIVATE tinyrefl)
+    target_link_libraries(string-debugger PRIVATE tinyrefl-tool-lib)
 endif()
 
 include(CMakePackageConfigHelpers)

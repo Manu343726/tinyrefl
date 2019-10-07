@@ -19,7 +19,8 @@ class TinyreflTool(ConanFile):
                 'llvm_support/6.0.1@Manu343726/testing',
                 'type_safe/0.3@Manu343726/testing',
                 'spdlog/1.3.1@bincrafters/stable',
-                'fmt/5.3.0@bincrafters/stable')
+                'fmt/5.3.0@bincrafters/stable',
+                'jsonformoderncpp/3.5.0@vthiery/stable')
     requires = 'clang_executables/6.0.1@Manu343726/testing'
     default_options = 'fmt:header_only=True'
     settings = 'os', 'compiler', 'build_type', 'arch'

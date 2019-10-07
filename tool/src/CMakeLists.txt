@@ -11,7 +11,9 @@ add_library(tinyrefl-tool-lib
     serializers/registration_serializer.cpp
 )
 
-target_include_directories(tinyrefl-tool-lib PUBLIC "${TINYREFL_TOOL_INCLUDE_DIR}")
+target_include_directories(tinyrefl-tool-lib
+    PUBLIC "${TINYREFL_TOOL_INCLUDE_DIR}"
+    PUBLIC "${TINYREFL_INCLUDE_DIR}")
 
 target_link_libraries(tinyrefl-tool-lib PUBLIC
     tinyrefl_externals_cppast
@@ -19,5 +21,6 @@ target_link_libraries(tinyrefl-tool-lib PUBLIC
     tinyrefl_externals_type_safe
     tinyrefl_externals_cppfs
     tinyrefl_externals_spdlog
-    tinyrefl
+    tinyrefl_externals_ctti
+    tinyrefl_externals_jsonformoderncpp
 )

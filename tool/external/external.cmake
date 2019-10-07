@@ -1,5 +1,6 @@
 include(${TINYREFL_SOURCE_DIR}/cmake/utils.cmake)
 include(${TINYREFL_SOURCE_DIR}/cmake/externals.cmake)
+include(${TINYREFL_SOURCE_DIR}/external/external.cmake)
 
 set(CPPAST_BUILD_EXAMPLE OFF CACHE BOOL "disable cppast examples")
 set(CPPAST_BUILD_TEST OFF CACHE BOOL "disable cppast tests")
@@ -203,6 +204,8 @@ else()
 
     if(NOT spdlog_FOUND)
         message(STATUS "tinyrefl-tool build using spdlog from sources")
+
+        set(SPDLOG_INSTALL OFF CACHE INTERNAL "")
         external_dependency(spdlog ${TINYREFL_SPDLOG_URL} ${TINYREFL_SPDLOG_VERSION})
         add_library(tinyrefl_externals_spdlog ALIAS spdlog)
     else()
