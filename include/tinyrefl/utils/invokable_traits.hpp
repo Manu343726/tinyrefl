@@ -15,11 +15,21 @@ enum class invokable_kind
     FREE_FUNCTION,
     NON_CONST_MEMBER_FUNCTION,
     CONST_MEMBER_FUNCTION,
-    MEMBER_VARIABLE
+    MEMBER_VARIABLE,
+    VARIABLE
 };
 
-template<typename Function>
-struct traits;
+template<typename T>
+struct traits
+{
+    static constexpr tinyrefl::invokable_traits::invokable_kind kind =
+        tinyrefl::invokable_traits::invokable_kind::VARIABLE;
+
+    using return_type       = T;
+    using class_type        = void;
+    using arguments         = tinyrefl::meta::list<>;
+    using decayed_arguments = tinyrefl::meta::list<>;
+};
 
 template<typename R, typename Class, typename... Args>
 struct traits<R (Class::*)(Args...)>
