@@ -238,12 +238,38 @@ namespace detail
 {
 
 template<typename T, typename = void>
-struct has_custom_to_json : nlohmann::detail::has_to_json<nlohmann::json, T>
+struct has_adl_to_json : std::false_type
+{
+};
+
+template<typename T>
+struct has_adl_to_json<
+    T,
+    std::void_t<decltype(to_json(
+        std::declval<nlohmann::json&>(), std::declval<T>()))>> : std::true_type
 {
 };
 
 template<typename T, typename = void>
-struct has_custom_from_json : nlohmann::detail::has_from_json<nlohmann::json, T>
+struct has_adl_from_json : std::false_type
+{
+};
+
+template<typename T>
+struct has_adl_from_json<
+    T,
+    std::void_t<decltype(from_json(
+        std::declval<nlohmann::json>(), std::declval<T&>()))>> : std::true_type
+{
+};
+
+template<typename T, typename = void>
+struct has_custom_to_json : has_adl_to_json<T>
+{
+};
+
+template<typename T, typename = void>
+struct has_custom_from_json : has_adl_from_json<T>
 {
 };
 
@@ -251,10 +277,19 @@ struct has_custom_from_json : nlohmann::detail::has_from_json<nlohmann::json, T>
 
 template<typename T>
 auto to_json(const T& value) -> std::enable_if_t<
-    detail::has_custom_to_json<T>::value && !std::is_enum<T>::value,
+    !tinyrefl::has_metadata<T>() || detail::has_custom_to_json<T>::value,
     json>
 {
     return value;
+}
+
+template<typename Enum>
+auto to_json(const Enum value) -> std::enable_if_t<
+    tinyrefl::has_metadata<Enum>() && std::is_enum<Enum>::value &&
+        !detail::has_custom_to_json<Enum>::value,
+    json>
+{
+    return tinyrefl::to_string(value).str();
 }
 
 template<typename Class>
@@ -263,19 +298,9 @@ auto to_json(const Class& object) -> std::enable_if_t<
         !detail::has_custom_to_json<Class>::value,
     json>;
 
-template<typename Enum>
-auto to_json(const Enum value) -> std::enable_if_t<
-    tinyrefl::has_metadata<Enum>() && std::is_enum<Enum>::value /* &&
-        !detail::has_custom_to_json<Enum>::value */
-    ,
-    json>
-{
-    return tinyrefl::to_string(value).str();
-}
-
 template<typename T>
 auto from_json(const json& json) -> std::enable_if_t<
-    detail::has_custom_from_json<T>::value && !std::is_enum<T>::value,
+    !tinyrefl::has_metadata<T>() || detail::has_custom_from_json<T>::value,
     T>
 {
     T result;
@@ -285,9 +310,8 @@ auto from_json(const json& json) -> std::enable_if_t<
 
 template<typename Enum>
 auto from_json(const json& json) -> std::enable_if_t<
-    tinyrefl::has_metadata<Enum>() && std::is_enum<Enum>::value /* &&
-        /}!detail::has_custom_from_json<Enum>::value */
-    ,
+    tinyrefl::has_metadata<Enum>() && std::is_enum<Enum>::value &&
+        !detail::has_custom_from_json<Enum>::value,
     Enum>
 {
     assert(json.is_string());
@@ -302,27 +326,6 @@ auto from_json(const json& json) -> std::enable_if_t<
 
 } // namespace tinyrefl
 
-/*
-namespace nlohmann
-{
-
-template<typename Class>
-auto to_json(json& json, const Class& object) -> std::enable_if_t<
-    tinyrefl::has_metadata<Class>() && std::is_class<Class>::value,
-    nlohmann::json>
-{
-    json = tinyrefl::to_json(object);
-}
-
-template<typename T>
-auto from_json(const json& json, T& result)
-    -> std::enable_if_t<tinyrefl::has_metadata<T>(), T>
-{
-    result = tinyrefl::from_json<T>(json);
-}
-
-} // namespace nlohmann
-*/
 namespace tinyrefl
 {
 
@@ -336,7 +339,7 @@ auto to_json(const Class& object) -> std::enable_if_t<
 
     visit_member_variables(
         object, [&result](const tinyrefl::string& name, const auto& member) {
-            result[name.str()] = to_json(member);
+            result[name.str()] = tinyrefl::to_json(member);
         });
 
     return result;
@@ -352,8 +355,8 @@ auto from_json(const json& json) -> std::enable_if_t<
 
     visit_member_variables(
         result, [&json](const tinyrefl::string& name, auto& member) {
-            member =
-                from_json<std::decay_t<decltype(member)>>(json[name.str()]);
+            member = tinyrefl::from_json<std::decay_t<decltype(member)>>(
+                json[name.str()]);
         });
 
     return result;
@@ -365,7 +368,7 @@ auto to_string(const Class& object) -> std::enable_if_t<
     std::string>
 {
     std::ostringstream ss;
-    ss << to_json(object);
+    ss << tinyrefl::to_json(object);
     return ss.str();
 }
 
