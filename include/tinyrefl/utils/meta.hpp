@@ -174,8 +174,9 @@ struct is_constexpr_default_constructible : public std::false_type
 };
 
 template<typename T>
-struct is_constexpr_default_constructible<T, std::void_t<int[(T{}, 42)]>>
-    : std::true_type
+struct is_constexpr_default_constructible<
+    T,
+    tinyrefl::meta::void_t<int[(T{}, 42)]>> : std::true_type
 {
 };
 
@@ -235,8 +236,10 @@ struct detector : std::false_type
 };
 
 template<template<typename...> class Op, typename... Types>
-struct detector<Op, tinyrefl::meta::list<Types...>, std::void_t<Op<Types...>>>
-    : std::true_type
+struct detector<
+    Op,
+    tinyrefl::meta::list<Types...>,
+    tinyrefl::meta::void_t<Op<Types...>>> : std::true_type
 {
 };
 

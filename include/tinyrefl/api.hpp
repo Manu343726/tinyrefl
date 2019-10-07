@@ -9,6 +9,7 @@
 #include <tinyrefl/backend/metadata.hpp>
 #include <tinyrefl/object_visitor.hpp>
 #include <tinyrefl/utils/language_features.hpp>
+#include <tinyrefl/utils/meta.hpp>
 #include <tinyrefl/utils/overloaded_function.hpp>
 #include <tinyrefl/utils/typename.hpp>
 #include <tinyrefl/visitor.hpp>
@@ -245,7 +246,7 @@ struct has_adl_to_json : std::false_type
 template<typename T>
 struct has_adl_to_json<
     T,
-    std::void_t<decltype(to_json(
+    tinyrefl::meta::void_t<decltype(to_json(
         std::declval<nlohmann::json&>(), std::declval<T>()))>> : std::true_type
 {
 };
@@ -258,7 +259,7 @@ struct has_adl_from_json : std::false_type
 template<typename T>
 struct has_adl_from_json<
     T,
-    std::void_t<decltype(from_json(
+    tinyrefl::meta::void_t<decltype(from_json(
         std::declval<nlohmann::json>(), std::declval<T&>()))>> : std::true_type
 {
 };

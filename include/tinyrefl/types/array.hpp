@@ -189,8 +189,8 @@ template<typename Transform, typename ValueType>
 struct has_value_transform<
     Transform,
     ValueType,
-    std::void_t<decltype(Transform::transform(std::declval<ValueType>()))>>
-    : std::true_type
+    tinyrefl::meta::void_t<decltype(
+        Transform::transform(std::declval<ValueType>()))>> : std::true_type
 {
 };
 

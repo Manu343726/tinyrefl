@@ -7,6 +7,7 @@
 #include <tinyrefl/types/name.hpp>
 #include <tinyrefl/types/string.hpp>
 #include <tinyrefl/types/type.hpp>
+#include <tinyrefl/utils/meta.hpp>
 
 #include <type_traits>
 
@@ -513,7 +514,7 @@ struct is_entity : public std::false_type
 };
 
 template<typename T>
-struct is_entity<T, std::void_t<typename T::tinyrefl_entity_tag>>
+struct is_entity<T, tinyrefl::meta::void_t<typename T::tinyrefl_entity_tag>>
     : public std::true_type
 {
 };

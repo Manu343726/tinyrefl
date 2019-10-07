@@ -2,6 +2,7 @@
 #define TINYREFL_TYPES_STATIC_VALUE_HPP_INCLUDED
 
 #include <ctti/static_value.hpp>
+#include <tinyrefl/utils/meta.hpp>
 #include <type_traits>
 
 namespace tinyrefl
@@ -19,7 +20,8 @@ struct is_static_value : std::false_type
 };
 
 template<typename T>
-struct is_static_value<T, std::void_t<decltype(T::value)>> : std::true_type
+struct is_static_value<T, tinyrefl::meta::void_t<decltype(T::value)>>
+    : std::true_type
 {
 };
 } // namespace tinyrefl
