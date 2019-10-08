@@ -111,14 +111,34 @@ void dump()
     std::cout << "\nobject visitors:\n\n";
 
     tinyrefl::visit_member_variables(
-        object, [&](tinyrefl::string name, const auto& variable) {
-            std::cout << name << " " << variable << "\n";
-        });
+        object,
+        [&](tinyrefl::string name, const auto& variable)
+            -> std::enable_if_t<
+                std::is_same<std::string, std::decay_t<decltype(variable)>>::
+                    value> { std::cout << name << " " << variable << "\n"; });
 
     tinyrefl::visit_member_functions(
         object, [&](tinyrefl::string name, auto function) {
             std::cout << name << "\n";
         });
+
+    std::cout << "\nvisitors with SFINAE and kind constraints:\n\n";
+
+    tinyrefl::visit<example::C>(tinyrefl::member_variable_visitor(
+        [](const auto& variable)
+            -> std::enable_if_t<std::is_same<
+                typename std::decay_t<decltype(variable)>::value_type,
+                std::string>::value> {
+            std::cout << "(std::string member variable) " << variable.name()
+                      << "\n";
+        },
+        [](const auto& variable)
+            -> std::enable_if_t<!std::is_same<
+                typename std::decay_t<decltype(variable)>::value_type,
+                std::string>::value> {
+            std::cout << "(no std::string member variable) " << variable.name()
+                      << "\n";
+        }));
 
     std::cout << "\ndetailed function info:\n\n";
 

@@ -19,10 +19,13 @@ struct constexpr_member_variable_visitor
     }
 
     template<typename MemberVariable>
-    constexpr void operator()(
+    constexpr auto operator()(
         const MemberVariable&,
         tinyrefl::entities::kind_constant<
             tinyrefl::entities::entity_kind::MEMBER_VARIABLE>) const
+        -> decltype(std::declval<Visitor>()(
+            MemberVariable{}.name(),
+            MemberVariable{}.get(std::declval<Class&>())))
     {
         visitor(MemberVariable{}.name(), MemberVariable{}.get(*object));
     }
@@ -70,10 +73,13 @@ struct constexpr_member_function_visitor
     }
 
     template<typename MemberFunction>
-    constexpr void operator()(
+    constexpr auto operator()(
         const MemberFunction&,
         tinyrefl::entities::kind_constant<
             tinyrefl::entities::entity_kind::MEMBER_FUNCTION>) const
+        -> decltype(std::declval<Visitor>()(
+            MemberFunction{}.display_name(),
+            make_bound_member_function<MemberFunction>(std::declval<Class&>())))
     {
         visitor(
             MemberFunction{}.display_name(),
