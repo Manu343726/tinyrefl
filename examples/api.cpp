@@ -156,6 +156,34 @@ void dump()
         });
 
 #endif // TINYREFL_HAS_CONCEPTS
+
+    std::cout << "\nmemberwise object equality:\n\n";
+
+    example::C a, b;
+    a.subobject.b = "world";
+    a.b           = "world";
+
+    std::cout << "a (" << tinyrefl::to_string(a) << ") equal to b ("
+              << tinyrefl::to_string(b) << "): " << std::boolalpha
+              << tinyrefl::equal(a, b) << "\n";
+
+    std::cout << "a (" << tinyrefl::to_string(a) << ") equal to a ("
+              << tinyrefl::to_string(a) << "): " << std::boolalpha
+              << tinyrefl::equal(a, a) << "\n";
+
+    tinyrefl::visit_member_variables(
+        std::forward_as_tuple(a, b),
+        [](const tinyrefl::string& name, auto& aMember, const auto& bMember) {
+            aMember = bMember;
+            std::cout << "b." << name << " asigned to a." << name << "\n";
+        });
+
+    std::cout << "a (" << tinyrefl::to_string(a) << ") equal to b ("
+              << tinyrefl::to_string(b)
+              << ") after memberwise assignment: " << std::boolalpha
+              << tinyrefl::equal(a, b) << "\n";
+
+    std::cout << "\n\n";
 }
 
 int main()

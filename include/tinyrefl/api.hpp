@@ -67,11 +67,14 @@ constexpr bool tuple_memberwise_equal(
 {
     bool equal = true;
 
-    tinyrefl::meta::foreach<tinyrefl::meta::list<Second, Tail...>>(
-        [&equal, tuple, comparator](auto /* type */, auto i) {
+    tinyrefl::meta::indexed_foreach(
+        tuple,
+        std::make_pair(
+            tinyrefl::meta::size_t<0>{},
+            tinyrefl::meta::size_t<sizeof...(Tail) + 1>{}),
+        [&equal, tuple, comparator](const auto& item, auto i) {
             constexpr std::size_t index = decltype(i)::type::value;
-            equal &=
-                comparator(std::get<index>(tuple), std::get<index + 1>(tuple));
+            equal &= comparator(item, std::get<index + 1>(tuple));
         });
 
     return equal;
@@ -420,10 +423,12 @@ auto memberwise_equal(Class&&... objects) -> std::enable_if_t<
 {
     bool equal = true;
 
-    visit_objects_member_variables(std::forward<Class>(objects)...)(
-        [&equal](const auto& /* name */, const auto& entities) {
+    tinyrefl::visit_member_variables(
+        std::forward_as_tuple(std::forward<Class>(objects)...),
+        [&equal](const auto& /* name */, const auto&... entities) {
             equal &= detail::tuple_memberwise_equal(
-                entities, [](const auto& lhs, const auto& rhs) {
+                std::forward_as_tuple(entities...),
+                [](const auto& lhs, const auto& rhs) {
                     return tinyrefl::equal(lhs, rhs);
                 });
         });

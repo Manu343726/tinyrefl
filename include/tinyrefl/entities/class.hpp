@@ -56,6 +56,14 @@ struct class_ : public tinyrefl::entities::entity_with_attributes<
     using member_enums = tinyrefl::meta::fmap_t<
         tinyrefl::meta::defer<tinyrefl::backend::entity_metadata>,
         Enums>;
+
+    constexpr auto bases() const
+    {
+        return tinyrefl::meta::make_tuple(
+            tinyrefl::meta::fmap_t<
+                tinyrefl::meta::defer<tinyrefl::backend::entity_metadata>,
+                base_classes>{});
+    }
 };
 } // namespace entities
 } // namespace tinyrefl

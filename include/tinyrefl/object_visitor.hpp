@@ -9,12 +9,12 @@ namespace tinyrefl
 namespace impl
 {
 
-template<typename Class, typename Visitor>
+template<typename Visitor, typename... Class>
 struct constexpr_member_variable_visitor
 {
     constexpr constexpr_member_variable_visitor(
-        Class& object, Visitor&& visitor)
-        : object{&object}, visitor{std::move(visitor)}
+        Class&... objects, Visitor&& visitor)
+        : objects{&objects...}, visitor{std::move(visitor)}
     {
     }
 
@@ -25,22 +25,59 @@ struct constexpr_member_variable_visitor
             tinyrefl::entities::entity_kind::MEMBER_VARIABLE>) const
         -> decltype(std::declval<Visitor>()(
             MemberVariable{}.name(),
-            MemberVariable{}.get(std::declval<Class&>())))
+            MemberVariable{}.get(std::declval<Class&>())...))
     {
-        visitor(MemberVariable{}.name(), MemberVariable{}.get(*object));
+        call(MemberVariable{}, std::index_sequence_for<Class...>{});
     }
 
-    Class*  object;
-    Visitor visitor;
+    std::tuple<Class*...> objects;
+    Visitor               visitor;
+
+private:
+    template<typename MemberVariable, std::size_t... Is>
+    constexpr auto call(const MemberVariable&, std::index_sequence<Is...>) const
+        -> decltype(std::declval<Visitor>()(
+            MemberVariable{}.name(),
+            MemberVariable{}.get(std::declval<Class&>())...))
+    {
+        visitor(
+            MemberVariable{}.name(),
+            MemberVariable{}.get(*std::get<Is>(objects))...);
+    }
 };
 
-template<typename Class, typename Visitor>
+template<typename... Class, typename Visitor>
 constexpr constexpr_member_variable_visitor<
-    std::remove_reference_t<Class>,
-    std::decay_t<Visitor>>
-    make_constexpr_member_variable_visitor(Class& object, Visitor&& visitor)
+    std::decay_t<Visitor>,
+    std::remove_reference_t<Class>...>
+    make_constexpr_member_variable_visitor(Visitor&& visitor, Class&... objects)
 {
-    return {object, std::forward<Visitor>(visitor)};
+    return {objects..., std::forward<Visitor>(visitor)};
+}
+
+template<typename... Class, typename Visitor, std::size_t... Is>
+constexpr constexpr_member_variable_visitor<
+    std::decay_t<Visitor>,
+    std::remove_reference_t<Class>...>
+    make_constexpr_member_variable_visitor(
+        Visitor&&                    visitor,
+        const std::tuple<Class&...>& objects,
+        std::index_sequence<Is...>)
+{
+    return {std::get<Is>(objects)..., std::forward<Visitor>(visitor)};
+}
+
+template<typename... Class, typename Visitor>
+constexpr constexpr_member_variable_visitor<
+    std::decay_t<Visitor>,
+    std::remove_reference_t<Class>...>
+    make_constexpr_member_variable_visitor(
+        Visitor&& visitor, const std::tuple<Class&...>& objects)
+{
+    return make_constexpr_member_variable_visitor(
+        std::forward<Visitor>(visitor),
+        objects,
+        std::index_sequence_for<Class...>{});
 }
 
 template<typename Class, typename MemberFunction>
@@ -101,21 +138,54 @@ constexpr constexpr_member_function_visitor<
 
 } // namespace impl
 
+template<typename... Class, typename... Visitors>
+constexpr void visit_member_variables(
+    const std::tuple<Class&...>& objects, Visitors&&... visitors)
+{
+    auto visitor = ::tinyrefl::impl::make_constexpr_member_variable_visitor(
+        tinyrefl::overloaded_function(std::forward<Visitors>(visitors)...),
+        objects);
+
+    using class_type = std::decay_t<tinyrefl::meta::pack_head_t<Class...>>;
+
+    ::tinyrefl::visit<class_type>(visitor);
+
+    tinyrefl::meta::foreach(
+        tinyrefl::metadata<class_type>().bases(),
+        [&](const auto& base_class) { tinyrefl::visit(base_class, visitor); });
+}
+
 template<typename Class, typename... Visitors>
 constexpr void visit_member_variables(Class& object, Visitors&&... visitors)
 {
-    ::tinyrefl::visit<std::decay_t<Class>>(
-        ::tinyrefl::impl::make_constexpr_member_variable_visitor(
-            object, std::forward<Visitors>(visitors))...);
+    auto visitor = ::tinyrefl::impl::make_constexpr_member_variable_visitor(
+        tinyrefl::overloaded_function(std::forward<Visitors>(visitors)...),
+        object);
+
+    using class_type = std::decay_t<Class>;
+
+    ::tinyrefl::visit<class_type>(visitor);
+
+    tinyrefl::meta::foreach(
+        tinyrefl::metadata<class_type>().bases(),
+        [&](const auto& base_class) { tinyrefl::visit(base_class, visitor); });
 }
 
 
 template<typename Class, typename... Visitors>
 constexpr void visit_member_functions(Class& object, Visitors&&... visitors)
 {
-    ::tinyrefl::visit<std::decay_t<Class>>(
-        ::tinyrefl::impl::make_constexpr_member_function_visitor(
-            object, std::forward<Visitors>(visitors))...);
+    auto visitor = ::tinyrefl::impl::make_constexpr_member_function_visitor(
+        object,
+        tinyrefl::overloaded_function(std::forward<Visitors>(visitors)...));
+
+    using class_type = std::decay_t<Class>;
+
+    ::tinyrefl::visit<class_type>(visitor);
+
+    tinyrefl::meta::foreach(
+        tinyrefl::metadata<class_type>().bases(),
+        [&](const auto& base_class) { tinyrefl::visit(base_class, visitor); });
 }
 } // namespace tinyrefl
 

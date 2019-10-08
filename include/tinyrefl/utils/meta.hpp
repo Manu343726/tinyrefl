@@ -2,6 +2,7 @@
 #define TINYREFL_UTILS_META_HPP_INCLUDED
 
 #include <ctti/detail/meta.hpp>
+#include <tinyrefl/types/type.hpp>
 #include <tinyrefl/utils/language_features.hpp>
 #include <tuple>
 
@@ -139,6 +140,42 @@ constexpr void foreach(
     (void)std::array<int, sizeof...(Ts)>{
         {(visitor(std::get<Indices>(tuple)), 0)...}};
 }
+
+template<
+    typename... Ts,
+    typename Visitor,
+    std::size_t... Indices,
+    std::size_t Offset>
+constexpr void indexed_foreach(
+    const std::tuple<Ts...>& tuple,
+    Visitor&&                visitor,
+    std::index_sequence<Indices...>,
+    tinyrefl::meta::size_t<Offset>)
+{
+    (void)std::array<int, sizeof...(Ts)>{{(
+        visitor(
+            std::get<Indices + Offset>(tuple),
+            tinyrefl::type_constant<tinyrefl::meta::size_t<Indices + Offset>>),
+        0)...}};
+}
+
+template<
+    typename... Ts,
+    typename Visitor,
+    std::size_t... Indices,
+    std::size_t Offset>
+constexpr void indexed_foreach(
+    std::tuple<Ts...>& tuple,
+    Visitor&&          visitor,
+    std::index_sequence<Indices...>,
+    tinyrefl::meta::size_t<Offset>)
+{
+    (void)std::array<int, sizeof...(Ts)>{{(
+        visitor(
+            std::get<Indices + Offset>(tuple),
+            tinyrefl::type_constant<tinyrefl::meta::size_t<Indices + Offset>>),
+        0)...}};
+}
 } // namespace impl
 
 template<typename... Ts, typename Visitor>
@@ -157,6 +194,57 @@ constexpr void foreach(std::tuple<Ts...>& tuple, Visitor && visitor)
         tuple,
         std::forward<Visitor>(visitor),
         std::index_sequence_for<Ts...>{});
+}
+
+template<typename... Ts, typename Visitor>
+constexpr void
+    indexed_foreach(const std::tuple<Ts...>& tuple, Visitor&& visitor)
+{
+    ::tinyrefl::meta::impl::indexed_foreach(
+        tuple,
+        std::forward<Visitor>(visitor),
+        std::index_sequence_for<Ts...>{},
+        tinyrefl::meta::size_t<0>{});
+}
+
+template<typename... Ts, typename Visitor>
+constexpr void indexed_foreach(std::tuple<Ts...>& tuple, Visitor&& visitor)
+{
+    ::tinyrefl::meta::impl::indexed_foreach(
+        tuple,
+        std::forward<Visitor>(visitor),
+        std::index_sequence_for<Ts...>{},
+        tinyrefl::meta::size_t<0>{});
+}
+
+template<typename... Ts, typename Visitor, std::size_t Begin, std::size_t End>
+constexpr void indexed_foreach(
+    const std::tuple<Ts...>& tuple,
+    const std::pair<tinyrefl::meta::size_t<Begin>, tinyrefl::meta::size_t<End>>,
+    Visitor&& visitor)
+{
+    static_assert(End - Begin <= sizeof...(Ts), "Range out of bounds");
+
+    ::tinyrefl::meta::impl::indexed_foreach(
+        tuple,
+        std::forward<Visitor>(visitor),
+        std::make_index_sequence<End - Begin>{},
+        tinyrefl::meta::size_t<Begin>{});
+}
+
+template<typename... Ts, typename Visitor, std::size_t Begin, std::size_t End>
+constexpr void indexed_foreach(
+    std::tuple<Ts...>& tuple,
+    const std::pair<tinyrefl::meta::size_t<Begin>, tinyrefl::meta::size_t<End>>,
+    Visitor&& visitor)
+{
+    static_assert(End - Begin <= sizeof...(Ts), "Range out of bounds");
+
+    ::tinyrefl::meta::impl::indexed_foreach(
+        tuple,
+        std::forward<Visitor>(visitor),
+        std::make_index_sequence<End - Begin>{},
+        tinyrefl::meta::size_t<Begin>{});
 }
 
 template<typename T>
