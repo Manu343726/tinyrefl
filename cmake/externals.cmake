@@ -14,6 +14,8 @@ function(require_targets)
     endforeach()
 endfunction()
 
+find_package(Git REQUIRED)
+
 macro(external_dependency NAME URL COMMIT)
     if(TARGET ${NAME})
         message(STATUS "Skipping external dependency ${NAME}")
@@ -21,8 +23,7 @@ macro(external_dependency NAME URL COMMIT)
         message(STATUS "external dependency ${NAME} from ${URL} at ${COMMIT}")
         download_project(
             PROJ "${NAME}"
-            GIT_REPOSITORY "${URL}"
-            GIT_TAG "${COMMIT}"
+            DOWNLOAD_COMMAND ${GIT_EXECUTABLE} clone ${URL} --depth=1 --branch=${COMMIT} -- ${CMAKE_CURRENT_BINARY_DIR}/${NAME}-src
             UPDATE_DISCONNECTED 1
             PREFIX "${CMAKE_CURRENT_BINARY_DIR}"
             INSTALL ""
