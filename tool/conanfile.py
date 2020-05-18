@@ -1,9 +1,33 @@
-from conans import ConanFile, CMake
-import os
+from conans import ConanFile, CMake, tools
+from conans.errors import ConanException
+import os, re
+
+class Git(tools.Git):
+
+    def get_last_tag(self):
+        self.check_repo()
+        try:
+            status = self.run("describe --abbrev=0")
+            tag = status.strip()
+            return tag
+        except Exception:
+            return None
+
+def get_tag_version(git):
+    tag = git.get_tag()
+
+    if tag is None:
+        return None
+
+    result = re.fullmatch(r'v([0-9]+)\.([0-9]+)\.([0-9]+)', tag)
+
+    if result is None:
+        raise ConanException('Invalid git tag "{}"'.format(tag))
+
+    return result.expand(r'\1.\2.\3')
 
 class TinyreflTool(ConanFile):
     name = 'tinyrefl-tool'
-    version = '0.5.0'
     url = 'https://github.com/Manu343726/tinyrefl'
     description = ' A work in progress minimal C++ static reflection API and codegen tool'
     scm = {
@@ -25,14 +49,37 @@ class TinyreflTool(ConanFile):
     default_options = 'fmt:header_only=True'
     settings = 'os', 'compiler', 'build_type', 'arch'
 
+    custom_cmake_defs = {
+        'TINYREFL_BUILD_TESTS': False,
+        'TINYREFL_BUILD_EXAMPLES': False
+    }
+
+    def set_version(self):
+        git = Git(self.recipe_folder)
+        tag_version = get_tag_version(git)
+
+        if tag_version is not None:
+            self.version = tag_version
+        else:
+            self.version = '{}-{}'.format(git.get_branch(), git.get_commit())
+
+        self.custom_cmake_defs.update({
+            'TINYREFL_GIT_BRANCH': git.get_branch(),
+            'TINYREFL_GIT_COMMIT': git.get_commit(),
+            'TINYREFL_GIT_AT_TAG': (tag_version is not None),
+            'TINYREFL_LAST_TAG': git.get_last_tag()
+        })
+
     def build(self):
         cmake = CMake(self)
+
+        self.custom_cmake_defs.update({
+            'TINYREFL_LLVM_VERSION': self.deps_cpp_info['libclang'].version
+        })
+
         cmake.configure(
             source_folder='tinyrefl',
-            defs = {
-                'TINYREFL_BUILD_TESTS': False,
-                'TINYREFL_BUILD_EXAMPLES': False
-            }
+            defs = self.custom_cmake_defs
         )
         cmake.build(target='tinyrefl-tool')
 

@@ -171,6 +171,11 @@ else()
 
             add_library(tinyrefl_externals_llvm_support INTERFACE)
             target_link_libraries(tinyrefl_externals_llvm_support INTERFACE llvm_support::llvm_support)
+
+            if(NOT (TINYREFL_LLVM_VERSION STREQUAL llvm_support_VERSION))
+                message(FATAL_ERROR "Found llvm version (${llvm_support_VERSION}) does not match configured TINYREFL_LLVM_VERSION (${TINYREFL_LLVM_VERSION})")
+            endif()
+
         else()
             message(FATAL_ERROR "LLVMSupport library dependency not found")
         endif()

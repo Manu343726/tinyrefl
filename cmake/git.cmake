@@ -71,10 +71,21 @@ function(git_last_tag RESULT)
     set(${RESULT} "${stdout}" PARENT_SCOPE)
 endfunction()
 
-git_branch(TINYREFL_GIT_BRANCH)
-git_commit_hash(TINYREFL_GIT_COMMIT)
-git_current_checkout_is_tag(TINYREFL_GIT_AT_TAG)
-git_last_tag(TINYREFL_GIT_LAST_TAG)
+if(NOT DEFINED TINYREFL_GIT_BRANCH)
+    git_branch(TINYREFL_GIT_BRANCH)
+endif()
+
+if(NOT DEFINED TINYREFL_GIT_COMMIT)
+    git_commit_hash(TINYREFL_GIT_COMMIT)
+endif()
+
+if(NOT DEFINED TINYREFL_GIT_AT_TAG)
+    git_current_checkout_is_tag(TINYREFL_GIT_AT_TAG)
+endif()
+
+if(NOT DEFINED TINYREFL_GIT_LAST_TAG)
+    git_last_tag(TINYREFL_GIT_LAST_TAG)
+endif()
 
 string(REGEX REPLACE "v([0-9]+).([0-9]+).([0-9]+)" "\\1" TINYREFL_VERSION_MAJOR "${TINYREFL_GIT_LAST_TAG}")
 string(REGEX REPLACE "v([0-9]+).([0-9]+).([0-9]+)" "\\2" TINYREFL_VERSION_MINOR "${TINYREFL_GIT_LAST_TAG}")
