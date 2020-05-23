@@ -3,11 +3,11 @@ from conans import CMake
 import os
 
 class TinyreflTestPackage(ConanFile):
-    generators = 'cmake', 'cmake_find_package'
+    generators = 'cmake'
 
     def build_requirements(self):
-        # TODO: Get version from deps_cpp_info (Seems empty)
-        self.build_requires('tinyrefl-tool/{}'.format('0.5.2'))
+        tinyrefl_version = self.requires['tinyrefl'].ref.version
+        self.build_requires('tinyrefl-tool/{}'.format(tinyrefl_version))
 
     def build(self):
         cmake = CMake(self, parallel=False)
