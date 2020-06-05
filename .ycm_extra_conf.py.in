@@ -170,8 +170,6 @@ def FlagsForFile( filename, **kwargs ):
     relative_to = DirectoryOfThisScript()
     final_flags = MakeRelativePathsInFlagsAbsolute( flags, relative_to )
 
-  print final_flags
-
   return {
     'flags': final_flags,
     'do_cache': False
