@@ -44,7 +44,7 @@ class Tinyrefl(common.CMakePackage):
         'TINYREFL_BUILD_EXAMPLES': False,
         'TINYREFL_BUILD_TOOL': False
     }
-    generators = 'cmake'
+    generators = 'cmake_find_package'
     requires = ('jsonformoderncpp/3.5.0@vthiery/stable',
                'ctti/0.0.2@Manu343726/testing')
     settings = 'os', 'compiler', 'build_type', 'arch'

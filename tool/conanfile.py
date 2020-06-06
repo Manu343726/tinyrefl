@@ -36,7 +36,7 @@ class TinyreflTool(ConanFile):
       'revision': 'auto',
       'subfolder': 'tinyrefl'
     }
-    generators = 'cmake', 'cmake_find_package'
+    generators = 'cmake_find_package'
     build_requires = ('jsonformoderncpp/3.5.0@vthiery/stable',
                 'ctti/0.0.2@Manu343726/testing',
                 'cppast/master@Manu343726/testing',
