@@ -7,8 +7,6 @@ add_library(tinyrefl-test-static
 )
 
 target_link_libraries(tinyrefl-test-static PRIVATE tinyrefl)
-target_compile_definitions(tinyrefl-test-static PRIVATE CTTI_STATIC_TESTS_HEADER="${ctti_SOURCE_DIR}/tests/static/static_test.hpp")
-target_include_directories(tinyrefl-test-static PRIVATE "${CMAKE_SOURCE_DIR}/external")
 
 tinyrefl_tool(TARGET tinyrefl-test-static
 HEADERS

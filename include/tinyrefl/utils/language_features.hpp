@@ -6,6 +6,7 @@
 #if defined(__cpp_constexpr) and __cpp_constexpr >= 201603
 #define TINYREFL_HAS_CONSTEXPR_LAMBDAS
 #define TINYREFL_CONSTEXPR_LAMBDA
+#define TINYREFL_HAS_STD_STRING_VIEW
 #else
 #define TINYREFL_CONSTEXPR_LAMBDA
 #endif // CONSTEXPR LAMBDA

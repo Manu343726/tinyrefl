@@ -1,7 +1,7 @@
 
 namespace my_namespace
 {
-struct BaseClass
+struct BaseClassWithoutReflectionData
 {
     int  baseMember;
     void baseFunction() {}

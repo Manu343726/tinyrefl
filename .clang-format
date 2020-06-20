@@ -1,44 +1,40 @@
-﻿---
-AccessModifierOffset: '-4'
+﻿Language: Cpp
+AccessModifierOffset: -4
 AlignAfterOpenBracket: AlwaysBreak
-AlignConsecutiveAssignments: 'true'
-AlignConsecutiveDeclarations: 'true'
-AlignEscapedNewlinesLeft: 'true'
-AlignOperands: 'true'
-AlignTrailingComments: 'true'
-AllowShortBlocksOnASingleLine: 'false'
-AllowShortCaseLabelsOnASingleLine: 'false'
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignOperands: true
+AlignTrailingComments: true
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Empty
-AllowShortIfStatementsOnASingleLine: 'false'
-AllowShortLoopsOnASingleLine: 'false'
-AlwaysBreakTemplateDeclarations: 'true'
-BinPackArguments: 'false'
-BinPackParameters: 'false'
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: Yes
+BinPackArguments: false
+BinPackParameters: false
 BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Allman
-BreakConstructorInitializersBeforeComma: 'false'
-BreakStringLiterals: 'false'
-ColumnLimit: '80'
-ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
-ConstructorInitializerIndentWidth: '4'
-ContinuationIndentWidth: '4'
-Cpp11BracedListStyle: 'true'
-DerivePointerAlignment: 'false'
+BreakConstructorInitializersBeforeComma: false
+BreakStringLiterals: false
+ColumnLimit: 80
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+Cpp11BracedListStyle: true
+DerivePointerAlignment: false
 IncludeCategories:
   - Regex:    '.*\.tinyrefl'
     Priority: 10000
   - Regex:    'tinyrefl/entities.hpp'
     Priority: 20000
-IndentCaseLabels: 'false'
-IndentWidth: '4'
-IndentWrappedFunctionNames: 'true'
-Language: Cpp
-MaxEmptyLinesToKeep: '3'
+IndentCaseLabels: false
+IndentWidth: 4
+IndentWrappedFunctionNames: true
+MaxEmptyLinesToKeep: 3
 NamespaceIndentation: None
 PointerAlignment: Left
-SpaceAfterTemplateKeyword: 'false'
+SpaceAfterTemplateKeyword: false
 SpaceBeforeParens: Never
-TabWidth: '4'
+TabWidth: 4
 UseTab: Never
-
-...

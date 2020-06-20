@@ -1,30 +1,32 @@
 
-#include CTTI_STATIC_TESTS_HEADER
-#include <tinyrefl/backend.hpp>
+#include "static_test.hpp"
+#include <tinyrefl/backend/backend.hpp>
 
 // String hashing from TINYREFL_STRING() macros works as expected
 EXPECT_EQ(ctti::detail::cstring{TINYREFL_PP_STR(hello)}, "hello");
 EXPECT_NE(
     ctti::detail::cstring{"hello"}.hash(),
-    tinyrefl::backend::default_string_constant.hash());
+    tinyrefl::default_string_constant.hash());
 
 // Hash based string lookup works for known (defined) strings
-TINYREFL_DEFINE_STRING(hello)
-TINYREFL_DEFINE_STRING(world)
+TINYREFL_REGISTER_STRING(hello)
+TINYREFL_REGISTER_STRING(world)
 EXPECT_NE(
-    tinyrefl::backend::string_constant<TINYREFL_STRING(hello)>(),
-    tinyrefl::backend::default_string_constant);
+    tinyrefl::string_constant<TINYREFL_STRING(hello)>(),
+    tinyrefl::default_string_constant);
 EXPECT_EQ(
-    tinyrefl::backend::string_constant<TINYREFL_STRING(hello)>(), "hello");
+    tinyrefl::string_constant<TINYREFL_STRING(hello)>(), "hello");
 EXPECT_NE(
-    tinyrefl::backend::string_constant<TINYREFL_STRING(world)>(),
-    tinyrefl::backend::default_string_constant);
+    tinyrefl::string_constant<TINYREFL_STRING(world)>(),
+    tinyrefl::default_string_constant);
 EXPECT_EQ(
-    tinyrefl::backend::string_constant<TINYREFL_STRING(world)>(), "world");
+    tinyrefl::string_constant<TINYREFL_STRING(world)>(), "world");
 EXPECT_EQ(
-    tinyrefl::backend::string_constant<TINYREFL_STRING(
+    tinyrefl::string_constant<TINYREFL_STRING(
         here is an string that it seems no one has registered before)>(),
-    tinyrefl::backend::default_string_constant);
+    tinyrefl::default_string_constant);
+
+#ifdef TINYREFL_OLD_API
 
 namespace foo
 {
@@ -61,3 +63,5 @@ EXPECT_EQ(
         tinyrefl::backend::string_constant<TINYREFL_STRING(hello::world)>()}
         .name(),
     "world");
+
+#endif // TINYREFL_OLD_API

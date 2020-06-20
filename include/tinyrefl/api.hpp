@@ -29,22 +29,6 @@ using json = nlohmann::json;
 namespace detail
 {
 
-template<typename... Ts, typename Function, std::size_t... Indices>
-auto tuple_map_impl(
-    const std::tuple<Ts...>& tuple,
-    Function                 function,
-    tinyrefl::meta::index_sequence<Indices...>)
-{
-    return std::forward_as_tuple(function(std::get<Indices>(tuple))...);
-}
-
-template<typename... Ts, typename Function>
-auto tuple_map(const std::tuple<Ts...>& tuple, Function function)
-{
-    return tuple_map_impl(
-        tuple, function, tinyrefl::meta::make_index_sequence_for<Ts...>());
-}
-
 template<typename... Ts, std::size_t... Indices>
 constexpr auto typelist_to_tuple_impl(
     tinyrefl::meta::list<Ts...>, tinyrefl::meta::index_sequence<Indices...>)
@@ -142,18 +126,12 @@ struct sink_visitor
 };
 } // namespace detail
 
-template<typename Class, typename... Visitors>
-void visit_class(Visitors&&... visitors)
-{
-    tinyrefl::visit<Class>(std::forward<Visitors>(visitors)...);
-}
-
 template<typename Class>
 auto make_tuple(const Class& object)
 {
     using variables = typename tinyrefl::metadata<Class>::member_variables;
 
-    return detail::tuple_map(
+    return tinyrefl::meta::tuple_map(
         detail::typelist_to_tuple(variables{}),
         [&object](auto type) -> decltype(auto) {
             constexpr typename decltype(type)::type member_metadata;
@@ -166,7 +144,7 @@ constexpr auto make_tuple(Class& object)
 {
     using variables = typename tinyrefl::metadata<Class>::member_variables;
 
-    return detail::tuple_map(
+    return tinyrefl::meta::tuple_map(
         detail::typelist_to_tuple(variables{}),
         [&object](auto type) -> decltype(auto) {
             constexpr typename decltype(type)::type member_metadata;
@@ -178,12 +156,18 @@ template<typename Class, typename... Ts>
 Class make_object(const std::tuple<Ts...>& tuple)
 {
     Class result;
+    static_assert(
+        tinyrefl::has_metadata<Class>(),
+        "tinyrefl::make_object() can only be called with a class known by tinyrefl");
 
-    tinyrefl::meta::foreach<
-        typename tinyrefl::metadata<Class>::member_variables>(
-        [&tuple, &result](auto type, auto index) mutable {
-            constexpr typename decltype(type)::type member_metadata;
-            member_metadata.get(result) = std::get<index>(tuple);
+    tinyrefl::meta::indexed_foreach(
+        tinyrefl::metadata<Class>()
+            .template all_children<
+                tinyrefl::entities::entity_kind::MEMBER_VARIABLE>(),
+        [&tuple, &result](const auto& variable, auto index) {
+            constexpr std::size_t Index = decltype(index)::type::value;
+            variable.get(result) =
+                std::get<Index>(tuple);
         });
 
     return result;
@@ -199,7 +183,7 @@ constexpr auto enum_cast(const std::underlying_type_t<Enum> value)
 }
 
 template<typename Enum>
-constexpr auto enum_cast(const ctti::detail::cstring name) -> std::enable_if_t<
+constexpr auto enum_cast(const tinyrefl::string name) -> std::enable_if_t<
     std::is_enum<Enum>::value && tinyrefl::has_metadata<Enum>(),
     Enum>
 {
@@ -211,7 +195,7 @@ constexpr auto enum_cast(const char (&name)[N]) -> std::enable_if_t<
     std::is_enum<Enum>::value && tinyrefl::has_metadata<Enum>(),
     Enum>
 {
-    return enum_cast<Enum>(ctti::detail::cstring{name});
+    return enum_cast<Enum>(tinyrefl::string{name});
 }
 
 template<typename Enum>
@@ -219,7 +203,7 @@ auto enum_cast(const std::string& name) -> std::enable_if_t<
     std::is_enum<Enum>::value && tinyrefl::has_metadata<Enum>(),
     Enum>
 {
-    return enum_cast<Enum>(ctti::detail::cstring{name.c_str(), name.size()});
+    return enum_cast<Enum>(tinyrefl::string{name.c_str(), name.size()});
 }
 
 template<typename Enum>
@@ -233,7 +217,7 @@ constexpr auto underlying_value(const Enum value) -> std::enable_if_t<
 template<typename Enum>
 constexpr auto to_string(const Enum value) -> std::enable_if_t<
     std::is_enum<Enum>::value && tinyrefl::has_metadata<Enum>(),
-    ctti::detail::cstring>
+    tinyrefl::string>
 {
     return tinyrefl::metadata<Enum>()[value].name();
 }

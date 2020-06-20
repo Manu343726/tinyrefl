@@ -1,6 +1,7 @@
 #ifndef TINYREFL_OBJECT_VISITOR_HPP
 #define TINYREFL_OBJECT_VISITOR_HPP
 
+#include <tinyrefl/class_visitor.hpp>
 #include <tinyrefl/visitor.hpp>
 
 namespace tinyrefl
@@ -19,13 +20,12 @@ struct constexpr_member_variable_visitor
     }
 
     template<typename MemberVariable>
-    constexpr auto operator()(
-        const MemberVariable&,
-        tinyrefl::entities::kind_constant<
-            tinyrefl::entities::entity_kind::MEMBER_VARIABLE>) const
-        -> decltype(std::declval<Visitor>()(
+    constexpr auto operator()(const MemberVariable&) const -> std::enable_if_t<
+        MemberVariable().kind() ==
+            tinyrefl::entities::entity_kind::MEMBER_VARIABLE,
+        decltype(std::declval<Visitor>()(
             MemberVariable{}.name(),
-            MemberVariable{}.get(std::declval<Class&>())...))
+            MemberVariable{}.get(std::declval<Class&>())...))>
     {
         call(MemberVariable{}, std::index_sequence_for<Class...>{});
     }
@@ -147,12 +147,7 @@ constexpr void visit_member_variables(
         objects);
 
     using class_type = std::decay_t<tinyrefl::meta::pack_head_t<Class...>>;
-
-    ::tinyrefl::visit<class_type>(visitor);
-
-    tinyrefl::meta::foreach(
-        tinyrefl::metadata<class_type>().bases(),
-        [&](const auto& base_class) { tinyrefl::visit(base_class, visitor); });
+    tinyrefl::visit_class<class_type>(visitor);
 }
 
 template<typename Class, typename... Visitors>
@@ -163,12 +158,7 @@ constexpr void visit_member_variables(Class& object, Visitors&&... visitors)
         object);
 
     using class_type = std::decay_t<Class>;
-
-    ::tinyrefl::visit<class_type>(visitor);
-
-    tinyrefl::meta::foreach(
-        tinyrefl::metadata<class_type>().bases(),
-        [&](const auto& base_class) { tinyrefl::visit(base_class, visitor); });
+    tinyrefl::visit_class<class_type>(visitor);
 }
 
 
@@ -180,12 +170,7 @@ constexpr void visit_member_functions(Class& object, Visitors&&... visitors)
         tinyrefl::overloaded_function(std::forward<Visitors>(visitors)...));
 
     using class_type = std::decay_t<Class>;
-
-    ::tinyrefl::visit<class_type>(visitor);
-
-    tinyrefl::meta::foreach(
-        tinyrefl::metadata<class_type>().bases(),
-        [&](const auto& base_class) { tinyrefl::visit(base_class, visitor); });
+    tinyrefl::visit_class<class_type>(visitor);
 }
 } // namespace tinyrefl
 

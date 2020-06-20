@@ -114,7 +114,7 @@ void generate_global_metadata_list(
         tinyrefl::tool::sequence_serializer{string_registry}.sequence(entities);
 
     os << "#ifndef TINYREFL_GENERATED_FILE_COUNT\n"
-          "    #define TINYREFL_GENERATED_FILE_COUNT 0\n"
+          "    #define TINYREFL_GENERATED_FILE_COUNT 1\n"
           "    #define TINYREFL_ENTITIES_0 "
        << entities_sequence
        << "\n"
@@ -131,14 +131,16 @@ void generate_global_metadata_list(
         {
             fmt::print(
                 os,
-                "#elif TINYREFL_GENERATED_FILE_COUNT == {i}\n"
+                "#elif TINYREFL_GENERATED_FILE_COUNT == {count}\n"
                 "    #undef TINYREFL_GENERATED_FILE_COUNT\n"
-                "    #define TINYREFL_GENERATED_FILE_COUNT {next}\n"
+                "    #define TINYREFL_GENERATED_FILE_COUNT {next_count}\n"
                 "    #define TINYREFL_ENTITIES_{next} TINYREFL_SEQUENCE_CAT((TINYREFL_ENTITIES_{i}), ({entities}))\n"
                 "    #undef TINYREFL_ENTITIES\n"
                 "    #define TINYREFL_ENTITIES TINYREFL_ENTITIES_{next}\n",
                 fmt::arg("i", i),
                 fmt::arg("next", i + 1),
+                fmt::arg("count", i + 1),
+                fmt::arg("next_count", i + 2),
                 fmt::arg("entities", entities_sequence));
         }
         else

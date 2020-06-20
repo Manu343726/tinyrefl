@@ -7,8 +7,45 @@
 
 using namespace std::string_literals;
 
+template<typename Entity>
+std::string dump_entity(const Entity& entity)
+{
+    std::ostringstream os;
+
+    tinyrefl::recursive_visit(entity, [&](auto e)
+    {
+        constexpr decltype(e) entity;
+
+        os << std::string(entity.depth(), ' ') << " " << entity.kind() << " "
+           << entity.full_display_name() << "\n";
+
+        if constexpr(entity.kind() == tinyrefl::entities::entity_kind::CLASS)
+        {
+            tinyrefl::meta::foreach(entity.bases(), [&](const auto& entity)
+            {
+                os << dump_entity(entity) << " ^^^^^^ (that was a base class)\n";
+                                  });
+        }
+    });
+
+    return os.str();
+}
+
+std::string dump_visited_entities(const std::unordered_set<std::string>& entities)
+{
+    std::ostringstream os;
+
+    for(const auto& entity : entities)
+    {
+        os << entity << "\n";
+    }
+
+    return os.str();
+}
+
 TEST_CASE("tinyrefl api")
 {
+#ifdef TINYREFL_OLD_API
     SECTION("class metadata")
     {
         using Metadata = $(my_namespace::MyClass);
@@ -24,10 +61,10 @@ TEST_CASE("tinyrefl api")
         REQUIRE(Metadata::base_classes::size == 2);
         REQUIRE(std::is_same<
                 tinyrefl::meta::get_t<0, Metadata::base_classes>,
-                my_namespace::BaseClass>());
+                BaseClassWithReflectionData>());
         REQUIRE(std::is_same<
                 tinyrefl::meta::get_t<1, Metadata::base_classes>,
-                my_namespace::Foo>());
+                BaseClassWithoutReflectionData>());
 
         REQUIRE(
             tinyrefl::meta::get_t<0, Metadata::members>::value ==
@@ -87,26 +124,24 @@ TEST_CASE("tinyrefl api")
                     &my_namespace::MyClass::f>>("f"));
         REQUIRE(tinyrefl::has_attribute<TINYREFL_STATIC_VALUE(
                     &my_namespace::MyClass::str)>("str"));
-        REQUIRE(tinyrefl::has_attribute<my_namespace::MyClass::Foo>("Foo"));
+        REQUIRE(tinyrefl::has_attribute<my_namespace::MyClass::InnerClass>("InnerClass"));
         REQUIRE(tinyrefl::has_attribute<my_namespace::MyClass::Enum>("Enum"));
     }
-
+#endif // TINYREFL_OLD_API
     SECTION("visit class")
     {
         auto test =
             [](const tinyrefl::entity                      expected_entity_kind,
-               const std::unordered_map<std::string, int>& expected_results) {
+               const std::unordered_map<std::string, std::size_t>& expected_results) {
                 std::unordered_set<std::string> entities;
 
                 tinyrefl::visit_class<my_namespace::MyClass>(
-                    [&entities, expected_entity_kind](
-                        const std::string& name,
-                        auto /* depth */,
-                        auto /* entity */,
-                        auto entity_kind) {
-                        if(entity_kind == expected_entity_kind)
+                    [&entities, expected_entity_kind](const auto& entity) {
+                        UNSCOPED_INFO(entity.kind() << " " << entity.full_display_name());
+
+                        if(entity.kind() == expected_entity_kind)
                         {
-                            entities.insert(name);
+                            entities.insert(entity.name().str());
                         }
                     });
 
@@ -119,9 +154,12 @@ TEST_CASE("tinyrefl api")
                         entity_name << " " << expected_entity_kind
                                     << " expected " << expected_count
                                     << " times");
+                    INFO("full class:\n" << dump_entity(tinyrefl::metadata<my_namespace::MyClass>()));
+                    INFO("visited entities of expected kind: " << dump_visited_entities(entities));
+
                     CHECK(entities.count(entity_name) == expected_count);
                 }
-            };
+        };
 
         SECTION("member variables")
         {
@@ -134,9 +172,9 @@ TEST_CASE("tinyrefl api")
                  {"baseFunction", 0},
                  {"_private", 0},
                  {"Enum", 0},
-                 {"Foo", 0},
-                 {"my_namespace::BaseClass", 0},
-                 {"my_namespace::Foo", 0},
+                 {"InnerClass", 0},
+                 {"BaseClassWithReflectionData", 0},
+                 {"BaseClassWithoutReflectionData", 0},
                  {"InnerClassWithMembers", 0},
                  {"a", 0},
                  {"b", 0},
@@ -156,9 +194,9 @@ TEST_CASE("tinyrefl api")
                  {"baseFunction", 0},
                  {"_private", 0},
                  {"Enum", 0},
-                 {"Foo", 0},
-                 {"my_namespace::BaseClass", 0},
-                 {"my_namespace::Foo", 0},
+                 {"InnerClass", 0},
+                 {"BaseClassWithReflectionData", 0},
+                 {"BaseClassWithoutReflectionData", 0},
                  {"InnerClassWithMembers", 0},
                  {"a", 0},
                  {"b", 0},
@@ -170,7 +208,7 @@ TEST_CASE("tinyrefl api")
         SECTION("member enums")
         {
             test(
-                tinyrefl::entity::MEMBER_ENUM,
+                tinyrefl::entity::ENUM,
                 {{"vector", 0},
                  {"str", 0},
                  {"f", 0},
@@ -179,9 +217,9 @@ TEST_CASE("tinyrefl api")
                  {"_private", 0},
                  {"Enum", 1},
                  {"BaseClass", 0},
-                 {"Foo", 0},
-                 {"my_namespace::BaseClass", 0},
-                 {"my_namespace::Foo", 0},
+                 {"InnerClass", 0},
+                 {"BaseClassWithReflectionData", 0},
+                 {"BaseClassWithoutReflectionData", 0},
                  {"InnerClassWithMembers", 0},
                  {"a", 0},
                  {"b", 0},
@@ -193,7 +231,7 @@ TEST_CASE("tinyrefl api")
         SECTION("member classes")
         {
             test(
-                tinyrefl::entity::MEMBER_CLASS,
+                tinyrefl::entity::CLASS,
                 {{"vector", 0},
                  {"str", 0},
                  {"f", 0},
@@ -202,9 +240,9 @@ TEST_CASE("tinyrefl api")
                  {"_private", 0},
                  {"Enum", 0},
                  {"BaseClass", 0},
-                 {"Foo", 1},
-                 {"my_namespace::BaseClass", 0},
-                 {"my_namespace::Foo", 0},
+                 {"InnerClass", 1},
+                 {"BaseClassWithReflectionData", 0},
+                 {"BaseClassWithoutReflectionData", 0},
                  {"InnerClassWithMembers", 1},
                  {"a", 0},
                  {"b", 0},
@@ -224,9 +262,9 @@ TEST_CASE("tinyrefl api")
                  {"baseFunction", 0},
                  {"_private", 0},
                  {"Enum", 0},
-                 {"Foo", 0},
-                 {"my_namespace::BaseClass", 1},
-                 {"my_namespace::Foo", 1},
+                 {"InnerClass", 0},
+                 {"BaseClassWithReflectionData", 1},
+                 {"BaseClassWithoutReflectionData", 0},
                  {"InnerClassWithMembers", 0},
                  {"a", 0},
                  {"b", 0},
@@ -236,6 +274,7 @@ TEST_CASE("tinyrefl api")
         }
     }
 
+#ifdef TINYREFL_OLD_API
     SECTION("visit object")
     {
         auto test = [](auto                                   expected_kind,
@@ -284,7 +323,7 @@ TEST_CASE("tinyrefl api")
         {
             test(
                 TINYREFL_STATIC_VALUE(tinyrefl::entity::OBJECT)(),
-                {"my_namespace::BaseClass", "my_namespace::Foo"});
+                {"BaseClassWithReflectionData", "BaseClassWithoutReflectionData"});
         }
 
         SECTION("visit returns references to the object members")
@@ -390,7 +429,9 @@ TEST_CASE("tinyrefl api")
             CHECK(myObject.enum_value == my_namespace::MyClass::Enum::C);
         }
     }
+#endif // TINYREFL_OLD_API
 
+#ifdef TINYREFL_OLD_API
     SECTION("visit objects")
     {
         auto test = [](auto                                   expected_kind,
@@ -438,7 +479,7 @@ TEST_CASE("tinyrefl api")
         {
             test(
                 TINYREFL_STATIC_VALUE(tinyrefl::entity::OBJECT)(),
-                {"my_namespace::BaseClass", "my_namespace::Foo"});
+                {"BaseClassWithReflectionData", "BaseClassWithoutReflectionData"});
         }
 
         SECTION("visit returns references to the object members")
@@ -654,6 +695,7 @@ TEST_CASE("tinyrefl api")
             CHECK(rhs.enum_value == my_namespace::MyClass::Enum::D);
         }
     }
+#endif // TINYREFL_OLD_API
 
     SECTION("visit members")
     {
@@ -752,18 +794,19 @@ TEST_CASE("tinyrefl api")
                 });
 
             CHECK(myObject.str == "a new string value");
-            REQUIRE(myObject.vector.size() == 42);
-
-            for(int e : myObject.vector)
-            {
-                CHECK(e == 42);
-            }
 
             CHECK(myObject.innerClassInstance.a == 42);
             CHECK(myObject.innerClassInstance.b == 42);
             CHECK(myObject.innerClassInstance.c == 42);
 
             CHECK(myObject.enum_value == my_namespace::MyClass::Enum::D);
+
+            REQUIRE(myObject.vector.size() == 42);
+
+            for(int e : myObject.vector)
+            {
+                CHECK(e == 42);
+            }
         }
     }
 
@@ -793,12 +836,14 @@ TEST_CASE("tinyrefl api")
         SECTION("make_object")
         {
             const auto tuple = std::make_tuple(
+                std::vector<int>{1, 2, 3, 4},
                 "foo str",
                 my_namespace::MyClass::InnerClassWithMembers{1, 2, 3},
                 my_namespace::MyClass::Enum::A);
             my_namespace::MyClass object =
                 tinyrefl::make_object<my_namespace::MyClass>(tuple);
 
+            CHECK(object.vector == std::vector<int>{1, 2, 3, 4});
             CHECK(object.str == "foo str");
             CHECK(object.innerClassInstance.a == 1);
             CHECK(object.innerClassInstance.b == 2);

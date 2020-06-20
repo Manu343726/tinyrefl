@@ -62,8 +62,10 @@ struct zip
 };
 
 template<
-    template<typename...> class Zipper,
-    template<typename...> class... Sequences,
+    template<typename...>
+    class Zipper,
+    template<typename...>
+    class... Sequences,
     typename... Tails>
 struct zip<Zipper, Sequences<Tails>...>
 {
@@ -278,7 +280,8 @@ template<
     typename Head,
     typename... Tail,
     typename... Out,
-    template<typename...> class Seq>
+    template<typename...>
+    class Seq>
 struct remove_duplicates<Seq<Head, Tail...>, Seq<Out...>>
 {
     using type = typename remove_duplicates<
@@ -293,6 +296,58 @@ template<template<typename...> class Seq, typename... Out>
 struct remove_duplicates<Seq<>, Seq<Out...>>
 {
     using type = Seq<Out...>;
+};
+
+template<typename... Ts, typename Function, std::size_t... Indices>
+constexpr auto tuple_map(
+    const std::tuple<Ts...>& tuple,
+    Function                 function,
+    tinyrefl::meta::index_sequence<Indices...>)
+{
+    return std::forward_as_tuple(function(std::get<Indices>(tuple))...);
+}
+
+constexpr std::tuple<> tuple_cat()
+{
+    return {};
+}
+
+template<typename... Ts>
+constexpr decltype(auto) tuple_cat(const std::tuple<Ts...>& tuple)
+{
+    return tuple;
+}
+
+template<typename... Head, typename... Tail>
+constexpr auto tuple_cat(const std::tuple<Head...>& head, const Tail&&... tail)
+{
+    return std::tuple_cat(head, tuple_cat(tail...));
+}
+
+template<typename... Ts, std::size_t... Indices>
+constexpr auto tuple_flat(
+    const std::tuple<Ts...>& tuple, tinyrefl::meta::index_sequence<Indices...>)
+{
+    return tuple_cat(std::get<Indices>(tuple)...);
+}
+
+template<typename Function>
+struct tuple_item_filter
+{
+    template<typename Item>
+    constexpr auto operator()(const Item& item)
+        -> std::enable_if_t<Function()(Item{}), std::tuple<Item>>
+    {
+        return {item};
+    }
+
+    template<typename Item>
+    constexpr auto operator()(const Item& item) -> std::enable_if_t<
+        not Function()(Item{}),
+        std::tuple<>>
+    {
+        return {};
+    }
 };
 } // namespace impl
 
@@ -313,6 +368,38 @@ template<typename... Ts>
 constexpr std::size_t tuple_size(const std::tuple<Ts...>&)
 {
     return sizeof...(Ts);
+}
+
+template<typename... Ts, typename Function>
+constexpr auto tuple_map(const std::tuple<Ts...>& tuple, Function function)
+{
+    return impl::tuple_map(
+        tuple, function, tinyrefl::meta::make_index_sequence_for<Ts...>());
+}
+
+template<typename... Tuples>
+constexpr auto tuple_cat(const Tuples&... tuples)
+{
+    return impl::tuple_cat(tuples...);
+}
+
+template<typename... Ts>
+constexpr auto tuple_flat(const std::tuple<Ts...>& tuple)
+{
+    return impl::tuple_flat(
+        tuple, tinyrefl::meta::make_index_sequence_for<Ts...>());
+}
+
+template<typename Function, typename... Ts>
+constexpr auto tuple_flatmap(const std::tuple<Ts...>& tuple, Function function)
+{
+    return tuple_flat(tuple_map(tuple, function));
+}
+
+template<typename Function, typename... Items>
+constexpr auto tuple_filter(const std::tuple<Items...>& tuple, Function)
+{
+    return tuple_flatmap(tuple, impl::tuple_item_filter<Function>{});
 }
 
 namespace impl
@@ -341,7 +428,6 @@ template<template<typename...> class Op, typename... Types>
 constexpr bool is_detected_v = is_detected<Op, Types...>::value;
 
 } // namespace meta
-
 
 } // namespace tinyrefl
 

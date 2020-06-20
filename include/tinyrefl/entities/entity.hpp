@@ -58,6 +58,18 @@ constexpr tinyrefl::hash_t entity_id_resolver(
     return full_display_name_resolver(full_name, full_display_name).hash();
 }
 
+template<tinyrefl::entities::entity_kind Kind>
+struct EntityFilter
+{
+    constexpr EntityFilter() = default;
+
+    template<typename Entity>
+    constexpr auto operator()(const Entity& entity) const
+    {
+        return entity.kind() == Kind;
+    }
+};
+
 } // namespace impl
 
 /**
@@ -87,7 +99,7 @@ constexpr tinyrefl::hash_t entity_id_resolver(
  * > object); and users can manipulate that entities as if they where normal
  * > entities of their program. There's no difference between the class in the
  * > context of the type system and the class object the user manipulates for
- * > introspection purposes. C++ has no bultin support for reflection, so
+ * > introspection purposes. C++ has no builtin support for reflection, so
  * > there's a difference between **the reflected entity** (The namespace in
  * > your C++ sources) and **the class that represents the reflected entity
  * > within the reflection system** (`tinyrefl::entities::entity` subclasses in
@@ -219,6 +231,61 @@ struct entity
     using SourceLocation = SourceLocation_;
 #endif // DOXYGEN_PROCESSING_TINYREFL
 
+#ifdef DOXYGEN_PROCESSING_TINYREFL
+    /// @returns `true` if the two entity class instances reflect the
+    /// same entity, returns `false` otherwise.
+    constexpr bool operator==(const entity& lhs, const entity& rhs);
+
+    /// @returns `true` if the two entity class instances do not reflect the
+    /// same entity, returns `false` otherwise.
+    constexpr bool operator!=(const entity& lhs, const entity& rhs);
+#else
+    template<
+        tinyrefl::entities::entity_kind RhsKind,
+        typename RhsName,
+        typename RhsFullName,
+        typename RhsParent,
+        typename RhsChildren,
+        typename RhsSourceLocation,
+        typename RhsDisplayName,
+        typename RhsFullDisplayName>
+    constexpr bool operator==(const entity<
+                              RhsKind,
+                              RhsName,
+                              RhsFullName,
+                              RhsParent,
+                              RhsChildren,
+                              RhsSourceLocation,
+                              RhsDisplayName,
+                              RhsFullDisplayName>& other) const
+    {
+        return std::
+            is_same<entity, typename std::decay<decltype(other)>::type>::value;
+    }
+
+    template<
+        tinyrefl::entities::entity_kind RhsKind,
+        typename RhsName,
+        typename RhsFullName,
+        typename RhsParent,
+        typename RhsChildren,
+        typename RhsSourceLocation,
+        typename RhsDisplayName,
+        typename RhsFullDisplayName>
+    constexpr bool operator!=(const entity<
+                              RhsKind,
+                              RhsName,
+                              RhsFullName,
+                              RhsParent,
+                              RhsChildren,
+                              RhsSourceLocation,
+                              RhsDisplayName,
+                              RhsFullDisplayName>& other) const
+    {
+        return !(*this == other);
+    }
+#endif // DOXYGEN_PROCESSING_TINYREFL
+
     /**
      * @brief Returns the parent of this entity.
      * @returns The instance of the parent entity class if the entity
@@ -237,6 +304,89 @@ struct entity
     constexpr bool has_parent() const
     {
         return std::is_same<Parent, tinyrefl::backend::no_metadata>::value;
+    }
+
+    /**
+     * @brief Returns how deep the entity is in the entity tree.
+     * @returns 0 if the entity has no metadata (See
+     * `tinyrefl::backend::no_metadata`), 1 if the entity is a root entity (A
+     * file), else it returns the distance between the entity and its root file.
+     */
+    constexpr std::size_t depth() const
+    {
+        return parent().depth() + 1;
+    }
+
+#ifndef DOXYGEN_PROCESSING_TINYREFL
+private:
+    struct index_lambda
+    {
+        const entity* self;
+        std::size_t&  index;
+        std::size_t   i;
+
+        constexpr index_lambda(const entity* self, std::size_t& index)
+            : self{self}, index(index), i{0}
+        {
+        }
+
+        template<typename Entity>
+        constexpr void operator()(const Entity& sibling)
+        {
+            if(*self == sibling)
+            {
+                index = i;
+            }
+
+            if(self->kind() == sibling.kind())
+            {
+                ++i;
+            }
+        }
+    };
+
+public:
+#endif // DOXYGEN_PROCESSING_TINYREFL
+
+    /**
+     * @brief Returns the index among the set of siblings of the same kind
+     *
+     * This function provides a way to index entities of the same kind coming
+     * from the same parent, such as the functions in a namespace or the
+     * constructors of a class:
+     *
+     * ``` cpp
+     * namespace module1
+     * {
+     *     void init();
+     *     void deinit();
+     * }
+     *
+     *
+     * constexpr auto init = tinyrefl::metadata<"module1::init()"_id>();
+     * constexpr auto deinit = tinyrefl::metadata<"module1::deinit()"_id>();
+     *
+     * const std::unordered_map<std::size_t, std::string_view> module1Functions{
+     *     {init.index(), init.name()},
+     *     {deinit.index(), deinit.name()}
+     * };
+     *
+     * assert(module1Functions[0] == "init");
+     * assert(module1Functions[1] == "deinit");
+     * ```
+     *
+     * @remarks If the entity has no parent (i.e. is a file) the function
+     * returns 0. The order is not guaranteed to be the declaration order, **but
+     * it is guaranteed to follow the visitation order** (See
+     * `tinyrefl::visit()`).
+     */
+    constexpr std::size_t index() const
+    {
+        std::size_t index = 0;
+
+        tinyrefl::meta::foreach(parent().children(), index_lambda{this, index});
+
+        return index;
     }
 
     /**
@@ -263,6 +413,20 @@ struct entity
     constexpr auto children() const
     {
         return tinyrefl::meta::make_tuple(Children{});
+    }
+
+    /**
+     * @brief Returns the subset of children entities of the given kind
+     * @tparam Kind The kind of entity the children must be
+     * @returns `std::tuple<>` containing the children entity class instances.
+     * If the entity has no children of the given kind returns an empty
+     * `std::tuple<>`.
+     */
+    template<tinyrefl::entities::entity_kind Kind_>
+    constexpr auto children() const
+    {
+        return tinyrefl::meta::tuple_filter(
+            children(), impl::EntityFilter<Kind_>{});
     }
 
     /**
@@ -314,7 +478,7 @@ struct entity
      *
      * The display name of the entity is a name that not only includes
      * the identifier of the entity but also extra information that helps to
-     * uniquelly identify the entity. For invokable entities that can be
+     * uniquely identify the entity. For invokable entities that can be
      * overloaded, like functions, member functions, and constructors; the
      * display name includes the full signature of the invokable. For non-static
      * member functions it also includes any const and reference quelifier:
@@ -406,60 +570,6 @@ struct entity
     {
         return source_location().file();
     }
-
-#ifdef DOXYGEN_PROCESSING_TINYREFL
-    /// @returns `true` if the two entity class instances reflect the
-    /// same entity, returns `false` otherwise.
-    constexpr bool operator==(const entity& lhs, const entity& rhs);
-
-    /// @returns `true` if the two entity class instances do not reflect the
-    /// same entity, returns `false` otherwise.
-    constexpr bool operator!=(const entity& lhs, const entity& rhs);
-#else
-    template<
-        tinyrefl::entities::entity_kind RhsKind,
-        typename RhsName,
-        typename RhsFullName,
-        typename RhsParent,
-        typename RhsChildren,
-        typename RhsSourceLocation,
-        typename RhsDisplayName,
-        typename RhsFullDisplayName>
-    constexpr bool operator==(entity<
-                              RhsKind,
-                              RhsName,
-                              RhsFullName,
-                              RhsParent,
-                              RhsChildren,
-                              RhsSourceLocation,
-                              RhsDisplayName,
-                              RhsFullDisplayName> other) const
-    {
-        return std::is_same<entity, decltype(other)>::value;
-    }
-
-    template<
-        tinyrefl::entities::entity_kind RhsKind,
-        typename RhsName,
-        typename RhsFullName,
-        typename RhsParent,
-        typename RhsChildren,
-        typename RhsSourceLocation,
-        typename RhsDisplayName,
-        typename RhsFullDisplayName>
-    constexpr bool operator!=(entity<
-                              RhsKind,
-                              RhsName,
-                              RhsFullName,
-                              RhsParent,
-                              RhsChildren,
-                              RhsSourceLocation,
-                              RhsDisplayName,
-                              RhsFullDisplayName> other) const
-    {
-        return !(*this == other);
-    }
-#endif // DOXYGEN_PROCESSING_TINYREFL
 };
 
 /**
@@ -520,6 +630,50 @@ struct is_entity<T, tinyrefl::meta::void_t<typename T::tinyrefl_entity_tag>>
 };
 
 } // namespace entities
+
+/**
+ * @brief same as `entity.index()`, but can be used as
+ * part of a constant expression.
+ *
+ * Consider this:
+ *
+ * ``` cpp
+ * template<typename Member, typename... Ts>
+ * decltype(auto) readMemberFromTuple(
+ *     const Member& member,
+ *     const std::tuple<Ts...>& tuple)
+ * {
+ *     return std::get<member.index()>(tuple);
+ * }
+ *
+ * readMemberFromTuple(
+ *     tinyrefl::metadata<"Class::memberVariable"_id>(),
+ *     std::make_tuple("hello", 42));
+ * ```
+ *
+ * The above code does not compile since `member` is not `constexpr`
+ * in the body of the function (Even if the original metadata object
+ * is generated at compile time). `tinyrefl::index_of()` provides an
+ * alternative for when metadata is needed in a constant expression
+ * inside a function:
+ *
+ * ``` cpp
+ * template<typename Member, typename... Ts>
+ * decltype(auto) readMemberFromTuple(
+ *     const Member& member,
+ *     const std::tuple<Ts...>& tuple)
+ * {
+ *     return std::get<tinyrefl::index_of(member)>(tuple);
+ * }
+ * ```
+ */
+template<typename Entity>
+constexpr std::size_t index_of(const Entity&)
+{
+    constexpr Entity      entity;
+    constexpr std::size_t index = entity.index();
+    return index;
+}
 
 } // namespace tinyrefl
 

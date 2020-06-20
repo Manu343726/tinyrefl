@@ -8,12 +8,12 @@
 namespace my_namespace
 {
 
-struct Foo
+struct BaseClassWithReflectionData
 {
     std::vector<int, std::allocator<int>> vector;
 };
 
-class MyClass : public BaseClass, public my_namespace::Foo
+class MyClass : public BaseClassWithoutReflectionData, public my_namespace::BaseClassWithReflectionData
 {
 public:
     [[ctor]] MyClass() = default;
@@ -36,7 +36,7 @@ public:
         A TINYREFL_ENUM_VALUE_ATTRIBUTE(A), B, C, D = 42
     };
 
-    struct [[Foo]] Foo
+    struct [[InnerClass]] InnerClass
     {
     };
 

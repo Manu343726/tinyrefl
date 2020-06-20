@@ -7,10 +7,40 @@
 #include <tinyrefl/types/array_view.hpp>
 #include <tinyrefl/types/static_value.hpp>
 
+#ifdef TINYREFL_HAS_STD_STRING_VIEW
+#include <string_view>
+#endif // TINYREFL_HAS_STD_STRING_VIEW
+
 namespace tinyrefl
 {
 
-using string = ctti::detail::cstring;
+struct string : public ctti::detail::cstring
+{
+    using ctti::detail::cstring::cstring;
+
+    constexpr string(const ctti::detail::cstring str)
+        : ctti::detail::cstring{str.begin(), str.size()}
+    {
+    }
+
+    operator std::string() const
+    {
+        return str();
+    }
+
+#ifdef TINYREFL_HAS_STD_STRING_VIEW
+    operator std::string_view() const
+    {
+        return {begin(), size()};
+    }
+
+    constexpr string(const std::string_view str)
+        : ctti::detail::cstring{str.data(), str.size()}
+    {
+    }
+#endif // TINYREFL_HAS_STD_STRING_VIEW
+};
+
 using name_t = ctti::name_t;
 using hash_t = ctti::detail::hash_t;
 

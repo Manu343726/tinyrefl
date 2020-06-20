@@ -235,7 +235,8 @@ constexpr void
 template<typename Entity, typename... Visitors>
 constexpr void visit(Entity entity, Visitors&&... visitors)
 {
-    tinyrefl::visit(entity.children(), std::forward<Visitors>(visitors)...);
+    ::tinyrefl::impl::make_constexpr_visitor(tinyrefl::overloaded_function(
+                    std::forward<Visitors>(visitors)...))(entity);
 }
 
 template<tinyrefl::hash_t Id, typename... Visitors>
@@ -249,6 +250,27 @@ template<typename T, typename... Visitors>
 constexpr void visit(Visitors&&... visitors)
 {
     tinyrefl::visit(
+        tinyrefl::metadata<T>(), std::forward<Visitors>(visitors)...);
+}
+
+template<typename Entity, typename... Visitors>
+constexpr void visit_children(Entity entity, Visitors&&... visitors)
+{
+    tinyrefl::visit(entity.children(),
+                    std::forward<Visitors>(visitors)...);
+}
+
+template<tinyrefl::hash_t Id, typename... Visitors>
+constexpr void visit_children(tinyrefl::hash_constant<Id> id, Visitors&&... visitors)
+{
+    tinyrefl::visit_children(
+        tinyrefl::metadata_by_id(id), std::forward<Visitors>(visitors)...);
+}
+
+template<typename T, typename... Visitors>
+constexpr void visit_children(Visitors&&... visitors)
+{
+    tinyrefl::visit_children(
         tinyrefl::metadata<T>(), std::forward<Visitors>(visitors)...);
 }
 

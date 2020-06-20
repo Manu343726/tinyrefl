@@ -55,6 +55,11 @@ struct no_metadata
         return {};
     }
 
+    constexpr std::size_t depth() const
+    {
+        return 0;
+    }
+
     constexpr tinyrefl::entities::entity_kind kind() const
     {
         return tinyrefl::entities::entity_kind::UNKNOWN;
@@ -111,7 +116,7 @@ constexpr tinyrefl::metadata<tinyrefl::hash_constant<Id>>
 
 template<typename Type>
 constexpr auto has_metadata() -> std::enable_if_t<
-    !std::is_same<tinyrefl::metadata<Type>, tinyrefl::backend::no_metadata>::
+    !std::is_base_of<tinyrefl::backend::no_metadata, tinyrefl::metadata<Type>>::
         value,
     bool>
 {
@@ -120,7 +125,7 @@ constexpr auto has_metadata() -> std::enable_if_t<
 
 template<typename Type>
 constexpr auto has_metadata() -> std::enable_if_t<
-    std::is_same<tinyrefl::metadata<Type>, tinyrefl::backend::no_metadata>::
+    std::is_base_of<tinyrefl::backend::no_metadata, tinyrefl::metadata<Type>>::
         value,
     bool>
 {
