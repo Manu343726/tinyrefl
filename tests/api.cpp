@@ -12,8 +12,7 @@ std::string dump_entity(const Entity& entity)
 {
     std::ostringstream os;
 
-    tinyrefl::recursive_visit(entity, [&](auto e)
-    {
+    tinyrefl::recursive_visit(entity, [&](auto e) {
         constexpr decltype(e) entity;
 
         os << std::string(entity.depth(), ' ') << " " << entity.kind() << " "
@@ -21,17 +20,18 @@ std::string dump_entity(const Entity& entity)
 
         if constexpr(entity.kind() == tinyrefl::entities::entity_kind::CLASS)
         {
-            tinyrefl::meta::foreach(entity.bases(), [&](const auto& entity)
-            {
-                os << dump_entity(entity) << " ^^^^^^ (that was a base class)\n";
-                                  });
+            tinyrefl::meta::foreach(entity.bases(), [&](const auto& entity) {
+                os << dump_entity(entity)
+                   << " ^^^^^^ (that was a base class)\n";
+            });
         }
     });
 
     return os.str();
 }
 
-std::string dump_visited_entities(const std::unordered_set<std::string>& entities)
+std::string
+    dump_visited_entities(const std::unordered_set<std::string>& entities)
 {
     std::ostringstream os;
 
@@ -124,41 +124,47 @@ TEST_CASE("tinyrefl api")
                     &my_namespace::MyClass::f>>("f"));
         REQUIRE(tinyrefl::has_attribute<TINYREFL_STATIC_VALUE(
                     &my_namespace::MyClass::str)>("str"));
-        REQUIRE(tinyrefl::has_attribute<my_namespace::MyClass::InnerClass>("InnerClass"));
+        REQUIRE(tinyrefl::has_attribute<my_namespace::MyClass::InnerClass>(
+            "InnerClass"));
         REQUIRE(tinyrefl::has_attribute<my_namespace::MyClass::Enum>("Enum"));
     }
 #endif // TINYREFL_OLD_API
     SECTION("visit class")
     {
-        auto test =
-            [](const tinyrefl::entity                      expected_entity_kind,
-               const std::unordered_map<std::string, std::size_t>& expected_results) {
-                std::unordered_set<std::string> entities;
+        auto test = [](const tinyrefl::entity expected_entity_kind,
+                       const std::unordered_map<std::string, std::size_t>&
+                           expected_results) {
+            std::unordered_set<std::string> entities;
 
-                tinyrefl::visit_class<my_namespace::MyClass>(
-                    [&entities, expected_entity_kind](const auto& entity) {
-                        UNSCOPED_INFO(entity.kind() << " " << entity.full_display_name());
+            tinyrefl::visit_class<my_namespace::MyClass>(
+                [&entities, expected_entity_kind](const auto& entity) {
+                    UNSCOPED_INFO(
+                        entity.kind() << " " << entity.full_display_name());
 
-                        if(entity.kind() == expected_entity_kind)
-                        {
-                            entities.insert(entity.name().str());
-                        }
-                    });
+                    if(entity.kind() == expected_entity_kind)
+                    {
+                        entities.insert(entity.name().str());
+                    }
+                });
 
-                for(const auto& key_value : expected_results)
-                {
-                    const auto& entity_name    = key_value.first;
-                    const auto& expected_count = key_value.second;
+            for(const auto& key_value : expected_results)
+            {
+                const auto& entity_name    = key_value.first;
+                const auto& expected_count = key_value.second;
 
-                    INFO(
-                        entity_name << " " << expected_entity_kind
-                                    << " expected " << expected_count
-                                    << " times");
-                    INFO("full class:\n" << dump_entity(tinyrefl::metadata<my_namespace::MyClass>()));
-                    INFO("visited entities of expected kind: " << dump_visited_entities(entities));
+                INFO(
+                    entity_name << " " << expected_entity_kind << " expected "
+                                << expected_count << " times");
+                INFO(
+                    "full class:\n"
+                    << dump_entity(
+                           tinyrefl::metadata<my_namespace::MyClass>()));
+                INFO(
+                    "visited entities of expected kind: "
+                    << dump_visited_entities(entities));
 
-                    CHECK(entities.count(entity_name) == expected_count);
-                }
+                CHECK(entities.count(entity_name) == expected_count);
+            }
         };
 
         SECTION("member variables")
@@ -274,178 +280,16 @@ TEST_CASE("tinyrefl api")
         }
     }
 
-#ifdef TINYREFL_OLD_API
-    SECTION("visit object")
+    SECTION("visit member variables of multiple objects")
     {
-        auto test = [](auto                                   expected_kind,
-                       const std::unordered_set<std::string>& expected) {
-            std::unordered_set<std::string> members;
-            my_namespace::MyClass           myObject;
-
-            tinyrefl::visit_object(
-                myObject,
-                [&members, expected_kind](
-                    const std::string& name,
-                    auto /* depth */,
-                    auto /* entity */,
-                    decltype(expected_kind) kind) {
-                    CHECK(kind == expected_kind.get());
-                    members.insert(name);
-                });
-
-            INFO([members] {
-                std::ostringstream ss;
-
-                for(const auto& member : members)
-                {
-                    ss << " - got member \"" << member << "\"\n";
-                }
-
-                return ss.str();
-            }());
-            CHECK(members.size() == expected.size());
-
-            for(const auto& member : expected)
-            {
-                INFO("Expected " << expected_kind << " \"" << member << "\"");
-                CHECK(members.count(member) == 1);
-            }
-        };
-
-        SECTION("visit member variables only")
-        {
-            test(
-                TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)(),
-                {"str", "innerClassInstance", "vector", "enum_value"});
-        }
-
-        SECTION("visit subobjects only")
-        {
-            test(
-                TINYREFL_STATIC_VALUE(tinyrefl::entity::OBJECT)(),
-                {"BaseClassWithReflectionData", "BaseClassWithoutReflectionData"});
-        }
-
-        SECTION("visit returns references to the object members")
-        {
-            my_namespace::MyClass myObject;
-
-            auto addressof = [](auto& object) {
-                return reinterpret_cast<void*>(std::addressof(object));
-            };
-
-            bool strVisited                = false;
-            bool innerClassInstanceVisited = false;
-            bool vectorVisited             = false;
-            bool enumValueVisited          = false;
-            bool somethingVisited          = false;
-
-            tinyrefl::visit_object(
-                myObject,
-                [&](const std::string& name,
-                    auto /* depth */,
-                    auto& member,
-                    TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)) {
-                    if(name == "str")
-                    {
-                        CHECK(addressof(member) == addressof(myObject.str));
-                        strVisited = true;
-                    }
-                    else if(name == "innerClassInstance")
-                    {
-                        CHECK(
-                            addressof(member) ==
-                            addressof(myObject.innerClassInstance));
-                        innerClassInstanceVisited = true;
-                    }
-                    else if(name == "vector")
-                    {
-                        CHECK(addressof(member) == addressof(myObject.vector));
-                        vectorVisited = true;
-                    }
-                    else if(name == "enum_value")
-                    {
-                        CHECK(
-                            addressof(member) ==
-                            addressof(myObject.enum_value));
-                        enumValueVisited = true;
-                    }
-
-                    somethingVisited = true;
-                });
-
-            CHECK(strVisited);
-            CHECK(innerClassInstanceVisited);
-            CHECK(vectorVisited);
-            CHECK(enumValueVisited);
-            CHECK(somethingVisited);
-        }
-
-        SECTION(
-            "assigning values to members in visit changes members of visited object")
-        {
-            my_namespace::MyClass myObject;
-
-            tinyrefl::visit_object(
-                myObject,
-                [](const std::string& /* name */,
-                   auto /* depth */,
-                   std::string& member,
-                   TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)) {
-                    member = "a new string value";
-                },
-                [](const std::string& /* name */,
-                   auto /* depth */,
-                   std::vector<int>& member,
-                   TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)) {
-                    member.assign(42, 42);
-                },
-                [](const std::string& /* name */,
-                   auto /* depth */,
-                   my_namespace::MyClass::InnerClassWithMembers& member,
-                   TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)) {
-                    member.a = 42;
-                    member.b = 42;
-                    member.c = 42;
-                },
-                [](const std::string& /* name */,
-                   auto /* depth */,
-                   my_namespace::MyClass::Enum& member,
-                   TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)) {
-                    member = my_namespace::MyClass::Enum::C;
-                });
-
-            CHECK(myObject.str == "a new string value");
-            REQUIRE(myObject.vector.size() == 42);
-
-            for(int e : myObject.vector)
-            {
-                CHECK(e == 42);
-            }
-
-            CHECK(myObject.innerClassInstance.a == 42);
-            CHECK(myObject.innerClassInstance.b == 42);
-            CHECK(myObject.innerClassInstance.c == 42);
-            CHECK(myObject.enum_value == my_namespace::MyClass::Enum::C);
-        }
-    }
-#endif // TINYREFL_OLD_API
-
-#ifdef TINYREFL_OLD_API
-    SECTION("visit objects")
-    {
-        auto test = [](auto                                   expected_kind,
-                       const std::unordered_set<std::string>& expected) {
+        auto test = [](const std::unordered_set<std::string>& expected) {
             std::unordered_set<std::string> members;
             my_namespace::MyClass           lhs, rhs;
 
-            tinyrefl::visit_objects(lhs, rhs)(
-                [&members, expected_kind](
-                    const std::string& name,
-                    auto /* depth */,
-                    auto /* entity */,
-                    decltype(expected_kind) kind) {
-                    CHECK(kind == expected_kind.get());
+            tinyrefl::visit_member_variables(
+                std::tie(lhs, rhs),
+                [&members](
+                    const std::string& name, const auto&... memberVariables) {
                     members.insert(name);
                 });
 
@@ -463,23 +307,14 @@ TEST_CASE("tinyrefl api")
 
             for(const auto& member : expected)
             {
-                INFO("Expected " << expected_kind << " \"" << member << "\"");
+                INFO("Expected \"" << member << "\"");
                 CHECK(members.count(member) == 1);
             }
         };
 
         SECTION("visit member variables only")
         {
-            test(
-                TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)(),
-                {"str", "innerClassInstance", "vector", "enum_value"});
-        }
-
-        SECTION("visit subobjects only")
-        {
-            test(
-                TINYREFL_STATIC_VALUE(tinyrefl::entity::OBJECT)(),
-                {"BaseClassWithReflectionData", "BaseClassWithoutReflectionData"});
+            test({"str", "innerClassInstance", "vector", "enum_value"});
         }
 
         SECTION("visit returns references to the object members")
@@ -496,56 +331,52 @@ TEST_CASE("tinyrefl api")
             bool enumValueVisited          = false;
             bool somethingVisited          = false;
 
-            tinyrefl::visit_objects(
-                static_cast<my_namespace::MyClass&>(lhs),
-                static_cast<my_namespace::MyClass&>(
-                    rhs))([&lhs,
-                           &rhs,
-                           addressof,
-                           &strVisited,
-                           &innerClassInstanceVisited,
-                           &vectorVisited,
-                           &enumValueVisited,
-                           &somethingVisited](
-                              const std::string& name,
-                              auto /* depth */,
-                              auto members,
-                              TINYREFL_STATIC_VALUE(
-                                  tinyrefl::entity::MEMBER_VARIABLE)) {
-                auto& lhsMember = std::get<0>(members);
-                auto& rhsMember = std::get<1>(members);
+            tinyrefl::visit_member_variables(
+                std::tie(
+                    static_cast<my_namespace::MyClass&>(lhs),
+                    static_cast<my_namespace::MyClass&>(rhs)),
+                [&lhs,
+                 &rhs,
+                 addressof,
+                 &strVisited,
+                 &innerClassInstanceVisited,
+                 &vectorVisited,
+                 &enumValueVisited,
+                 &somethingVisited](
+                    const std::string& name, auto& lhsMember, auto& rhsMember) {
+                    if(name == "str")
+                    {
+                        CHECK(addressof(lhsMember) == addressof(lhs.str));
+                        CHECK(addressof(rhsMember) == addressof(rhs.str));
+                        strVisited = true;
+                    }
+                    else if(name == "innerClassInstance")
+                    {
+                        CHECK(
+                            addressof(lhsMember) ==
+                            addressof(lhs.innerClassInstance));
+                        CHECK(
+                            addressof(rhsMember) ==
+                            addressof(rhs.innerClassInstance));
+                        innerClassInstanceVisited = true;
+                    }
+                    else if(name == "vector")
+                    {
+                        CHECK(addressof(lhsMember) == addressof(lhs.vector));
+                        CHECK(addressof(rhsMember) == addressof(rhs.vector));
+                        vectorVisited = true;
+                    }
+                    else if(name == "enum_value")
+                    {
+                        CHECK(
+                            addressof(lhsMember) == addressof(lhs.enum_value));
+                        CHECK(
+                            addressof(rhsMember) == addressof(rhs.enum_value));
+                        enumValueVisited = true;
+                    }
 
-                if(name == "str")
-                {
-                    CHECK(addressof(lhsMember) == addressof(lhs.str));
-                    CHECK(addressof(rhsMember) == addressof(rhs.str));
-                    strVisited = true;
-                }
-                else if(name == "innerClassInstance")
-                {
-                    CHECK(
-                        addressof(lhsMember) ==
-                        addressof(lhs.innerClassInstance));
-                    CHECK(
-                        addressof(rhsMember) ==
-                        addressof(rhs.innerClassInstance));
-                    innerClassInstanceVisited = true;
-                }
-                else if(name == "vector")
-                {
-                    CHECK(addressof(lhsMember) == addressof(lhs.vector));
-                    CHECK(addressof(rhsMember) == addressof(rhs.vector));
-                    vectorVisited = true;
-                }
-                else if(name == "enum_value")
-                {
-                    CHECK(addressof(lhsMember) == addressof(lhs.enum_value));
-                    CHECK(addressof(rhsMember) == addressof(rhs.enum_value));
-                    enumValueVisited = true;
-                }
-
-                somethingVisited = true;
-            });
+                    somethingVisited = true;
+                });
 
             CHECK(strVisited);
             CHECK(innerClassInstanceVisited);
@@ -568,56 +399,54 @@ TEST_CASE("tinyrefl api")
             bool enumValueVisited          = false;
             bool somethingVisited          = false;
 
-            tinyrefl::visit_objects(
-                static_cast<const my_namespace::MyClass&>(lhs),
-                static_cast<const my_namespace::MyClass&>(
-                    rhs))([&lhs,
-                           &rhs,
-                           addressof,
-                           &strVisited,
-                           &innerClassInstanceVisited,
-                           &vectorVisited,
-                           &enumValueVisited,
-                           &somethingVisited](
-                              const std::string& name,
-                              auto /* depth */,
-                              auto members,
-                              TINYREFL_STATIC_VALUE(
-                                  tinyrefl::entity::MEMBER_VARIABLE)) {
-                const auto& lhsMember = std::get<0>(members);
-                const auto& rhsMember = std::get<1>(members);
+            tinyrefl::visit_member_variables(
+                std::tie(
+                    static_cast<const my_namespace::MyClass&>(lhs),
+                    static_cast<const my_namespace::MyClass&>(rhs)),
+                [&lhs,
+                 &rhs,
+                 addressof,
+                 &strVisited,
+                 &innerClassInstanceVisited,
+                 &vectorVisited,
+                 &enumValueVisited,
+                 &somethingVisited](
+                    const std::string& name,
+                    const auto&        lhsMember,
+                    const auto&        rhsMember) {
+                    if(name == "str")
+                    {
+                        CHECK(addressof(lhsMember) == addressof(lhs.str));
+                        CHECK(addressof(rhsMember) == addressof(rhs.str));
+                        strVisited = true;
+                    }
+                    else if(name == "innerClassInstance")
+                    {
+                        CHECK(
+                            addressof(lhsMember) ==
+                            addressof(lhs.innerClassInstance));
+                        CHECK(
+                            addressof(rhsMember) ==
+                            addressof(rhs.innerClassInstance));
+                        innerClassInstanceVisited = true;
+                    }
+                    else if(name == "vector")
+                    {
+                        CHECK(addressof(lhsMember) == addressof(lhs.vector));
+                        CHECK(addressof(rhsMember) == addressof(rhs.vector));
+                        vectorVisited = true;
+                    }
+                    else if(name == "enum_value")
+                    {
+                        CHECK(
+                            addressof(lhsMember) == addressof(lhs.enum_value));
+                        CHECK(
+                            addressof(rhsMember) == addressof(rhs.enum_value));
+                        enumValueVisited = true;
+                    }
 
-                if(name == "str")
-                {
-                    CHECK(addressof(lhsMember) == addressof(lhs.str));
-                    CHECK(addressof(rhsMember) == addressof(rhs.str));
-                    strVisited = true;
-                }
-                else if(name == "innerClassInstance")
-                {
-                    CHECK(
-                        addressof(lhsMember) ==
-                        addressof(lhs.innerClassInstance));
-                    CHECK(
-                        addressof(rhsMember) ==
-                        addressof(rhs.innerClassInstance));
-                    innerClassInstanceVisited = true;
-                }
-                else if(name == "vector")
-                {
-                    CHECK(addressof(lhsMember) == addressof(lhs.vector));
-                    CHECK(addressof(rhsMember) == addressof(rhs.vector));
-                    vectorVisited = true;
-                }
-                else if(name == "enum_value")
-                {
-                    CHECK(addressof(lhsMember) == addressof(lhs.enum_value));
-                    CHECK(addressof(rhsMember) == addressof(rhs.enum_value));
-                    enumValueVisited = true;
-                }
-
-                somethingVisited = true;
-            });
+                    somethingVisited = true;
+                });
 
             CHECK(strVisited);
             CHECK(innerClassInstanceVisited);
@@ -631,42 +460,35 @@ TEST_CASE("tinyrefl api")
         {
             my_namespace::MyClass lhs, rhs;
 
-            tinyrefl::visit_objects(lhs, rhs)(
+            tinyrefl::visit_member_variables(
+                std::tie(lhs, rhs),
                 [](const std::string& /* name */,
-                   auto /* depth */,
-                   std::tuple<std::string&, std::string&> members,
-                   TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)) {
-                    std::get<0>(members) = "a new string value";
-                    std::get<1>(members) = "a new string value";
+                   std::string& lhs,
+                   std::string& rhs) {
+                    lhs = "a new string value";
+                    rhs = "a new string value";
                 },
                 [](const std::string& /* name */,
-                   auto /* depth */,
-                   std::tuple<std::vector<int>&, std::vector<int>&> members,
-                   TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)) {
-                    std::get<0>(members).assign(42, 42);
-                    std::get<1>(members).assign(42, 42);
+                   std::vector<int>& lhs,
+                   std::vector<int>& rhs) {
+                    lhs.assign(42, 42);
+                    rhs.assign(42, 42);
                 },
                 [](const std::string& /* name */,
-                   auto /* depth */,
-                   std::tuple<
-                       my_namespace::MyClass::InnerClassWithMembers&,
-                       my_namespace::MyClass::InnerClassWithMembers&> members,
-                   TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)) {
-                    std::get<0>(members).a = 42;
-                    std::get<0>(members).b = 42;
-                    std::get<0>(members).c = 42;
-                    std::get<1>(members).a = 42;
-                    std::get<1>(members).b = 42;
-                    std::get<1>(members).c = 42;
+                   my_namespace::MyClass::InnerClassWithMembers& lhs,
+                   my_namespace::MyClass::InnerClassWithMembers& rhs) {
+                    lhs.a = 42;
+                    lhs.b = 42;
+                    lhs.c = 42;
+                    rhs.a = 42;
+                    rhs.b = 42;
+                    rhs.c = 42;
                 },
                 [](const std::string& /* name */,
-                   auto /* depth */,
-                   std::tuple<
-                       my_namespace::MyClass::Enum&,
-                       my_namespace::MyClass::Enum&> members,
-                   TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)) {
-                    std::get<0>(members) = my_namespace::MyClass::Enum::C;
-                    std::get<1>(members) = my_namespace::MyClass::Enum::D;
+                   my_namespace::MyClass::Enum& lhs,
+                   my_namespace::MyClass::Enum& rhs) {
+                    lhs = my_namespace::MyClass::Enum::C;
+                    rhs = my_namespace::MyClass::Enum::D;
                 });
 
             CHECK(lhs.str == "a new string value");
@@ -695,7 +517,6 @@ TEST_CASE("tinyrefl api")
             CHECK(rhs.enum_value == my_namespace::MyClass::Enum::D);
         }
     }
-#endif // TINYREFL_OLD_API
 
     SECTION("visit members")
     {
@@ -705,7 +526,7 @@ TEST_CASE("tinyrefl api")
 
             tinyrefl::visit_member_variables(
                 myObject,
-                [&members](const std::string& name, auto /* entity */) {
+                [&members](const std::string& name, const auto& /* entity */) {
                     members.insert(name);
                 });
 
