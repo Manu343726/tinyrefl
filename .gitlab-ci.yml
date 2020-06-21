@@ -11,6 +11,7 @@ before_script:
   - conan user manu343726 -p $manu343726_bintray_key -r manu343726 || true
 
 clang-format-check:
+  allow_failure: true
   stage: clang-format-check
   tags:
     - linux
