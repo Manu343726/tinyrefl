@@ -12,18 +12,15 @@ std::string dump_entity(const Entity& entity)
 {
     std::ostringstream os;
 
-    tinyrefl::recursive_visit(entity, [&](auto e) {
+    tinyrefl::visit_class(entity, [&](auto e) {
         constexpr decltype(e) entity;
 
         os << std::string(entity.depth(), ' ') << " " << entity.kind() << " "
            << entity.full_display_name() << "\n";
 
-        if constexpr(entity.kind() == tinyrefl::entities::entity_kind::CLASS)
+        if(entity.kind() == tinyrefl::entities::entity_kind::CLASS)
         {
-            tinyrefl::meta::foreach(entity.bases(), [&](const auto& entity) {
-                os << dump_entity(entity)
-                   << " ^^^^^^ (that was a base class)\n";
-            });
+            os << " ^^^^^^ (that was a base class)\n";
         }
     });
 
