@@ -342,13 +342,207 @@ struct tuple_item_filter
     }
 
     template<typename Item>
-    constexpr auto operator()(const Item& item) -> std::enable_if_t<
-        not Function()(Item{}),
-        std::tuple<>>
+    constexpr auto operator()(const Item& item)
+        -> std::enable_if_t<not Function()(Item{}), std::tuple<>>
     {
         return {};
     }
 };
+
+template<typename Function>
+struct map
+{
+    constexpr map(Function function) : _function{std::move(function)} {}
+
+    template<typename T>
+    constexpr decltype(auto) operator()(const T& value) const
+    {
+        return _function(value);
+    }
+
+private:
+    Function _function;
+};
+
+template<typename Predicate>
+struct all_of
+{
+    constexpr all_of(Predicate predicate) : _predicate{std::move(predicate)} {}
+
+    template<typename... Ts>
+    constexpr bool operator()(const std::tuple<Ts...>& tuple) const
+    {
+        return invoke(tuple, std::index_sequence_for<Ts...>{});
+    }
+
+private:
+    template<typename... Ts, std::size_t... Is>
+    constexpr bool
+        invoke(const std::tuple<Ts...>& tuple, std::index_sequence<Is...>) const
+    {
+        for(const bool value :
+            {static_cast<bool>(_predicate(std::get<Is>(tuple)))...})
+        {
+            if(not value)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    Predicate _predicate;
+};
+
+template<typename Predicate>
+struct any_of
+{
+    constexpr any_of(Predicate predicate) : _predicate{std::move(predicate)} {}
+
+    template<typename... Ts>
+    constexpr bool operator()(const std::tuple<Ts...>& tuple) const
+    {
+        return invoke(tuple, std::index_sequence_for<Ts...>{});
+    }
+
+private:
+    template<typename... Ts, std::size_t... Is>
+    constexpr bool
+        invoke(const std::tuple<Ts...>& tuple, std::index_sequence<Is...>) const
+    {
+        for(const bool value :
+            {static_cast<bool>(_predicate(std::get<Is>(tuple)))...})
+        {
+            if(value)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    Predicate _predicate;
+};
+
+struct bool_cast
+{
+    constexpr bool_cast() = default;
+
+    template<typename T>
+    constexpr bool operator()(const T& value) const
+    {
+        return static_cast<bool>(value);
+    }
+};
+
+template<typename... Predicates>
+struct all
+{
+    constexpr all(std::tuple<Predicates...> predicates)
+        : _predicates{std::move(predicates)}
+    {
+    }
+
+    template<typename T>
+    constexpr bool operator()(const T& value) const
+    {
+        return invoke(value, std::index_sequence_for<Predicates...>{});
+    }
+
+private:
+    std::tuple<Predicates...> _predicates;
+
+    template<typename T, std::size_t... Is>
+    constexpr bool invoke(const T& value, std::index_sequence<Is...>) const
+    {
+        for(const bool result :
+            {static_cast<bool>((std::get<Is>(_predicates)(value)))...})
+        {
+            if(not result)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+
+template<typename... Predicates>
+struct any
+{
+    constexpr any(std::tuple<Predicates...> predicates)
+        : _predicates{std::move(predicates)}
+    {
+    }
+
+    template<typename T>
+    constexpr bool operator()(const T& value) const
+    {
+        return invoke(value, std::index_sequence_for<Predicates...>{});
+    }
+
+private:
+    std::tuple<Predicates...> _predicates;
+
+    template<typename T, std::size_t... Is>
+    constexpr bool invoke(const T& value, std::index_sequence<Is...>) const
+    {
+        for(const bool result :
+            {static_cast<bool>((std::get<Is>(_predicates)(value)))...})
+        {
+            if(result)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
+
+template<typename Lhs, typename Rhs>
+struct combine_t
+{
+    constexpr combine_t(Lhs lhs, Rhs rhs)
+        : _lhs{std::move(lhs)}, _rhs{std::move(rhs)}
+    {
+    }
+
+    template<typename... Args>
+    constexpr decltype(auto) operator()(Args&&... args) const
+    {
+        const auto inner_result = _lhs(std::forward<Args>(args)...);
+        return _rhs(inner_result);
+    }
+
+private:
+    Lhs _lhs;
+    Rhs _rhs;
+};
+
+template<typename Lhs, typename Rhs>
+constexpr combine_t<std::decay_t<Lhs>, std::decay_t<Rhs>>
+    combine(Lhs&& lhs, Rhs&& rhs)
+{
+    return {std::forward<Lhs>(lhs), std::forward<Rhs>(rhs)};
+}
+
+template<typename Function>
+constexpr std::decay_t<Function> combine(Function&& function)
+{
+    return std::forward<Function>(function);
+}
+
+template<typename... Ts, std::size_t... Indices>
+constexpr auto typelist_to_tuple(
+    tinyrefl::meta::list<Ts...>, tinyrefl::meta::index_sequence<Indices...>)
+{
+    return std::make_tuple(
+        tinyrefl::type_tag<tinyrefl::meta::pack_get_t<Indices, Ts...>>{}...);
+}
 } // namespace impl
 
 template<typename Seq>
@@ -369,6 +563,40 @@ constexpr std::size_t tuple_size(const std::tuple<Ts...>&)
 {
     return sizeof...(Ts);
 }
+
+namespace hof
+{
+
+template<typename Function>
+constexpr auto map(Function&& function)
+{
+    return impl::map<std::decay_t<Function>>{std::forward<Function>(function)};
+}
+
+template<typename Predicate>
+constexpr impl::all_of<std::decay_t<Predicate>> all_of(Predicate&& predicate)
+{
+    return {std::forward<Predicate>(predicate)};
+}
+
+template<typename Predicate>
+constexpr impl::any_of<std::decay_t<Predicate>> any_of(Predicate&& predicate)
+{
+    return {std::forward<Predicate>(predicate)};
+}
+
+template<typename... Predicates>
+constexpr auto all(std::tuple<Predicates...> predicates)
+{
+    return impl::all<Predicates...>{std::move(predicates)};
+}
+
+template<typename... Predicates>
+constexpr auto any(std::tuple<Predicates...> predicates)
+{
+    return impl::any<Predicates...>{std::move(predicates)};
+}
+} // namespace hof
 
 template<typename... Ts, typename Function>
 constexpr auto tuple_map(const std::tuple<Ts...>& tuple, Function function)
@@ -400,6 +628,53 @@ template<typename Function, typename... Items>
 constexpr auto tuple_filter(const std::tuple<Items...>& tuple, Function)
 {
     return tuple_flatmap(tuple, impl::tuple_item_filter<Function>{});
+}
+
+template<typename... Ts, typename Predicate>
+constexpr bool
+    all_of(const std::tuple<Ts...>& tuple, const Predicate& predicate)
+{
+    return impl::all_of<Predicate>{predicate}(tuple);
+}
+
+template<typename... Ts, typename Predicate>
+constexpr bool
+    any_of(const std::tuple<Ts...>& tuple, const Predicate& predicate)
+{
+    return impl::any_of<Predicate>{predicate}(tuple);
+}
+
+template<typename... Ts>
+constexpr bool all_of(const std::tuple<Ts...>& tuple)
+{
+    return all_of(tuple, impl::bool_cast{});
+}
+
+template<typename... Ts>
+constexpr bool any_of(const std::tuple<Ts...>& tuple)
+{
+    return any_of(tuple, impl::bool_cast{});
+}
+
+template<typename Function>
+constexpr std::decay_t<Function> combine(Function&& function)
+{
+    return std::forward<Function>(function);
+}
+
+template<typename Head, typename... Tail>
+constexpr auto combine(Head&& head, Tail&&... tail)
+{
+    return impl::combine(
+        std::forward<Head>(head), impl::combine(std::forward<Tail>(tail)...));
+}
+
+template<typename... Ts>
+constexpr auto typelist_to_tuple(tinyrefl::meta::list<Ts...>)
+{
+    return impl::typelist_to_tuple(
+        tinyrefl::meta::list<Ts...>{},
+        tinyrefl::meta::make_index_sequence_for<Ts...>{});
 }
 
 namespace impl

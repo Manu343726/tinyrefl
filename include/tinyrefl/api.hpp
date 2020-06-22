@@ -29,22 +29,6 @@ using json = nlohmann::json;
 namespace detail
 {
 
-template<typename... Ts, std::size_t... Indices>
-constexpr auto typelist_to_tuple_impl(
-    tinyrefl::meta::list<Ts...>, tinyrefl::meta::index_sequence<Indices...>)
-{
-    return std::make_tuple(
-        tinyrefl::type_tag<tinyrefl::meta::pack_get_t<Indices, Ts...>>{}...);
-}
-
-template<typename... Ts>
-constexpr auto typelist_to_tuple(tinyrefl::meta::list<Ts...>)
-{
-    return typelist_to_tuple_impl(
-        tinyrefl::meta::list<Ts...>{},
-        tinyrefl::meta::make_index_sequence_for<Ts...>{});
-}
-
 template<typename First, typename Second, typename... Tail, typename Comparator>
 constexpr bool tuple_memberwise_equal(
     const std::tuple<First, Second, Tail...>& tuple, Comparator comparator)
@@ -132,7 +116,7 @@ auto make_tuple(const Class& object)
     using variables = typename tinyrefl::metadata<Class>::member_variables;
 
     return tinyrefl::meta::tuple_map(
-        detail::typelist_to_tuple(variables{}),
+        tinyrefl::meta::typelist_to_tuple(variables{}),
         [&object](auto type) -> decltype(auto) {
             constexpr typename decltype(type)::type member_metadata;
             return member_metadata.get(object);
@@ -145,7 +129,7 @@ constexpr auto make_tuple(Class& object)
     using variables = typename tinyrefl::metadata<Class>::member_variables;
 
     return tinyrefl::meta::tuple_map(
-        detail::typelist_to_tuple(variables{}),
+        tinyrefl::meta::typelist_to_tuple(variables{}),
         [&object](auto type) -> decltype(auto) {
             constexpr typename decltype(type)::type member_metadata;
             return member_metadata.get(object);

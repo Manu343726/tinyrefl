@@ -1,4 +1,5 @@
 #include <tinyrefl/api.hpp>
+#include <tinyrefl/matchers.hpp>
 #include <tinyrefl/object_visitor.hpp>
 #include <tinyrefl/utils/demangle.hpp>
 #include <tinyrefl/visitor.hpp>
@@ -185,6 +186,17 @@ void dump()
 
     std::cout << "\n\n";
 }
+
+static_assert(tinyrefl::matches(
+    tinyrefl::metadata<example::C>(),
+    tinyrefl::matchers::has(tinyrefl::matchers::named("hey_im_here"))));
+
+static_assert(tinyrefl::matches(
+    tinyrefl::metadata<example::Enum>(),
+    tinyrefl::matchers::has(
+        tinyrefl::matchers::allOf(
+            tinyrefl::matchers::ofKind(tinyrefl::entities::entity_kind::ENUM_VALUE),
+            tinyrefl::matchers::named("A")))));
 
 int main()
 {

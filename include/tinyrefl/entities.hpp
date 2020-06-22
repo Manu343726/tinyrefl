@@ -7,9 +7,9 @@
 #include <tinyrefl/utils/meta.hpp>
 
 #ifndef TINYREFL_ENTITIES
-#error \
+#error                                                                         \
     "Global entities list TINYREFL_ENTITIES not defined, make sure you have at least one metadata .tinyrefl file included in your translation unit"
-#define TINYREFL_ENTITIES \
+#define TINYREFL_ENTITIES                                                      \
     tinyrefl::meta::list<> // dummy list to hide IDE diagnostics
 #endif                     // TINYREFL_ENTITIES
 
@@ -38,8 +38,6 @@ struct specific_namespace_filter
     };
 };
 
-} // namespace impl
-
 using all_entities = TINYREFL_ENTITIES;
 using namespaces   = tinyrefl::meta::filter_t<
     tinyrefl::meta::defer<tinyrefl::impl::namespace_filter>,
@@ -51,6 +49,16 @@ using namespace_ =
         tinyrefl::impl::specific_namespace_filter<FullName>,
         namespaces>>;
 
+} // namespace impl
+
+constexpr auto all_entities =
+    tinyrefl::meta::typelist_to_tuple(impl::all_entities{});
+
+constexpr auto namespaces =
+    tinyrefl::meta::typelist_to_tuple(impl::namespaces{});
+
+template<tinyrefl::hash_t FullName>
+constexpr auto namespace_ = impl::namespace_<FullName>{};
 
 } // namespace tinyrefl
 
