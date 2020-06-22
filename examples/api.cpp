@@ -20,6 +20,7 @@ void dump_all_entities_1()
 
 #include "example2.hpp"
 #include "example2.hpp.tinyrefl"
+#include <tinyrefl/entities.hpp>
 
 void dump_all_entities_2()
 {
@@ -197,6 +198,17 @@ static_assert(tinyrefl::matches(
         tinyrefl::matchers::allOf(
             tinyrefl::matchers::ofKind(tinyrefl::entities::entity_kind::ENUM_VALUE),
             tinyrefl::matchers::named("A")))));
+
+// Find all factory functions in the translation unit:
+constexpr auto factories = tinyrefl::matches(
+    tinyrefl::matchers::allOf(
+        tinyrefl::matchers::ofKind(tinyrefl::entities::entity_kind::STATIC_MEMBER_FUNCTION),
+        tinyrefl::matchers::anyOf(
+            tinyrefl::matchers::named("factory"),
+            tinyrefl::matchers::named("create"))));
+
+static_assert(tinyrefl::meta::tuple_size(factories) == 0);
+
 
 int main()
 {

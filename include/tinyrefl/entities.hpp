@@ -5,6 +5,7 @@
 #include <tinyrefl/entities/namespace.hpp>
 #include <tinyrefl/types/string.hpp>
 #include <tinyrefl/utils/meta.hpp>
+#include <tinyrefl/matchers.hpp>
 
 #ifndef TINYREFL_ENTITIES
 #error                                                                         \
@@ -59,6 +60,12 @@ constexpr auto namespaces =
 
 template<tinyrefl::hash_t FullName>
 constexpr auto namespace_ = impl::namespace_<FullName>{};
+
+template<typename Matcher>
+constexpr auto matches(const Matcher& matcher)
+{
+    return tinyrefl::meta::tuple_filter(tinyrefl::all_entities, matcher);
+}
 
 } // namespace tinyrefl
 
