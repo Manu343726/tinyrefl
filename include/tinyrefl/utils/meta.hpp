@@ -356,7 +356,7 @@ struct tuple_filter_t
     template<typename Item, typename Function>
     constexpr auto operator()(const Item& item, Function function) const
     {
-        constexpr bool result = function(Item{});
+        constexpr bool result = invoke_predicate(function, Item{});
         return call(item, tinyrefl::meta::bool_<result>{});
     }
 
@@ -372,6 +372,20 @@ private:
     constexpr std::tuple<> call(const Item& item, tinyrefl::meta::false_) const
     {
         return {};
+    }
+
+    template<typename Function, typename Item>
+    static constexpr auto invoke_predicate(Function function, const Item& item)
+        -> decltype(function(item))
+    {
+        return function(item);
+    }
+
+    template<typename FunctionConstant, typename Item>
+    static constexpr auto invoke_predicate(FunctionConstant, const Item& item)
+        -> decltype(FunctionConstant::tinyrefl_constant_value()(item))
+    {
+        return FunctionConstant::tinyrefl_constant_value()(item);
     }
 };
 

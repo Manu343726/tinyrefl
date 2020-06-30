@@ -59,7 +59,8 @@ template<typename Entity>
 void recursive_dump(Entity entity)
 {
     tinyrefl::recursive_visit(entity, [&](const auto& entity) {
-        std::cout << entity.kind() << " " << entity.full_display_name()
+        std::cout << std::string(entity.depth(), ' ') << entity.kind() << " "
+                  << entity.full_display_name()
                   << " (parent: " << entity.parent().kind() << " "
                   << entity.parent().full_display_name() << ")\n";
     });
@@ -198,16 +199,17 @@ static_assert(tinyrefl::matches(
         tinyrefl::matchers::ofKind(tinyrefl::entities::entity_kind::ENUM_VALUE),
         tinyrefl::matchers::named("A")))));
 
+#ifdef TINYREFL_MATCHES
 // Find all factory functions in the translation unit:
-constexpr auto factories = tinyrefl::matches(tinyrefl::matchers::allOf(
+constexpr auto factories = TINYREFL_MATCHES(tinyrefl::matchers::allOf(
     tinyrefl::matchers::ofKind(
         tinyrefl::entities::entity_kind::STATIC_MEMBER_FUNCTION),
     tinyrefl::matchers::anyOf(
         tinyrefl::matchers::named("factory"),
         tinyrefl::matchers::named("create"))));
 
-static_assert(tinyrefl::meta::tuple_size(factories) == 0);
-
+static_assert(tinyrefl::meta::tuple_size(factories) == 0, "We hate factories");
+#endif // TINYREFL_MATCHES
 
 int main()
 {

@@ -4,6 +4,7 @@
 #include <tinyrefl/entities/entity_kind.hpp>
 #include <tinyrefl/entities/namespace.hpp>
 #include <tinyrefl/matchers.hpp>
+#include <tinyrefl/types/static_value.hpp>
 #include <tinyrefl/types/string.hpp>
 #include <tinyrefl/utils/meta.hpp>
 
@@ -50,26 +51,19 @@ using namespace_ =
         tinyrefl::impl::specific_namespace_filter<FullName>,
         namespaces>>;
 
-struct type_tag_to_entity
-{
-    constexpr type_tag_to_entity() = default;
 
-    template<typename Entity>
-    constexpr Entity operator()(tinyrefl::type_tag<Entity>) const
-    {
-        return {};
-    }
-};
+template<typename... Entities>
+constexpr std::tuple<Entities...>
+    make_entities_tuple(tinyrefl::meta::list<Entities...>)
+{
+    return std::make_tuple(Entities{}...);
+}
 
 } // namespace impl
 
-constexpr auto all_entities = tinyrefl::meta::tuple_map(
-    tinyrefl::meta::typelist_to_tuple(impl::all_entities{}),
-    impl::type_tag_to_entity{});
+constexpr auto all_entities = impl::make_entities_tuple(impl::all_entities{});
 
-constexpr auto namespaces = tinyrefl::meta::tuple_map(
-    tinyrefl::meta::typelist_to_tuple(impl::namespaces{}),
-    impl::type_tag_to_entity{});
+constexpr auto namespaces = impl::make_entities_tuple(impl::namespaces{});
 
 template<tinyrefl::hash_t FullName>
 constexpr auto namespace_ = impl::namespace_<FullName>{};
@@ -77,9 +71,14 @@ constexpr auto namespace_ = impl::namespace_<FullName>{};
 template<typename Matcher>
 constexpr auto matches(const Matcher& matcher)
 {
-    return tinyrefl::meta::tuple_filter(tinyrefl::all_entities, matcher);
+    return tinyrefl::matches(all_entities, matcher);
 }
 
 } // namespace tinyrefl
+
+#ifdef TINYREFL_CONSTANT_VALUE
+#define TINYREFL_MATCHES(...)                                                  \
+    ::tinyrefl::matches(TINYREFL_CONSTANT_VALUE(__VA_ARGS__))
+#endif // TINYREFL_CONSTANT_VALUE
 
 #endif // TINYREFL_ENTITIES_HPP_INCLUDED

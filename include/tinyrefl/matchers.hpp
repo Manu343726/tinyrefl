@@ -136,6 +136,12 @@ constexpr bool matches(const Entity& entity, const Matcher& matcher)
     return matcher(entity);
 }
 
+template<typename... Entities, typename Matcher>
+constexpr auto matches(const std::tuple<Entities...>& entities, const Matcher& matcher)
+{
+    return tinyrefl::meta::tuple_filter(entities, matcher);
+}
+
 } // namespace tinyrefl
 
 #endif // TINYREFL_MATCHERS_MATCHER_HPP_INCLUDED

@@ -2,8 +2,29 @@
 #define TINYREFL_TYPES_STATIC_VALUE_HPP_INCLUDED
 
 #include <ctti/static_value.hpp>
+#include <tinyrefl/utils/language_features.hpp>
 #include <tinyrefl/utils/meta.hpp>
 #include <type_traits>
+
+#ifdef TINYREFL_HAS_CONSTEXPR_LAMBDAS
+// See
+// https://mpark.github.io/programming/2017/05/26/constexpr-function-parameters/
+
+#define TINYREFL_CONSTANT(...)                                                 \
+    union                                                                      \
+    {                                                                          \
+        static constexpr auto tinyrefl_constant_value()                        \
+        {                                                                      \
+            return __VA_ARGS__;                                                \
+        }                                                                      \
+    }
+
+#define TINYREFL_CONSTANT_VALUE(...)                                           \
+    [] {                                                                       \
+        using R = TINYREFL_CONSTANT(__VA_ARGS__);                              \
+        return R{};                                                            \
+    }()
+#endif // TINYREFL_HAS_CONSTEXPR_LAMBDAS
 
 namespace tinyrefl
 {
