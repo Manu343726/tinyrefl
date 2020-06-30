@@ -3,9 +3,9 @@
 
 #include <tinyrefl/entities/entity_kind.hpp>
 #include <tinyrefl/entities/namespace.hpp>
+#include <tinyrefl/matchers.hpp>
 #include <tinyrefl/types/string.hpp>
 #include <tinyrefl/utils/meta.hpp>
-#include <tinyrefl/matchers.hpp>
 
 #ifndef TINYREFL_ENTITIES
 #error                                                                         \
@@ -50,13 +50,26 @@ using namespace_ =
         tinyrefl::impl::specific_namespace_filter<FullName>,
         namespaces>>;
 
+struct type_tag_to_entity
+{
+    constexpr type_tag_to_entity() = default;
+
+    template<typename Entity>
+    constexpr Entity operator()(tinyrefl::type_tag<Entity>) const
+    {
+        return {};
+    }
+};
+
 } // namespace impl
 
-constexpr auto all_entities =
-    tinyrefl::meta::typelist_to_tuple(impl::all_entities{});
+constexpr auto all_entities = tinyrefl::meta::tuple_map(
+    tinyrefl::meta::typelist_to_tuple(impl::all_entities{}),
+    impl::type_tag_to_entity{});
 
-constexpr auto namespaces =
-    tinyrefl::meta::typelist_to_tuple(impl::namespaces{});
+constexpr auto namespaces = tinyrefl::meta::tuple_map(
+    tinyrefl::meta::typelist_to_tuple(impl::namespaces{}),
+    impl::type_tag_to_entity{});
 
 template<tinyrefl::hash_t FullName>
 constexpr auto namespace_ = impl::namespace_<FullName>{};

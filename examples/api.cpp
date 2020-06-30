@@ -194,18 +194,17 @@ static_assert(tinyrefl::matches(
 
 static_assert(tinyrefl::matches(
     tinyrefl::metadata<example::Enum>(),
-    tinyrefl::matchers::has(
-        tinyrefl::matchers::allOf(
-            tinyrefl::matchers::ofKind(tinyrefl::entities::entity_kind::ENUM_VALUE),
-            tinyrefl::matchers::named("A")))));
+    tinyrefl::matchers::has(tinyrefl::matchers::allOf(
+        tinyrefl::matchers::ofKind(tinyrefl::entities::entity_kind::ENUM_VALUE),
+        tinyrefl::matchers::named("A")))));
 
 // Find all factory functions in the translation unit:
-constexpr auto factories = tinyrefl::matches(
-    tinyrefl::matchers::allOf(
-        tinyrefl::matchers::ofKind(tinyrefl::entities::entity_kind::STATIC_MEMBER_FUNCTION),
-        tinyrefl::matchers::anyOf(
-            tinyrefl::matchers::named("factory"),
-            tinyrefl::matchers::named("create"))));
+constexpr auto factories = tinyrefl::matches(tinyrefl::matchers::allOf(
+    tinyrefl::matchers::ofKind(
+        tinyrefl::entities::entity_kind::STATIC_MEMBER_FUNCTION),
+    tinyrefl::matchers::anyOf(
+        tinyrefl::matchers::named("factory"),
+        tinyrefl::matchers::named("create"))));
 
 static_assert(tinyrefl::meta::tuple_size(factories) == 0);
 

@@ -150,8 +150,7 @@ Class make_object(const std::tuple<Ts...>& tuple)
                 tinyrefl::entities::entity_kind::MEMBER_VARIABLE>(),
         [&tuple, &result](const auto& variable, auto index) {
             constexpr std::size_t Index = decltype(index)::type::value;
-            variable.get(result) =
-                std::get<Index>(tuple);
+            variable.get(result)        = std::get<Index>(tuple);
         });
 
     return result;

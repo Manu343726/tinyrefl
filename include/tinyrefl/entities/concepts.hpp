@@ -19,9 +19,9 @@ concept bool Entity = tinyrefl::entities::is_entity<T>::value;
 template<typename T, tinyrefl::entities::entity_kind Kind>
 concept bool Kind = Entity<T> && (T{}.kind() == Kind);
 
-#define TINYREFL_KIND_CONCEPT(Concept, kind) \
-    template<typename T>                     \
-    concept bool Concept =                   \
+#define TINYREFL_KIND_CONCEPT(Concept, kind)                                   \
+    template<typename T>                                                       \
+    concept bool Concept =                                                     \
         tinyrefl::entities::Kind<T, tinyrefl::entities::entity_kind::kind>
 
 TINYREFL_KIND_CONCEPT(File, FILE);

@@ -138,11 +138,11 @@ void register_rttr_types()
 
 } // namespace tinyrefl
 
-#define TINYREFL_REGISTER_RTTR_TYPES(...)           \
-    RTTR_REGISTRATION                               \
-    {                                               \
-        ::tinyrefl::register_rttr_types<            \
-            ::tinyrefl::meta::list<__VA_ARGS__>>(); \
+#define TINYREFL_REGISTER_RTTR_TYPES(...)                                      \
+    RTTR_REGISTRATION                                                          \
+    {                                                                          \
+        ::tinyrefl::register_rttr_types<                                       \
+            ::tinyrefl::meta::list<__VA_ARGS__>>();                            \
     }
 
 #endif // TINYREFL_EXAMPLES_RTTR_HPP

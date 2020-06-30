@@ -57,7 +57,7 @@ std::string demangle(const std::string& name)
 }
 } // namespace utils
 } // namespace tinyrefl
-#else /* Others (Currently unsupported platforms. The name is returned as is) \
+#else /* Others (Currently unsupported platforms. The name is returned as is)  \
        */
 namespace tinyrefl
 {

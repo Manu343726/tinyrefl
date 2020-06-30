@@ -132,7 +132,8 @@ template<typename Namespaces>
 struct merge_all_namespaces;
 
 template<
-    template<typename...> class Sequence,
+    template<typename...>
+    class Sequence,
     typename First,
     typename Second,
     typename... Tail>
@@ -175,12 +176,12 @@ using merge_all_namespaces =
 #define TINYREFL_ENTITIES ::tinyrefl::meta::list<>
 #endif // TINYREFL_ENTITIES
 
-#define TINYREFL_ENTITIES_NAMESPACE(...)                                     \
-    ::tinyrefl::entities::merge_all_namespaces<::tinyrefl::meta::filter_t<   \
-        ::tinyrefl::entities::impl::filter_by_namespace_name<tinyrefl::hash( \
-            TINYREFL_PP_STR(__VA_ARGS__))>,                                  \
-        TINYREFL_ENTITIES>>                                                  \
-    {                                                                        \
+#define TINYREFL_ENTITIES_NAMESPACE(...)                                       \
+    ::tinyrefl::entities::merge_all_namespaces<::tinyrefl::meta::filter_t<     \
+        ::tinyrefl::entities::impl::filter_by_namespace_name<tinyrefl::hash(   \
+            TINYREFL_PP_STR(__VA_ARGS__))>,                                    \
+        TINYREFL_ENTITIES>>                                                    \
+    {                                                                          \
     }
 
 } // namespace entities

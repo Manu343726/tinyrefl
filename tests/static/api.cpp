@@ -1,11 +1,11 @@
 #include "../example.hpp"
 #include "members.hpp"
+#include "static_test.hpp"
 #include "template_using_reflection.hpp"
 #include <tinyrefl/utils/enum_value_attributes.hpp>
 #include "../example.hpp.tinyrefl"
 #include "members.hpp.tinyrefl"
 #include <tinyrefl/entities.hpp>
-#include "static_test.hpp"
 
 #if TINYREFL_GENERATED_FILE_COUNT != 2
 #error "Expected two tinyrefl codegen headers"
@@ -13,19 +13,22 @@
 
 using check = tinyrefl::test::AssertMetadataAvailableForTemplateParam<foo::Foo>;
 EXPECT_TRUE(std::is_pointer<check*>::value);
-EXPECT_FALSE(tinyrefl::entities::has_attribute(tinyrefl::metadata<foo::Foo>(), "attribute"));
+EXPECT_FALSE(tinyrefl::entities::has_attribute(
+    tinyrefl::metadata<foo::Foo>(), "attribute"));
 
 #ifdef __clang__
 template<typename T>
-constexpr auto overload_on_attributes()
-    -> tinyrefl::meta::enable_if_t<tinyrefl::entities::has_attribute(tinyrefl::metadata<T>(), "return_42"), int>
+constexpr auto overload_on_attributes() -> tinyrefl::meta::enable_if_t<
+    tinyrefl::entities::has_attribute(tinyrefl::metadata<T>(), "return_42"),
+    int>
 {
     return 42;
 }
 
 template<typename T>
-constexpr auto overload_on_attributes() -> tinyrefl::meta::
-    enable_if_t<!tinyrefl::entities::has_attribute(tinyrefl::metadata<T>(), "return_42"), int>
+constexpr auto overload_on_attributes() -> tinyrefl::meta::enable_if_t<
+    !tinyrefl::entities::has_attribute(tinyrefl::metadata<T>(), "return_42"),
+    int>
 {
     return 0;
 }
@@ -87,30 +90,30 @@ EXPECT_TRUE(
          .args[0]),
     "");
 
+EXPECT_TRUE(tinyrefl::entities::has_attribute<
+            TINYREFL_STATIC_VALUE(&my_namespace::MyClass::str)>("str"));
+EXPECT_EQ(
+    (tinyrefl::metadata<TINYREFL_STATIC_VALUE(&my_namespace::MyClass::str)>()
+         .get_attribute("str")
+         .args.size()),
+    0);
+EXPECT_EQ(
+    (tinyrefl::metadata<TINYREFL_STATIC_VALUE(&my_namespace::MyClass::str)>()
+         .get_attribute("str")
+         .full_attribute),
+    "str");
+EXPECT_EQ(
+    (tinyrefl::metadata<TINYREFL_STATIC_VALUE(&my_namespace::MyClass::str)>()
+         .get_attribute("str")
+         .namespace_.name()),
+    "");
+EXPECT_EQ(
+    (tinyrefl::metadata<TINYREFL_STATIC_VALUE(&my_namespace::MyClass::str)>()
+         .get_attribute("str")
+         .name.name()),
+    "str");
 EXPECT_TRUE(
-    tinyrefl::entities::has_attribute<TINYREFL_STATIC_VALUE(&my_namespace::MyClass::str)>(
-        "str"));
-EXPECT_EQ(
-    (tinyrefl::metadata<TINYREFL_STATIC_VALUE(&my_namespace::MyClass::str)>()
-         .get_attribute("str")
-         .args.size()),
-    0);
-EXPECT_EQ(
-    (tinyrefl::metadata<TINYREFL_STATIC_VALUE(&my_namespace::MyClass::str)>()
-         .get_attribute("str")
-         .full_attribute),
-    "str");
-EXPECT_EQ(
-    (tinyrefl::metadata<TINYREFL_STATIC_VALUE(&my_namespace::MyClass::str)>()
-         .get_attribute("str")
-         .namespace_.name()),
-    "");
-EXPECT_EQ(
-    (tinyrefl::metadata<TINYREFL_STATIC_VALUE(&my_namespace::MyClass::str)>()
-         .get_attribute("str")
-         .name.name()),
-    "str");
-EXPECT_TRUE(tinyrefl::entities::has_attribute<my_namespace::MyClass::Foo>("Foo"));
+    tinyrefl::entities::has_attribute<my_namespace::MyClass::Foo>("Foo"));
 EXPECT_EQ(
     (tinyrefl::metadata<my_namespace::MyClass::Foo>()
          .get_attribute("Foo")
@@ -131,7 +134,8 @@ EXPECT_EQ(
          .get_attribute("Foo")
          .name.name()),
     "Foo");
-EXPECT_TRUE(tinyrefl::entities::has_attribute<my_namespace::MyClass::Enum>("Enum"));
+EXPECT_TRUE(
+    tinyrefl::entities::has_attribute<my_namespace::MyClass::Enum>("Enum"));
 EXPECT_EQ(
     (tinyrefl::metadata<my_namespace::MyClass::Enum>()
          .get_attribute("Enum")
@@ -179,8 +183,8 @@ EXPECT_EQ(
 #endif // TINYREFL_HAS_ENUM_VALUE_ATTRIBUTES
 
 EXPECT_TRUE(
-    tinyrefl::entities::has_attribute<my_namespace::MyClass::InnerClassWithMembers>(
-        "InnerClassWithMembers"));
+    tinyrefl::entities::has_attribute<
+        my_namespace::MyClass::InnerClassWithMembers>("InnerClassWithMembers"));
 EXPECT_EQ(
     (tinyrefl::metadata<my_namespace::MyClass::InnerClassWithMembers>()
          .get_attribute("InnerClassWithMembers")

@@ -18,8 +18,8 @@ struct overloaded_function<tinyrefl::meta::list<Head, Second, Tail...>>
       public overloaded_function<tinyrefl::meta::list<Second, Tail...>>
 {
     using Head::operator();
-    using overloaded_function<tinyrefl::meta::list<Second, Tail...>>::
-        operator();
+    using overloaded_function<
+        tinyrefl::meta::list<Second, Tail...>>::operator();
 
     constexpr overloaded_function(Head head, Second second, Tail... tail)
         : Head{head},

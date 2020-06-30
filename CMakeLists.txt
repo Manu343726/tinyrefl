@@ -30,7 +30,15 @@ if(NOT DEFINED TINYREFL_LLVM_VERSION)
 endif()
 parse_version_number(${TINYREFL_LLVM_VERSION} TINYREFL_LLVM_VERSION_MAJOR TINYREFL_LLVM_VERSION_MINOR TINYREFL_LLVM_VERSION_FIX)
 
-set(CMAKE_CXX_STANDARD 14)
+if(CMAKE_CXX_STANDARD)
+    if(CMAKE_CXX_STANDARD LESS 14)
+        message(FATAL_ERROR "tinyrefl requires C++14 at least, requested C++${CMAKE_CXX_STANDARD}")
+    endif()
+else()
+    set(CMAKE_CXX_STANDARD 14)
+endif()
+
+message(STATUS "tinyrefl compiled with C++${CMAKE_CXX_STANDARD}")
 
 if(NOT MSVC)
     check_cxx_compiler_flag("-Wnoexcept-type" HAS_NOEXCEPT_ABI_WARNING)

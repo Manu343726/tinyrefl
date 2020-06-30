@@ -41,6 +41,29 @@ struct string : public ctti::detail::cstring
 #endif // TINYREFL_HAS_STD_STRING_VIEW
 };
 
+constexpr bool operator==(const string& lhs, const string& rhs)
+{
+    if(lhs.size() != rhs.size())
+    {
+        return false;
+    }
+
+    for(std::size_t i = 0; i < lhs.size(); ++i)
+    {
+        if(lhs[i] != rhs[i])
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+constexpr bool operator!=(const string& lhs, const string& rhs)
+{
+    return !(lhs == rhs);
+}
+
 using name_t = ctti::name_t;
 using hash_t = ctti::detail::hash_t;
 

@@ -349,6 +349,41 @@ struct tuple_item_filter
     }
 };
 
+struct tuple_filter_t
+{
+    constexpr tuple_filter_t() = default;
+
+    template<typename Item, typename Function>
+    constexpr auto operator()(const Item& item, Function function) const
+    {
+        constexpr bool result = function(Item{});
+        return call(item, tinyrefl::meta::bool_<result>{});
+    }
+
+private:
+    template<typename Item>
+    constexpr std::tuple<Item>
+        call(const Item& item, tinyrefl::meta::true_) const
+    {
+        return {item};
+    }
+
+    template<typename Item>
+    constexpr std::tuple<> call(const Item& item, tinyrefl::meta::false_) const
+    {
+        return {};
+    }
+};
+
+template<typename... Items, typename Function, std::size_t... Is>
+constexpr auto tuple_filter(
+    const std::tuple<Items...>& tuple,
+    Function                    function,
+    std::index_sequence<Is...>)
+{
+    return std::make_tuple(tuple_filter_t{}(std::get<Is>(tuple), function)...);
+}
+
 template<typename Function>
 struct map
 {
@@ -625,9 +660,11 @@ constexpr auto tuple_flatmap(const std::tuple<Ts...>& tuple, Function function)
 }
 
 template<typename Function, typename... Items>
-constexpr auto tuple_filter(const std::tuple<Items...>& tuple, Function)
+constexpr auto
+    tuple_filter(const std::tuple<Items...>& tuple, Function function)
 {
-    return tuple_flatmap(tuple, impl::tuple_item_filter<Function>{});
+    return tuple_flat(impl::tuple_filter(
+        tuple, function, std::index_sequence_for<Items...>{}));
 }
 
 template<typename... Ts, typename Predicate>

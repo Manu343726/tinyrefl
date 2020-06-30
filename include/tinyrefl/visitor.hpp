@@ -236,7 +236,7 @@ template<typename Entity, typename... Visitors>
 constexpr void visit(Entity entity, Visitors&&... visitors)
 {
     ::tinyrefl::impl::make_constexpr_visitor(tinyrefl::overloaded_function(
-                    std::forward<Visitors>(visitors)...))(entity);
+        std::forward<Visitors>(visitors)...))(entity);
 }
 
 template<tinyrefl::hash_t Id, typename... Visitors>
@@ -256,12 +256,12 @@ constexpr void visit(Visitors&&... visitors)
 template<typename Entity, typename... Visitors>
 constexpr void visit_children(Entity entity, Visitors&&... visitors)
 {
-    tinyrefl::visit(entity.children(),
-                    std::forward<Visitors>(visitors)...);
+    tinyrefl::visit(entity.children(), std::forward<Visitors>(visitors)...);
 }
 
 template<tinyrefl::hash_t Id, typename... Visitors>
-constexpr void visit_children(tinyrefl::hash_constant<Id> id, Visitors&&... visitors)
+constexpr void
+    visit_children(tinyrefl::hash_constant<Id> id, Visitors&&... visitors)
 {
     tinyrefl::visit_children(
         tinyrefl::metadata_by_id(id), std::forward<Visitors>(visitors)...);
@@ -324,14 +324,14 @@ constexpr void recursive_visit(Visitors&&... visitors)
         std::forward<Visitors>(visitors)...);
 }
 
-#define TINYREFL_VISITOR_FUNCTION(kind, Kind)                                \
-    template<typename... Visitors>                                           \
-    constexpr auto TINYREFL_PP_CAT(kind, _visitor)(Visitors && ... visitors) \
-    {                                                                        \
-        return ::tinyrefl::impl::make_constexpr_kind_restricted_visitor<     \
-            tinyrefl::entities::entity_kind::Kind>(                          \
-            tinyrefl::overloaded_function(                                   \
-                std::forward<Visitors>(visitors)...));                       \
+#define TINYREFL_VISITOR_FUNCTION(kind, Kind)                                  \
+    template<typename... Visitors>                                             \
+    constexpr auto TINYREFL_PP_CAT(kind, _visitor)(Visitors && ... visitors)   \
+    {                                                                          \
+        return ::tinyrefl::impl::make_constexpr_kind_restricted_visitor<       \
+            tinyrefl::entities::entity_kind::Kind>(                            \
+            tinyrefl::overloaded_function(                                     \
+                std::forward<Visitors>(visitors)...));                         \
     }
 
 TINYREFL_VISITOR_FUNCTION(namespace, NAMESPACE);
@@ -352,12 +352,12 @@ TINYREFL_VISITOR_FUNCTION(static_member_variable, STATIC_MEMBER_VARIABLE);
 #define TINYREFL_ENTITIES ::tinyrefl::meta::list<>
 #endif // TINYREFL_ENTITIES
 
-#define TINYREFL_VISIT_ENTITIES(...) \
-    ::tinyrefl::visit(               \
+#define TINYREFL_VISIT_ENTITIES(...)                                           \
+    ::tinyrefl::visit(                                                         \
         ::tinyrefl::meta::make_tuple(TINYREFL_ENTITIES{}), __VA_ARGS__)
 
-#define TINYREFL_RECURSIVE_VISIT_ENTITIES(...) \
-    ::tinyrefl::recursive_visit(               \
+#define TINYREFL_RECURSIVE_VISIT_ENTITIES(...)                                 \
+    ::tinyrefl::recursive_visit(                                               \
         ::tinyrefl::meta::make_tuple(TINYREFL_ENTITIES{}), __VA_ARGS__)
 
 } // namespace tinyrefl

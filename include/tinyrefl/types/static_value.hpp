@@ -11,7 +11,7 @@ namespace tinyrefl
 template<typename T, T Value>
 using static_value = ctti::static_value<T, Value>;
 
-#define TINYREFL_STATIC_VALUE(...) \
+#define TINYREFL_STATIC_VALUE(...)                                             \
     ::tinyrefl::static_value<decltype(__VA_ARGS__), (__VA_ARGS__)>
 
 template<typename T, typename = void>

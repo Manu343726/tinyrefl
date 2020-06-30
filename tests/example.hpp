@@ -13,14 +13,15 @@ struct BaseClassWithReflectionData
     std::vector<int, std::allocator<int>> vector;
 };
 
-class MyClass : public BaseClassWithoutReflectionData, public my_namespace::BaseClassWithReflectionData
+class MyClass : public BaseClassWithoutReflectionData,
+                public my_namespace::BaseClassWithReflectionData
 {
 public:
     [[ctor]] MyClass() = default;
     MyClass(int, int) {}
-    MyClass(std::vector<std::string>){}
+    MyClass(std::vector<std::string>) {}
 
-        [[f]] void f(int i)
+    [[f]] void f(int i)
     {
         (void)i;
     }
@@ -31,14 +32,9 @@ public:
 
     [[str]] std::string str;
 
-    enum class [[Enum]] Enum
-    {
-        A TINYREFL_ENUM_VALUE_ATTRIBUTE(A), B, C, D = 42
-    };
+    enum class [[Enum]] Enum{A TINYREFL_ENUM_VALUE_ATTRIBUTE(A), B, C, D = 42};
 
-    struct [[InnerClass]] InnerClass
-    {
-    };
+    struct [[InnerClass]] InnerClass{};
 
     struct [[InnerClassWithMembers(42, "foo")]] InnerClassWithMembers
     {

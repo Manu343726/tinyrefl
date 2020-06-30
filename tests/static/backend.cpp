@@ -14,13 +14,11 @@ TINYREFL_REGISTER_STRING(world)
 EXPECT_NE(
     tinyrefl::string_constant<TINYREFL_STRING(hello)>(),
     tinyrefl::default_string_constant);
-EXPECT_EQ(
-    tinyrefl::string_constant<TINYREFL_STRING(hello)>(), "hello");
+EXPECT_EQ(tinyrefl::string_constant<TINYREFL_STRING(hello)>(), "hello");
 EXPECT_NE(
     tinyrefl::string_constant<TINYREFL_STRING(world)>(),
     tinyrefl::default_string_constant);
-EXPECT_EQ(
-    tinyrefl::string_constant<TINYREFL_STRING(world)>(), "world");
+EXPECT_EQ(tinyrefl::string_constant<TINYREFL_STRING(world)>(), "world");
 EXPECT_EQ(
     tinyrefl::string_constant<TINYREFL_STRING(
         here is an string that it seems no one has registered before)>(),
