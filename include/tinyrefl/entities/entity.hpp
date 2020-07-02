@@ -629,6 +629,102 @@ struct is_entity<T, tinyrefl::meta::void_t<typename T::tinyrefl_entity_tag>>
 {
 };
 
+template<
+    tinyrefl::entities::entity_kind Kind,
+    typename Name,
+    typename FullName,
+    typename Parent,
+    typename Children,
+    typename SourceLocation,
+    typename DisplayName,
+    typename FullDisplayName>
+constexpr bool operator==(
+    const entity<
+        Kind,
+        Name,
+        FullName,
+        Parent,
+        Children,
+        SourceLocation,
+        DisplayName,
+        FullDisplayName>&,
+    const tinyrefl::backend::no_metadata&)
+{
+    return false;
+}
+
+template<
+    tinyrefl::entities::entity_kind Kind,
+    typename Name,
+    typename FullName,
+    typename Parent,
+    typename Children,
+    typename SourceLocation,
+    typename DisplayName,
+    typename FullDisplayName>
+constexpr bool operator==(
+    const tinyrefl::backend::no_metadata&,
+    const entity<
+        Kind,
+        Name,
+        FullName,
+        Parent,
+        Children,
+        SourceLocation,
+        DisplayName,
+        FullDisplayName>&)
+{
+    return false;
+}
+
+template<
+    tinyrefl::entities::entity_kind Kind,
+    typename Name,
+    typename FullName,
+    typename Parent,
+    typename Children,
+    typename SourceLocation,
+    typename DisplayName,
+    typename FullDisplayName>
+constexpr bool operator!=(
+    const entity<
+        Kind,
+        Name,
+        FullName,
+        Parent,
+        Children,
+        SourceLocation,
+        DisplayName,
+        FullDisplayName>&,
+    const tinyrefl::backend::no_metadata&)
+{
+    return true;
+}
+
+template<
+    tinyrefl::entities::entity_kind Kind,
+    typename Name,
+    typename FullName,
+    typename Parent,
+    typename Children,
+    typename SourceLocation,
+    typename DisplayName,
+    typename FullDisplayName>
+constexpr bool operator!=(
+    const tinyrefl::backend::no_metadata&,
+    const entity<
+        Kind,
+        Name,
+        FullName,
+        Parent,
+        Children,
+        SourceLocation,
+        DisplayName,
+        FullDisplayName>&)
+{
+    return true;
+}
+
 } // namespace entities
 
 /**

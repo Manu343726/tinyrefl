@@ -2,6 +2,7 @@
 #define TINYREFL_ENTITIES_FUNCTION_ARGUMENTS_HPP_INCLUDED
 
 #include <ctti/nameof.hpp>
+#include <tinyrefl/entities/type.hpp>
 #include <tinyrefl/types/array.hpp>
 #include <tinyrefl/types/array_view.hpp>
 #include <tinyrefl/types/string.hpp>
@@ -32,14 +33,9 @@ struct function_argument
         return _name;
     }
 
-    constexpr tinyrefl::Type<T> type() const
+    constexpr tinyrefl::entities::type<T> type() const
     {
         return {};
-    }
-
-    constexpr tinyrefl::string type_name() const
-    {
-        return ctti::nameof<T>();
     }
 
 private:
@@ -55,6 +51,10 @@ struct function_arguments<
     tinyrefl::meta::list<Names...>,
     tinyrefl::meta::list<Types_...>>
 {
+    using Decayed = function_arguments<
+        tinyrefl::meta::list<Names...>,
+        tinyrefl::meta::list<std::decay_t<Types_>...>>;
+
     using Types          = tinyrefl::meta::list<Types_...>;
     using NamesConstants = tinyrefl::meta::list<Names...>;
     using NamesToTypesMap =
@@ -118,6 +118,10 @@ private:
             Indices, tinyrefl::string_constant<Names>()}...);
     }
 };
+
+template<typename Names, typename Types>
+using decayed_function_arguments =
+    typename function_arguments<Names, Types>::Decayed;
 
 } // namespace entities
 } // namespace tinyrefl

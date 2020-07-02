@@ -3,6 +3,7 @@
 
 #include <tinyrefl/backend/metadata.hpp>
 #include <tinyrefl/entities/entity.hpp>
+#include <tinyrefl/entities/type.hpp>
 #include <tinyrefl/utils/meta.hpp>
 
 namespace tinyrefl
@@ -71,7 +72,7 @@ constexpr auto collect_inherited_children(const std::tuple<Bases...>& bases)
 } // namespace detail
 
 template<typename Class>
-struct no_reflected_base_class : public tinyrefl::backend::no_metadata
+struct no_reflected_base_class : public tinyrefl::entities::type<Class>
 {
     using class_type = Class;
 
@@ -109,7 +110,7 @@ struct no_reflected_base_class : public tinyrefl::backend::no_metadata
 };
 
 template<typename Class>
-struct base_class : public tinyrefl::metadata<Class>
+struct base_class : public tinyrefl::entities::type<Class>
 {
     constexpr tinyrefl::entities::entity_kind kind() const
     {

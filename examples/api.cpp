@@ -51,7 +51,7 @@ void dump_function(Function function)
     tinyrefl::meta::foreach(
         function.arguments().arguments(), [&](const auto& arg) {
             std::cout << "arg \"" << arg.name()
-                      << "\" (type: " << arg.type_name() << ")\n";
+                      << "\" (type: " << arg.type().full_name() << ")\n";
         });
 }
 
@@ -191,24 +191,27 @@ void dump()
 
 static_assert(tinyrefl::matches(
     tinyrefl::metadata<example::C>(),
-    tinyrefl::matchers::has(tinyrefl::matchers::named("hey_im_here"))));
+    tinyrefl::matchers::hasChild(tinyrefl::matchers::named("hey_im_here"))));
 
 static_assert(tinyrefl::matches(
     tinyrefl::metadata<example::Enum>(),
-    tinyrefl::matchers::has(tinyrefl::matchers::allOf(
+    tinyrefl::matchers::hasChild(tinyrefl::matchers::allOf(
         tinyrefl::matchers::ofKind(tinyrefl::entities::entity_kind::ENUM_VALUE),
         tinyrefl::matchers::named("A")))));
 
 #ifdef TINYREFL_MATCHES
+namespace matchers_example
+{
+
+using namespace tinyrefl::matchers;
 // Find all factory functions in the translation unit:
-constexpr auto factories = TINYREFL_MATCHES(tinyrefl::matchers::allOf(
-    tinyrefl::matchers::ofKind(
-        tinyrefl::entities::entity_kind::STATIC_MEMBER_FUNCTION),
-    tinyrefl::matchers::anyOf(
-        tinyrefl::matchers::named("factory"),
-        tinyrefl::matchers::named("create"))));
+constexpr auto factories = TINYREFL_MATCHES(allOf(
+    ofKind(tinyrefl::entities::entity_kind::STATIC_MEMBER_FUNCTION),
+    anyOf(named("factory"), named("create")),
+    not_(returns(named("A")))));
 
 static_assert(tinyrefl::meta::tuple_size(factories) == 0, "We hate factories");
+} // namespace matchers_example
 #endif // TINYREFL_MATCHES
 
 int main()

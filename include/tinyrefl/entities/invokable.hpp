@@ -3,6 +3,7 @@
 
 #include <tinyrefl/entities/function_arguments.hpp>
 #include <tinyrefl/entities/pointer.hpp>
+#include <tinyrefl/entities/type.hpp>
 #include <tinyrefl/utils/invokable_traits.hpp>
 #include <tinyrefl/utils/meta.hpp>
 #include <type_traits>
@@ -30,11 +31,11 @@ struct invokable_base : public tinyrefl::entities::pointer<Pointer>
     using Signature = Signature_;
     using Arguments =
         tinyrefl::entities::function_arguments<ArgNames, Signature>;
-    using DecayedArguments = tinyrefl::entities::function_arguments<
-        tinyrefl::meta::fmap_t<tinyrefl::meta::defer<std::decay>, ArgNames>,
-        Signature>;
+    using DecayedArguments =
+        tinyrefl::entities::decayed_function_arguments<ArgNames, Signature>;
 
-    using return_type = tinyrefl::invokable_traits::return_type<Pointer>;
+    using ReturnType = tinyrefl::entities::type<
+        tinyrefl::invokable_traits::return_type<Pointer>>;
 
     constexpr Arguments arguments() const
     {
@@ -42,6 +43,11 @@ struct invokable_base : public tinyrefl::entities::pointer<Pointer>
     }
 
     constexpr DecayedArguments decayed_arguments() const
+    {
+        return {};
+    }
+
+    constexpr ReturnType return_type() const
     {
         return {};
     }

@@ -9,7 +9,8 @@ namespace example
 
 struct A
 {
-    int a = 42;
+    int      a = 42;
+    static A create();
 };
 
 

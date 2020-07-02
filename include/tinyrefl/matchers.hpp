@@ -11,9 +11,9 @@ namespace matchers
 {
 
 template<typename T, typename Function>
-struct matches_value_t
+struct equals_t
 {
-    constexpr matches_value_t(T value, Function function)
+    constexpr equals_t(T value, Function function)
         : _value{std::move(value)}, _function{std::move(function)}
     {
     }
@@ -29,37 +29,113 @@ private:
     Function _function;
 };
 
+namespace impl
+{
+
+struct identity_t
+{
+    constexpr identity_t() = default;
+
+    template<typename T>
+    constexpr const T& operator()(const T& value) const
+    {
+        return value;
+    }
+};
+
+template<template<typename...> typename Trait, typename... Ts>
+struct matches_trait_t
+{
+    constexpr matches_trait_t() = default;
+
+    template<typename Entity>
+    constexpr bool operator()(const Entity& entity) const
+    {
+        return false;
+    }
+
+    template<typename T>
+    constexpr bool operator()(const tinyrefl::entities::type<T>& type) const
+    {
+        return static_cast<bool>(Trait<T, Ts...>{});
+    }
+};
+
+} // namespace impl
+
 template<typename T, typename Function>
-constexpr matches_value_t<std::decay_t<T>, std::decay_t<Function>>
-    matches_value(T&& value, Function&& function)
+constexpr equals_t<std::decay_t<T>, std::decay_t<Function>>
+    equals(T&& value, Function&& function)
 {
     return {std::forward<T>(value), std::forward<Function>(function)};
 }
 
-#define TINYREFL_MATCHERS_GET_MEMBER(member)                                   \
+template<typename T>
+constexpr auto equals(T&& value)
+{
+    return equals(std::forward<T>(value), impl::identity_t{});
+}
+
+#define TINYREFL_MATCHERS_GET_MEMBER(member, default_value)                    \
+    namespace                                                                  \
+    {                                                                          \
+    template<typename T, typename = void>                                      \
+    struct has_##member : public tinyrefl::meta::false_                        \
+    {                                                                          \
+    };                                                                         \
+                                                                               \
+    template<typename T>                                                       \
+    struct has_##member<                                                       \
+        T,                                                                     \
+        tinyrefl::meta::void_t<decltype(std::declval<T>().member())>>          \
+        : public tinyrefl::meta::true_                                         \
+    {                                                                          \
+    };                                                                         \
+    }                                                                          \
+                                                                               \
     struct get_##member                                                        \
     {                                                                          \
         template<typename Entity>                                              \
         constexpr decltype(auto) operator()(const Entity& entity) const        \
         {                                                                      \
+            return call(entity, has_##member<Entity>{});                       \
+        }                                                                      \
+                                                                               \
+    private:                                                                   \
+        template<typename Entity>                                              \
+        static constexpr decltype(auto)                                        \
+            call(const Entity& entity, const tinyrefl::meta::true_&)           \
+        {                                                                      \
             return entity.member();                                            \
+        }                                                                      \
+                                                                               \
+        template<typename Entity>                                              \
+        static constexpr decltype(auto)                                        \
+            call(const Entity& entity, const tinyrefl::meta::false_&)          \
+        {                                                                      \
+            return default_value;                                              \
         }                                                                      \
     };                                                                         \
                                                                                \
     template<typename T>                                                       \
     constexpr auto matches_##member(T&& value)                                 \
     {                                                                          \
-        return matches_value(std::forward<T>(value), get_##member{});          \
+        return equals(std::forward<T>(value), get_##member{});                 \
     }
 
-TINYREFL_MATCHERS_GET_MEMBER(name);
-TINYREFL_MATCHERS_GET_MEMBER(full_name);
-TINYREFL_MATCHERS_GET_MEMBER(display_name);
-TINYREFL_MATCHERS_GET_MEMBER(full_display_name);
-TINYREFL_MATCHERS_GET_MEMBER(kind);
-TINYREFL_MATCHERS_GET_MEMBER(parent);
-TINYREFL_MATCHERS_GET_MEMBER(children);
-TINYREFL_MATCHERS_GET_MEMBER(bases);
+TINYREFL_MATCHERS_GET_MEMBER(name, tinyrefl::string{""});
+TINYREFL_MATCHERS_GET_MEMBER(full_name, tinyrefl::string{""});
+TINYREFL_MATCHERS_GET_MEMBER(display_name, tinyrefl::string{""});
+TINYREFL_MATCHERS_GET_MEMBER(full_display_name, tinyrefl::string{""});
+TINYREFL_MATCHERS_GET_MEMBER(kind, tinyrefl::entities::entity_kind::UNKNOWN);
+TINYREFL_MATCHERS_GET_MEMBER(parent, tinyrefl::backend::no_metadata{});
+TINYREFL_MATCHERS_GET_MEMBER(ancestors, std::make_tuple());
+TINYREFL_MATCHERS_GET_MEMBER(children, std::make_tuple());
+TINYREFL_MATCHERS_GET_MEMBER(bases, std::make_tuple());
+TINYREFL_MATCHERS_GET_MEMBER(attributes, std::make_tuple());
+TINYREFL_MATCHERS_GET_MEMBER(arguments, std::make_tuple());
+TINYREFL_MATCHERS_GET_MEMBER(decayed_arguments, std::make_tuple());
+TINYREFL_MATCHERS_GET_MEMBER(return_type, tinyrefl::backend::no_metadata{});
 
 #undef TINYREFL_MATCHERS_GET_MEMBER
 
@@ -94,12 +170,78 @@ TINYREFL_MATCHERS_KIND_MATCHER(unknown, UNKNOWN)
 
 #undef TINYREFL_MATCHERS_KIND_MATCHER
 
-template<typename InnerMatcher>
-constexpr auto has(InnerMatcher&& innerMatcher)
+namespace impl
+{
+
+template<typename Getter, typename InnerMatcher>
+constexpr auto
+    match_related_entities(Getter&& getter, InnerMatcher&& innerMatcher)
 {
     return tinyrefl::meta::combine(
-        tinyrefl::meta::hof::map(get_children{}),
+        tinyrefl::meta::hof::map(std::forward<Getter>(getter)),
         tinyrefl::meta::hof::any_of(std::forward<InnerMatcher>(innerMatcher)));
+}
+} // namespace impl
+
+template<typename InnerMatcher>
+constexpr auto not_(InnerMatcher&& innerMatcher)
+{
+    return tinyrefl::meta::hof::not_(std::forward<InnerMatcher>(innerMatcher));
+}
+
+template<typename InnerMatcher>
+constexpr auto hasChild(InnerMatcher&& innerMatcher)
+{
+    return impl::match_related_entities(
+        get_children{}, std::forward<InnerMatcher>(innerMatcher));
+}
+
+template<typename InnerMatcher>
+constexpr auto hasParent(InnerMatcher&& innerMatcher)
+{
+    return tinyrefl::meta::combine(
+        get_parent{}, std::forward<InnerMatcher>(innerMatcher));
+}
+
+template<typename InnerMatcher>
+constexpr auto hasAncestor(InnerMatcher&& innerMatcher)
+{
+    return impl::match_related_entities(
+        get_ancestors{}, std::forward<InnerMatcher>(innerMatcher));
+}
+
+template<typename InnerMatcher>
+constexpr auto hasBase(InnerMatcher&& innerMatcher)
+{
+    return impl::match_related_entities(
+        get_bases{}, std::forward<InnerMatcher>(innerMatcher));
+}
+
+template<typename InnerMatcher>
+constexpr auto hasArgument(InnerMatcher&& innerMatcher)
+{
+    return impl::match_related_entities(
+        get_arguments{}, std::forward<InnerMatcher>(innerMatcher));
+}
+
+template<typename InnerMatcher>
+constexpr auto returns(InnerMatcher&& innerMatcher)
+{
+    return impl::match_related_entities(
+        get_return_type{}, std::forward<InnerMatcher>(innerMatcher));
+}
+
+template<typename T>
+constexpr auto returns()
+{
+    return returns(equals(tinyrefl::entities::type<T>()));
+}
+
+template<typename InnerMatcher>
+constexpr auto hasAttribute(InnerMatcher&& innerMatcher)
+{
+    return impl::match_related_entities(
+        get_attributes{}, std::forward<InnerMatcher>(innerMatcher));
 }
 
 template<typename String>
@@ -128,6 +270,12 @@ constexpr auto anyOf(InnerMatchers&&... innerMatchers)
         std::make_tuple(std::forward<InnerMatchers>(innerMatchers)...));
 }
 
+template<template<typename...> typename Trait, typename... Ts>
+constexpr auto trait(const std::tuple<Ts...>& types)
+{
+    return impl::matches_trait_t<Trait, Ts...>{};
+}
+
 } // namespace matchers
 
 template<typename Entity, typename Matcher>
@@ -137,7 +285,8 @@ constexpr bool matches(const Entity& entity, const Matcher& matcher)
 }
 
 template<typename... Entities, typename Matcher>
-constexpr auto matches(const std::tuple<Entities...>& entities, const Matcher& matcher)
+constexpr auto
+    matches(const std::tuple<Entities...>& entities, const Matcher& matcher)
 {
     return tinyrefl::meta::tuple_filter(entities, matcher);
 }

@@ -414,6 +414,21 @@ private:
 };
 
 template<typename Predicate>
+struct not_
+{
+    constexpr not_(Predicate predicate) : _predicate{std::move(predicate)} {}
+
+    template<typename T>
+    constexpr bool operator()(const T& value) const
+    {
+        return not _predicate(value);
+    }
+
+private:
+    Predicate _predicate;
+};
+
+template<typename Predicate>
 struct all_of
 {
     constexpr all_of(Predicate predicate) : _predicate{std::move(predicate)} {}
@@ -422,6 +437,12 @@ struct all_of
     constexpr bool operator()(const std::tuple<Ts...>& tuple) const
     {
         return invoke(tuple, std::index_sequence_for<Ts...>{});
+    }
+
+    template<typename T>
+    constexpr bool operator()(const T& value) const
+    {
+        return _predicate(value);
     }
 
 private:
@@ -453,6 +474,12 @@ struct any_of
     constexpr bool operator()(const std::tuple<Ts...>& tuple) const
     {
         return invoke(tuple, std::index_sequence_for<Ts...>{});
+    }
+
+    template<typename T>
+    constexpr bool operator()(const T& value) const
+    {
+        return _predicate(value);
     }
 
 private:
@@ -620,6 +647,12 @@ template<typename Function>
 constexpr auto map(Function&& function)
 {
     return impl::map<std::decay_t<Function>>{std::forward<Function>(function)};
+}
+
+template<typename Predicate>
+constexpr impl::not_<std::decay_t<Predicate>> not_(Predicate&& predicate)
+{
+    return {std::forward<Predicate>(predicate)};
 }
 
 template<typename Predicate>

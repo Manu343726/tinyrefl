@@ -20,6 +20,16 @@ struct no_metadata
     {
     };
 
+    constexpr bool operator==(const no_metadata& other) const
+    {
+        return false;
+    }
+
+    constexpr bool operator!=(const no_metadata& other) const
+    {
+        return true;
+    }
+
     struct dummy_source_location
     {
         constexpr dummy_source_location() = default;
