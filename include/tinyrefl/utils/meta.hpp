@@ -413,6 +413,17 @@ private:
     Function _function;
 };
 
+struct tuple_size
+{
+    constexpr tuple_size() = default;
+
+    template<typename... Ts>
+    constexpr std::size_t operator()(const std::tuple<Ts...>&) const
+    {
+        return sizeof...(Ts);
+    }
+};
+
 template<typename Predicate>
 struct not_
 {
@@ -647,6 +658,11 @@ template<typename Function>
 constexpr auto map(Function&& function)
 {
     return impl::map<std::decay_t<Function>>{std::forward<Function>(function)};
+}
+
+constexpr auto tuple_size()
+{
+    return impl::tuple_size{};
 }
 
 template<typename Predicate>

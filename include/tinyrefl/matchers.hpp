@@ -1,6 +1,7 @@
 #ifndef TINYREFL_MATCHERS_MATCHER_HPP_INCLUDED
 #define TINYREFL_MATCHERS_MATCHER_HPP_INCLUDED
 
+#include <limits>
 #include <tinyrefl/entities/entity.hpp>
 #include <type_traits>
 
@@ -123,6 +124,13 @@ constexpr auto equals(T&& value)
         return equals(std::forward<T>(value), get_##member{});                 \
     }
 
+namespace
+{
+struct invalid_type
+{
+};
+} // namespace
+
 TINYREFL_MATCHERS_GET_MEMBER(name, tinyrefl::string{""});
 TINYREFL_MATCHERS_GET_MEMBER(full_name, tinyrefl::string{""});
 TINYREFL_MATCHERS_GET_MEMBER(display_name, tinyrefl::string{""});
@@ -132,10 +140,19 @@ TINYREFL_MATCHERS_GET_MEMBER(parent, tinyrefl::backend::no_metadata{});
 TINYREFL_MATCHERS_GET_MEMBER(ancestors, std::make_tuple());
 TINYREFL_MATCHERS_GET_MEMBER(children, std::make_tuple());
 TINYREFL_MATCHERS_GET_MEMBER(bases, std::make_tuple());
+TINYREFL_MATCHERS_GET_MEMBER(index, std::numeric_limits<std::size_t>::max());
 TINYREFL_MATCHERS_GET_MEMBER(attributes, std::make_tuple());
 TINYREFL_MATCHERS_GET_MEMBER(arguments, std::make_tuple());
 TINYREFL_MATCHERS_GET_MEMBER(decayed_arguments, std::make_tuple());
-TINYREFL_MATCHERS_GET_MEMBER(return_type, tinyrefl::backend::no_metadata{});
+TINYREFL_MATCHERS_GET_MEMBER(parameters, std::make_tuple());
+TINYREFL_MATCHERS_GET_MEMBER(
+    signature,
+    (tinyrefl::entities::
+         function_signature<tinyrefl::meta::list<>, invalid_type()>{}));
+TINYREFL_MATCHERS_GET_MEMBER(
+    return_type, tinyrefl::entities::type<invalid_type>{})
+TINYREFL_MATCHERS_GET_MEMBER(type, tinyrefl::entities::type<invalid_type>{})
+TINYREFL_MATCHERS_GET_MEMBER(decayed, tinyrefl::entities::type<invalid_type>{})
 
 #undef TINYREFL_MATCHERS_GET_MEMBER
 
@@ -225,16 +242,44 @@ constexpr auto hasArgument(InnerMatcher&& innerMatcher)
 }
 
 template<typename InnerMatcher>
+constexpr auto hasType(InnerMatcher&& innerMatcher)
+{
+    return impl::match_related_entities(
+        get_type{}, std::forward<InnerMatcher>(innerMatcher));
+}
+
+template<typename InnerMatcher>
+constexpr auto hasDecayedType(InnerMatcher&& innerMatcher)
+{
+    return impl::match_related_entities(
+        tinyrefl::meta::combine(get_type{}, get_decayed{}),
+        std::forward<InnerMatcher>(innerMatcher));
+}
+
+template<typename T>
+constexpr auto type(const tinyrefl::entities::type_entity<T>& type)
+{
+    return equals(type);
+}
+
+template<typename T>
+constexpr auto type()
+{
+    return type(tinyrefl::entities::type_entity<T>{});
+}
+
+template<typename InnerMatcher>
 constexpr auto returns(InnerMatcher&& innerMatcher)
 {
     return impl::match_related_entities(
-        get_return_type{}, std::forward<InnerMatcher>(innerMatcher));
+        tinyrefl::meta::combine(get_signature{}, get_return_type{}),
+        std::forward<InnerMatcher>(innerMatcher));
 }
 
 template<typename T>
 constexpr auto returns()
 {
-    return returns(equals(tinyrefl::entities::type<T>()));
+    return returns(type<T>());
 }
 
 template<typename InnerMatcher>
@@ -242,6 +287,49 @@ constexpr auto hasAttribute(InnerMatcher&& innerMatcher)
 {
     return impl::match_related_entities(
         get_attributes{}, std::forward<InnerMatcher>(innerMatcher));
+}
+
+constexpr auto parameterCountIs(const std::size_t n)
+{
+    return tinyrefl::meta::combine(
+        get_signature{},
+        get_parameters{},
+        tinyrefl::meta::hof::tuple_size(),
+        equals(n));
+}
+
+template<typename InnerMatcher>
+constexpr auto hasParameter(InnerMatcher&& innerMatcher)
+{
+    return impl::match_related_entities(
+        tinyrefl::meta::combine(get_signature{}, get_parameters{}),
+        std::forward<InnerMatcher>(innerMatcher));
+}
+
+constexpr auto withIndex(const std::size_t i)
+{
+    return tinyrefl::meta::combine(get_index{}, equals(i));
+}
+
+namespace impl
+{
+template<std::size_t... Is, typename... InnerMatchers>
+constexpr auto
+    hasParameters(std::index_sequence<Is...>, InnerMatchers&&... innerMatchers)
+{
+    return allOf(
+        parameterCountIs(sizeof...(InnerMatchers)),
+        hasParameter(allOf(
+            withIndex(Is), std::forward<InnerMatchers>(innerMatchers)))...);
+}
+} // namespace impl
+
+template<typename... InnerMatchers>
+constexpr auto hasParameters(InnerMatchers&&... innerMatchers)
+{
+    return impl::hasParameters(
+        std::index_sequence_for<InnerMatchers...>{},
+        std::forward<InnerMatchers>(innerMatchers)...);
 }
 
 template<typename String>

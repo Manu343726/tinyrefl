@@ -2,7 +2,6 @@
 #define TINYREFL_ENTITIES_STATIC_MEMBER_FUNCTION_HPP_INCLUDED
 
 #include <tinyrefl/entities/entity.hpp>
-#include <tinyrefl/entities/function_arguments.hpp>
 #include <tinyrefl/entities/invokable.hpp>
 
 namespace tinyrefl
@@ -18,8 +17,9 @@ template<
     typename SourceLocation,
     typename DisplayName,
     typename FullDisplayName,
-    typename Signature,
-    typename ArgNames,
+    typename ReturnType,
+    typename Parameters,
+    typename ParameterNames,
     typename Pointer,
     typename Attributes>
 struct static_member_function
@@ -33,7 +33,8 @@ struct static_member_function
           SourceLocation,
           DisplayName,
           FullDisplayName>,
-      public tinyrefl::entities::invokable<Pointer, Signature, ArgNames>
+      public tinyrefl::entities::
+          invokable<Pointer, ReturnType, Parameters, ParameterNames>
 {
     constexpr static_member_function() = default;
 };

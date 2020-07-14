@@ -69,6 +69,7 @@ struct constructor
           FullDisplayName>,
       public tinyrefl::entities::invokable<
           tinyrefl::detail::constructor_trampoline_for<Class, Signature>,
+          Class,
           Signature,
           ArgNames>
 {

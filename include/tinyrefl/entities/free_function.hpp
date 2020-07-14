@@ -2,7 +2,6 @@
 #define TINYREFL_ENTITIES_FREE_FUNCTION_HPP_INCLUDED
 
 #include <tinyrefl/entities/entity.hpp>
-#include <tinyrefl/entities/function_arguments.hpp>
 #include <tinyrefl/entities/invokable.hpp>
 
 namespace tinyrefl
@@ -18,8 +17,9 @@ template<
     typename SourceLocation,
     typename DisplayName,
     typename FullDisplayName,
-    typename Signature,
-    typename ArgNames,
+    typename ReturnType,
+    typename Parameters,
+    typename ParameterNames,
     typename Pointer,
     typename Attributes>
 struct free_function
@@ -33,7 +33,8 @@ struct free_function
           SourceLocation,
           DisplayName,
           FullDisplayName>,
-      public tinyrefl::entities::invokable<Pointer, Signature, ArgNames>
+      public tinyrefl::entities::
+          invokable<Pointer, ReturnType, Parameters, ParameterNames>
 {
     constexpr free_function() = default;
 };

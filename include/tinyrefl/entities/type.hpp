@@ -12,11 +12,11 @@ namespace entities
 {
 
 template<typename T>
-struct type : public tinyrefl::metadata<T>
+struct type_entity
 {
-    constexpr type() = default;
+    constexpr type_entity() = default;
 
-    constexpr type<std::decay_t<T>> decayed() const
+    constexpr type_entity<std::decay_t<T>> decayed() const
     {
         return {};
     }
@@ -55,16 +55,42 @@ private:
 };
 
 template<typename Lhs, typename Rhs>
-constexpr bool operator==(const type<Lhs>& lhs, const type<Rhs>& rhs)
+constexpr bool
+    operator==(const type_entity<Lhs>& lhs, const type_entity<Rhs>& rhs)
 {
     return std::is_same<Lhs, Rhs>::value;
 }
 
 template<typename Lhs, typename Rhs>
-constexpr bool operator!=(const type<Lhs>& lhs, const type<Rhs>& rhs)
+constexpr bool
+    operator!=(const type_entity<Lhs>& lhs, const type_entity<Rhs>& rhs)
 {
     return !(lhs == rhs);
 }
+
+namespace impl
+{
+
+template<
+    typename T,
+    bool IsType = std::is_base_of_v<type_entity<T>, tinyrefl::metadata<T>>>
+struct type_base : public tinyrefl::metadata<T>, public type_entity<T>
+{
+    using type_entity<T>::name;
+    using type_entity<T>::full_name;
+};
+
+template<typename T>
+struct type_base<T, true> : public tinyrefl::metadata<T>
+{
+};
+
+} // namespace impl
+
+template<typename T>
+struct type : public impl::type_base<T>
+{
+};
 
 } // namespace entities
 

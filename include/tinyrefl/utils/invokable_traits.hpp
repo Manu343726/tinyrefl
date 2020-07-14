@@ -25,6 +25,7 @@ struct traits
     static constexpr tinyrefl::invokable_traits::invokable_kind kind =
         tinyrefl::invokable_traits::invokable_kind::VARIABLE;
 
+    using signature         = void;
     using return_type       = T;
     using class_type        = void;
     using arguments         = tinyrefl::meta::list<>;
@@ -37,6 +38,7 @@ struct traits<R (Class::*)(Args...)>
     static constexpr tinyrefl::invokable_traits::invokable_kind kind =
         tinyrefl::invokable_traits::invokable_kind::NON_CONST_MEMBER_FUNCTION;
 
+    using signature         = R(Args...);
     using return_type       = R;
     using class_type        = Class;
     using arguments         = tinyrefl::meta::list<Args...>;
@@ -49,6 +51,7 @@ struct traits<R (Class::*)(Args...) const>
     static constexpr tinyrefl::invokable_traits::invokable_kind kind =
         tinyrefl::invokable_traits::invokable_kind::CONST_MEMBER_FUNCTION;
 
+    using signature         = R(Args...);
     using return_type       = R;
     using class_type        = Class;
     using arguments         = tinyrefl::meta::list<Args...>;
@@ -61,6 +64,7 @@ struct traits<R(Args...)>
     static constexpr tinyrefl::invokable_traits::invokable_kind kind =
         tinyrefl::invokable_traits::invokable_kind::FREE_FUNCTION;
 
+    using signature         = R(Args...);
     using return_type       = R;
     using class_type        = void;
     using arguments         = tinyrefl::meta::list<Args...>;
@@ -78,6 +82,7 @@ struct traits<T(Class::*)>
     static constexpr tinyrefl::invokable_traits::invokable_kind kind =
         tinyrefl::invokable_traits::invokable_kind::MEMBER_VARIABLE;
 
+    using signature         = T();
     using return_type       = T;
     using class_type        = Class;
     using arguments         = tinyrefl::meta::list<>;
@@ -109,6 +114,9 @@ using arguments = typename traits<Function>::arguments;
 
 template<typename Function>
 using decayed_arguments = typename traits<Function>::decayed_arguments;
+
+template<typename Function>
+using signature = typename traits<Function>::signature;
 
 template<typename Function>
 constexpr bool requires_object =

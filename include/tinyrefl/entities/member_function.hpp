@@ -2,7 +2,6 @@
 #define TINYREFL_ENTITIES_MEMBER_FUNCTION_HPP_INCLUDED
 
 #include <tinyrefl/entities/entity.hpp>
-#include <tinyrefl/entities/function_arguments.hpp>
 #include <tinyrefl/entities/invokable.hpp>
 
 namespace tinyrefl
@@ -18,8 +17,9 @@ template<
     typename SourceLocation,
     typename DisplayName,
     typename FullDisplayName,
-    typename Signature,
-    typename ArgNames,
+    typename ReturnType,
+    typename Parameters,
+    typename ParameterNames,
     typename Pointer,
     typename Attributes>
 struct member_function
@@ -33,14 +33,16 @@ struct member_function
           SourceLocation,
           DisplayName,
           FullDisplayName>,
-      public tinyrefl::entities::invokable<Pointer, Signature, ArgNames>
+      public tinyrefl::entities::
+          invokable<Pointer, ReturnType, Parameters, ParameterNames>
 {
     constexpr member_function() = default;
 
     template<typename Class, typename... Args>
     constexpr auto operator()(Class&& object, Args&&... args) const
     {
-        return (object.Pointer::value)(std::forward<Args>(args)...);
+        return (std::forward<Class>(object).Pointer::value)(
+            std::forward<Args>(args)...);
     }
 };
 

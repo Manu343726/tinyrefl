@@ -77,8 +77,8 @@
     display_name,                                                              \
     full_display_name,                                                         \
     class_type,                                                                \
-    signature,                                                                 \
-    arg_names,                                                                 \
+    parameter_types,                                                           \
+    parameter_names,                                                           \
     attributes)                                                                \
     ::tinyrefl::entities::constructor<                                         \
         TINYREFL_PP_UNWRAP name,                                               \
@@ -88,8 +88,8 @@
         TINYREFL_PP_UNWRAP display_name,                                       \
         TINYREFL_PP_UNWRAP full_display_name,                                  \
         TINYREFL_PP_UNWRAP class_type,                                         \
-        TINYREFL_PP_UNWRAP signature,                                          \
-        TINYREFL_PP_UNWRAP arg_names,                                          \
+        TINYREFL_PP_UNWRAP parameter_types,                                    \
+        TINYREFL_PP_UNWRAP parameter_names,                                    \
         TINYREFL_PP_UNWRAP attributes>
 
 #define TINYREFL_MEMBER_FUNCTION(                                              \
@@ -100,8 +100,8 @@
     display_name,                                                              \
     full_display_name,                                                         \
     return_type,                                                               \
-    signature,                                                                 \
-    arg_names,                                                                 \
+    parameter_types,                                                           \
+    parameter_names,                                                           \
     pointer,                                                                   \
     attributes)                                                                \
     ::tinyrefl::entities::member_function<                                     \
@@ -111,8 +111,9 @@
         TINYREFL_PP_UNWRAP source_location,                                    \
         TINYREFL_PP_UNWRAP display_name,                                       \
         TINYREFL_PP_UNWRAP full_display_name,                                  \
-        TINYREFL_PP_UNWRAP signature,                                          \
-        TINYREFL_PP_UNWRAP arg_names,                                          \
+        TINYREFL_PP_UNWRAP return_type,                                        \
+        TINYREFL_PP_UNWRAP parameter_types,                                    \
+        TINYREFL_PP_UNWRAP parameter_names,                                    \
         TINYREFL_PP_UNWRAP pointer,                                            \
         TINYREFL_PP_UNWRAP attributes>
 
@@ -134,8 +135,8 @@
     display_name,                                                              \
     full_display_name,                                                         \
     return_type,                                                               \
-    signature,                                                                 \
-    arg_names,                                                                 \
+    parameter_types,                                                           \
+    parameter_names,                                                           \
     pointer,                                                                   \
     attributes)                                                                \
     ::tinyrefl::entities::static_member_function<                              \
@@ -145,8 +146,9 @@
         TINYREFL_PP_UNWRAP source_location,                                    \
         TINYREFL_PP_UNWRAP display_name,                                       \
         TINYREFL_PP_UNWRAP full_display_name,                                  \
-        TINYREFL_PP_UNWRAP signature,                                          \
-        TINYREFL_PP_UNWRAP arg_names,                                          \
+        TINYREFL_PP_UNWRAP return_type,                                        \
+        TINYREFL_PP_UNWRAP parameter_types,                                    \
+        TINYREFL_PP_UNWRAP parameter_names,                                    \
         TINYREFL_PP_UNWRAP pointer,                                            \
         TINYREFL_PP_UNWRAP attributes>
 
@@ -168,8 +170,8 @@
     display_name,                                                              \
     full_display_name,                                                         \
     return_type,                                                               \
-    signature,                                                                 \
-    arg_names,                                                                 \
+    parameter_types,                                                           \
+    parameter_names,                                                           \
     pointer,                                                                   \
     attributes)                                                                \
     ::tinyrefl::entities::free_function<                                       \
@@ -179,8 +181,9 @@
         TINYREFL_PP_UNWRAP source_location,                                    \
         TINYREFL_PP_UNWRAP display_name,                                       \
         TINYREFL_PP_UNWRAP full_display_name,                                  \
-        TINYREFL_PP_UNWRAP signature,                                          \
-        TINYREFL_PP_UNWRAP arg_names,                                          \
+        TINYREFL_PP_UNWRAP return_type,                                        \
+        TINYREFL_PP_UNWRAP parameter_types,                                    \
+        TINYREFL_PP_UNWRAP parameter_names,                                    \
         TINYREFL_PP_UNWRAP pointer,                                            \
         TINYREFL_PP_UNWRAP attributes>
 

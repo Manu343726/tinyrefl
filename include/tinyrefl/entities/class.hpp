@@ -147,7 +147,8 @@ struct class_ : public tinyrefl::entities::detail::class_base<
                     StaticMemberVariables,
                     Classes,
                     Enums,
-                    Attributes>
+                    Attributes>,
+                public tinyrefl::entities::type_entity<Class>
 {
 private:
     using Base = tinyrefl::entities::detail::class_base<
@@ -180,6 +181,9 @@ public:
     using member_enums = tinyrefl::meta::fmap_t<
         tinyrefl::meta::defer<tinyrefl::backend::entity_metadata>,
         Enums>;
+
+    using Base::full_name;
+    using Base::name;
 
     constexpr auto bases() const
     {

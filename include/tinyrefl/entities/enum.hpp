@@ -3,6 +3,7 @@
 
 #include <tinyrefl/entities/entity.hpp>
 #include <tinyrefl/entities/enum_value.hpp>
+#include <tinyrefl/entities/type.hpp>
 #include <tinyrefl/types/array.hpp>
 #include <tinyrefl/types/array_view.hpp>
 
@@ -27,11 +28,26 @@ struct enum_ : public tinyrefl::entities::entity_with_attributes<
                    FullName,
                    Parent,
                    Values,
-                   SourceLocation>
+                   SourceLocation>,
+               public tinyrefl::entities::type_entity<Enum>
 {
+private:
+    using EntityWithAttributes = tinyrefl::entities::entity_with_attributes<
+        Attributes,
+        tinyrefl::entities::entity_kind::ENUM,
+        Name,
+        FullName,
+        Parent,
+        Values,
+        SourceLocation>;
+
+public:
     using enum_type = Enum;
 
     constexpr enum_() = default;
+
+    using EntityWithAttributes::full_name;
+    using EntityWithAttributes::name;
 
     constexpr tinyrefl::array_view<tinyrefl::entities::enum_value<Enum>>
         values() const

@@ -2,7 +2,6 @@
 #define TINYREFL_ENTITIES_STATIC_MEMBER_VARIABLE_HPP_INCLUDED
 
 #include <tinyrefl/entities/entity.hpp>
-#include <tinyrefl/entities/function_arguments.hpp>
 #include <tinyrefl/entities/pointer.hpp>
 
 namespace tinyrefl

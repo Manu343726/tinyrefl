@@ -197,20 +197,40 @@ static_assert(tinyrefl::matches(
     tinyrefl::metadata<example::Enum>(),
     tinyrefl::matchers::hasChild(tinyrefl::matchers::allOf(
         tinyrefl::matchers::ofKind(tinyrefl::entities::entity_kind::ENUM_VALUE),
-        tinyrefl::matchers::named("A")))));
+        tinyref::matchers::named("A")))));
+
+static_assert(tinyrefl::matches(
+    tinyrefl::metadata_by_id("example::C::C(const std::string&)"_id),
+    tinyrefl::matchers::allOf(
+        tinyrefl::matchers::ofKind(
+            tinyrefl::entities::entity_kind::CONSTRUCTOR),
+        tinyrefl::matchers::returns(tinyrefl::entities::type<example::C>()),
+        tinyrefl::matchers::hasParameters(tinyrefl::matchers::allOf(
+            tinyrefl::matchers::hasType(tinyrefl::matchers::allOf(
+                tinyrefl::matchers::type<const std::string&>(),
+                tinyrefl::matchers::named("const std::string&"))),
+            tinyrefl::matchers::hasDecayedType(tinyrefl::matchers::allOf(
+                tinyrefl::matchers::type<std::string>(),
+                tinyrefl::matchers::named("std::string"))),
+            tinyrefl::matchers::named("str"))))));
 
 #ifdef TINYREFL_MATCHES
 namespace matchers_example
 {
-
 using namespace tinyrefl::matchers;
 // Find all factory functions in the translation unit:
 constexpr auto factories = TINYREFL_MATCHES(allOf(
     ofKind(tinyrefl::entities::entity_kind::STATIC_MEMBER_FUNCTION),
     anyOf(named("factory"), named("create")),
-    not_(returns(named("A")))));
+    returns(named("A")),
+    hasParameters()));
 
-static_assert(tinyrefl::meta::tuple_size(factories) == 0, "We hate factories");
+static_assert(tinyrefl::meta::tuple_size(factories) == 1, "We hate factories");
+static_assert(
+    std::get<0>(factories) ==
+        tinyrefl::metadata_by_id("example::A::create()"_id),
+    "We hate factories");
+
 } // namespace matchers_example
 #endif // TINYREFL_MATCHES
 
