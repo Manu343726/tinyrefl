@@ -267,7 +267,7 @@ TEST_CASE("tinyrefl api")
                  {"Enum", 0},
                  {"InnerClass", 0},
                  {"BaseClassWithReflectionData", 1},
-                 {"BaseClassWithoutReflectionData", 0},
+                 {"BaseClassWithoutReflectionData", 1},
                  {"InnerClassWithMembers", 0},
                  {"a", 0},
                  {"b", 0},

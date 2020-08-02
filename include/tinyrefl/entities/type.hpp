@@ -73,7 +73,7 @@ namespace impl
 
 template<
     typename T,
-    bool IsType = std::is_base_of_v<type_entity<T>, tinyrefl::metadata<T>>>
+    bool IsType = std::is_base_of<type_entity<T>, tinyrefl::metadata<T>>{}>
 struct type_base : public tinyrefl::metadata<T>, public type_entity<T>
 {
     using type_entity<T>::name;
