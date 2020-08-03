@@ -148,10 +148,8 @@ struct constexpr_kind_restricted_visitor_base
 template<typename Visitor, typename Kinds>
 struct constexpr_kind_restricted_visitor;
 
-template<typename Visitor, tinyrefl::entities::entity_kind Kind>
-struct constexpr_kind_restricted_visitor<
-    Visitor,
-    tinyrefl::meta::list<tinyrefl::entities::kind_constant<Kind>>>
+template<typename Visitor, typename Kind>
+struct constexpr_kind_restricted_visitor<Visitor, tinyrefl::meta::list<Kind>>
     : public constexpr_kind_restricted_visitor_base<Visitor>
 {
     using base = constexpr_kind_restricted_visitor_base<Visitor>;
@@ -162,38 +160,26 @@ struct constexpr_kind_restricted_visitor<
     }
 
     template<typename Entity>
-    constexpr auto operator()(
-        const Entity& entity, tinyrefl::entities::kind_constant<Kind>) const
+    constexpr auto operator()(const Entity& entity, Kind) const
         -> decltype(base::template call_visitor(entity))
     {
         base::call_visitor(entity);
     }
 };
 
-template<
-    typename Visitor,
-    tinyrefl::entities::entity_kind First,
-    tinyrefl::entities::entity_kind Second,
-    tinyrefl::entities::entity_kind... Tail>
+template<typename Visitor, typename First, typename Second, typename... Tail>
 struct constexpr_kind_restricted_visitor<
     Visitor,
-    tinyrefl::meta::list<
-        tinyrefl::entities::kind_constant<First>,
-        tinyrefl::entities::kind_constant<Second>,
-        tinyrefl::entities::kind_constant<Tail>...>>
+    tinyrefl::meta::list<First, Second, Tail...>>
     : public constexpr_kind_restricted_visitor<
           Visitor,
-          tinyrefl::meta::list<
-              tinyrefl::entities::kind_constant<Second>,
-              tinyrefl::entities::kind_constant<Tail>...>>
+          tinyrefl::meta::list<Second, Tail...>>
 {
     using root = constexpr_kind_restricted_visitor_base<Visitor>;
 
     using base = constexpr_kind_restricted_visitor<
         Visitor,
-        tinyrefl::meta::list<
-            tinyrefl::entities::kind_constant<Second>,
-            tinyrefl::entities::kind_constant<Tail>...>>;
+        tinyrefl::meta::list<Second, Tail...>>;
 
     constexpr constexpr_kind_restricted_visitor(Visitor visitor)
         : base{std::move(visitor)}
@@ -203,8 +189,7 @@ struct constexpr_kind_restricted_visitor<
     using base::operator();
 
     template<typename Entity>
-    constexpr auto operator()(
-        const Entity& entity, tinyrefl::entities::kind_constant<First>) const
+    constexpr auto operator()(const Entity& entity, First) const
         -> decltype(root::template call_visitor(entity))
     {
         root::call_visitor(entity);
