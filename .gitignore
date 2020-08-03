@@ -4,3 +4,4 @@ build*/
 .color_coded
 .idea
 cmake-build*/
+CMakeLists.txt.user
