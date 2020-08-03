@@ -109,7 +109,7 @@ std::string registration_serializer::serialize_registration(
     std::string result;
 
     tinyrefl::tool::entity_cast(entity, [&result, this](const auto& entity) {
-        result = serialize_registration(entity);
+        result = this->serialize_registration(entity);
     });
 
     return result;
