@@ -16,9 +16,9 @@ namespace entities
 {
 
 template<typename T>
-struct function_argument
+struct function_parameter
 {
-    constexpr function_argument(const std::size_t index, tinyrefl::string name)
+    constexpr function_parameter(const std::size_t index, tinyrefl::string name)
         : _index{index}, _name{name}
     {
     }
@@ -58,18 +58,21 @@ struct function_signature<
 
     constexpr function_signature() = default;
 
-    constexpr auto arguments() const
+    constexpr auto parameters() const
     {
-        return _arguments(std::index_sequence_for<Types_...>{});
+        return _parameters(std::index_sequence_for<Types_...>{});
     }
 
-    constexpr tinyrefl::entities::type<ReturnType> returnType() const;
+    constexpr tinyrefl::entities::type<ReturnType> return_type() const
+    {
+        return {};
+    }
 
 private:
     template<std::size_t... Indices>
-    constexpr auto _arguments(std::index_sequence<Indices...>) const
+    constexpr auto _parameters(std::index_sequence<Indices...>) const
     {
-        return std::make_tuple(tinyrefl::entities::function_argument<Types_>{
+        return std::make_tuple(tinyrefl::entities::function_parameter<Types_>{
             Indices, tinyrefl::string_constant<Names>()}...);
     }
 };

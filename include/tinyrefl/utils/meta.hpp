@@ -450,6 +450,11 @@ struct all_of
         return invoke(tuple, std::index_sequence_for<Ts...>{});
     }
 
+    constexpr bool operator()(const std::tuple<>& tuple) const
+    {
+        return true;
+    }
+
     template<typename T>
     constexpr bool operator()(const T& value) const
     {
@@ -462,7 +467,7 @@ private:
         invoke(const std::tuple<Ts...>& tuple, std::index_sequence<Is...>) const
     {
         for(const bool value :
-            {static_cast<bool>(_predicate(std::get<Is>(tuple)))...})
+            {static_cast<bool>(_predicate(std::get<Is>(tuple)))..., true})
         {
             if(not value)
             {
@@ -487,6 +492,11 @@ struct any_of
         return invoke(tuple, std::index_sequence_for<Ts...>{});
     }
 
+    constexpr bool operator()(const std::tuple<>& tuple) const
+    {
+        return false;
+    }
+
     template<typename T>
     constexpr bool operator()(const T& value) const
     {
@@ -499,7 +509,7 @@ private:
         invoke(const std::tuple<Ts...>& tuple, std::index_sequence<Is...>) const
     {
         for(const bool value :
-            {static_cast<bool>(_predicate(std::get<Is>(tuple)))...})
+            {static_cast<bool>(_predicate(std::get<Is>(tuple)))..., false})
         {
             if(value)
             {
@@ -757,16 +767,16 @@ constexpr bool any_of(const std::tuple<Ts...>& tuple)
 }
 
 template<typename Function>
-constexpr std::decay_t<Function> combine(Function&& function)
+constexpr auto combine(Function&& function)
 {
-    return std::forward<Function>(function);
+    return impl::combine(std::forward<Function>(function));
 }
 
-template<typename Head, typename... Tail>
-constexpr auto combine(Head&& head, Tail&&... tail)
+template<typename Head, typename Second, typename... Tail>
+constexpr auto combine(Head&& head, Second&& second, Tail&&... tail)
 {
     return impl::combine(
-        std::forward<Head>(head), impl::combine(std::forward<Tail>(tail)...));
+        std::forward<Head>(head), tinyrefl::meta::combine(std::forward<Second>(second), std::forward<Tail>(tail)...));
 }
 
 template<typename... Ts>

@@ -32,6 +32,20 @@ struct type_entity
             tinyrefl::meta::bool_<tinyrefl::has_metadata<T>()>{});
     }
 
+    template<typename Other>
+    constexpr bool
+        operator==(const type_entity<Other>& other) const
+    {
+        return std::is_same<T, Other>::value;
+    }
+
+    template<typename Other>
+    constexpr bool
+        operator!=(const type_entity<Other>& other) const
+    {
+        return !(*this == other);
+    }
+
 private:
     static constexpr tinyrefl::string get_name(tinyrefl::meta::true_)
     {
@@ -54,20 +68,6 @@ private:
     }
 };
 
-template<typename Lhs, typename Rhs>
-constexpr bool
-    operator==(const type_entity<Lhs>& lhs, const type_entity<Rhs>& rhs)
-{
-    return std::is_same<Lhs, Rhs>::value;
-}
-
-template<typename Lhs, typename Rhs>
-constexpr bool
-    operator!=(const type_entity<Lhs>& lhs, const type_entity<Rhs>& rhs)
-{
-    return !(lhs == rhs);
-}
-
 namespace impl
 {
 
@@ -78,11 +78,15 @@ struct type_base : public tinyrefl::metadata<T>, public type_entity<T>
 {
     using type_entity<T>::name;
     using type_entity<T>::full_name;
+    using type_entity<T>::operator==;
+    using type_entity<T>::operator!=;
 };
 
 template<typename T>
 struct type_base<T, true> : public tinyrefl::metadata<T>
 {
+    using type_entity<T>::operator==;
+    using type_entity<T>::operator!=;
 };
 
 } // namespace impl

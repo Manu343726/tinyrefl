@@ -52,6 +52,11 @@ struct no_metadata
 
     constexpr no_metadata() = default;
 
+    constexpr bool has_metadata() const
+    {
+        return false;
+    }
+
     constexpr no_metadata parent() const
     {
         return {};

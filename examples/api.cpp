@@ -46,13 +46,16 @@ void dump_function(Function function)
 {
     std::cout << "\"" << function.full_display_name() << "\" ("
               << function.kind() << ")\n";
-    std::cout << "Arguments:\n";
+    std::cout << "Parameters:\n";
 
     tinyrefl::meta::foreach(
-        function.arguments().arguments(), [&](const auto& arg) {
-            std::cout << "arg \"" << arg.name()
-                      << "\" (type: " << arg.type().full_name() << ")\n";
+        function.signature().parameters(), [&](const auto& param) {
+            std::cout << "param \"" << param.name()
+                      << "\" (type: " << param.type().full_name() << ")\n";
         });
+
+    std::cout << "Returns: " << function.signature().return_type().full_name()
+              << "\n";
 }
 
 template<typename Entity>
@@ -197,21 +200,48 @@ static_assert(tinyrefl::matches(
     tinyrefl::metadata<example::Enum>(),
     tinyrefl::matchers::hasChild(tinyrefl::matchers::allOf(
         tinyrefl::matchers::ofKind(tinyrefl::entities::entity_kind::ENUM_VALUE),
-        tinyref::matchers::named("A")))));
+        tinyrefl::matchers::named("A")))));
+
+static_assert(
+    tinyrefl::has_metadata("example::C::C(std::string const&)"_id),
+    "tinyrefl-tool is no longer east-const???");
+static_assert(
+    not tinyrefl::has_metadata("example::C::C(const std::string&)"_id),
+    "tinyrefl-tool is no longer east-const???");
+
+constexpr auto c_constructor =
+    tinyrefl::metadata_by_id("example::C::C(std::string const&)"_id);
+static_assert(c_constructor.has_metadata());
+
+static_assert(
+    c_constructor.kind() == tinyrefl::entities::entity_kind::CONSTRUCTOR);
+static_assert(
+    c_constructor.signature().return_type() ==
+    tinyrefl::entities::type<example::C>());
+static_assert(
+    tinyrefl::meta::tuple_size(c_constructor.signature().parameters()) == 1);
+constexpr auto c_constructor_parameter =
+    std::get<0>(c_constructor.signature().parameters());
+static_assert(
+    c_constructor_parameter.type() ==
+    tinyrefl::entities::type<std::string const&>());
+static_assert(
+    c_constructor_parameter.type().decayed() ==
+    tinyrefl::entities::type<std::string>());
+static_assert(c_constructor_parameter.name() == "str");
 
 static_assert(tinyrefl::matches(
-    tinyrefl::metadata_by_id("example::C::C(const std::string&)"_id),
+    c_constructor,
     tinyrefl::matchers::allOf(
         tinyrefl::matchers::ofKind(
             tinyrefl::entities::entity_kind::CONSTRUCTOR),
-        tinyrefl::matchers::returns(tinyrefl::entities::type<example::C>()),
+        tinyrefl::matchers::returns(tinyrefl::matchers::type<example::C>()),
+        tinyrefl::matchers::parameterCountIs(1),
         tinyrefl::matchers::hasParameters(tinyrefl::matchers::allOf(
-            tinyrefl::matchers::hasType(tinyrefl::matchers::allOf(
-                tinyrefl::matchers::type<const std::string&>(),
-                tinyrefl::matchers::named("const std::string&"))),
-            tinyrefl::matchers::hasDecayedType(tinyrefl::matchers::allOf(
-                tinyrefl::matchers::type<std::string>(),
-                tinyrefl::matchers::named("std::string"))),
+            tinyrefl::matchers::hasType(
+                tinyrefl::matchers::type<std::string const&>()),
+            tinyrefl::matchers::hasDecayedType(
+                tinyrefl::matchers::type<std::string>()),
             tinyrefl::matchers::named("str"))))));
 
 #ifdef TINYREFL_MATCHES
@@ -236,6 +266,6 @@ static_assert(
 
 int main()
 {
-    dump();
-    dump_pretty_function(1, true, "", "");
+    //dump();
+    //dump_pretty_function(1, true, "", "");
 }

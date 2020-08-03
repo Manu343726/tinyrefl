@@ -348,6 +348,11 @@ private:
 public:
 #endif // DOXYGEN_PROCESSING_TINYREFL
 
+    constexpr bool has_metadata() const
+    {
+        return true;
+    }
+
     /**
      * @brief Returns the index among the set of siblings of the same kind
      *
