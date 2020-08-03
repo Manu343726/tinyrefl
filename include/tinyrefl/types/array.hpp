@@ -25,7 +25,7 @@ template<typename T, std::size_t N>
 struct array
 {
     template<typename... Items>
-    constexpr array(Items... items) : _items{std::move(items)...}
+    constexpr array(Items... items) : _items{{std::move(items)...}}
     {
     }
     constexpr array()             = default;

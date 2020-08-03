@@ -24,3 +24,7 @@ target_link_libraries(tinyrefl-tool-lib PUBLIC
     tinyrefl_externals_ctti
     tinyrefl_externals_jsonformoderncpp
 )
+
+if(NOT MSVC)
+    target_compile_options(tinyrefl-tool-lib PUBLIC -Wno-gnu-string-literal-operator-template)
+endif()

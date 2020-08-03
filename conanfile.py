@@ -64,3 +64,10 @@ class Tinyrefl(common.CMakePackage):
             'TINYREFL_GIT_AT_TAG': (tag_version is not None),
             'TINYREFL_LAST_TAG': git.get_last_tag()
         })
+
+    def package_info(self):
+        super().package_info()
+
+        if self.settings.compiler in ['gcc', 'clang']:
+            self.cpp_info.cxxflags.append('-Wno-gnu-string-literal-operator-template')
+
