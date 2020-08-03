@@ -4,6 +4,7 @@ add_library(tinyrefl-test-static
     backend.cpp
     generated_code.cpp
     api.cpp
+    invokable_traits.cpp
 )
 
 target_link_libraries(tinyrefl-test-static PRIVATE tinyrefl)

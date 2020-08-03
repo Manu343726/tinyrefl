@@ -25,7 +25,7 @@ struct traits
     static constexpr tinyrefl::invokable_traits::invokable_kind kind =
         tinyrefl::invokable_traits::invokable_kind::VARIABLE;
 
-    using signature         = void;
+    using signature         = T();
     using return_type       = T;
     using class_type        = void;
     using arguments         = tinyrefl::meta::list<>;
@@ -77,7 +77,7 @@ struct traits<R (*)(Args...)> : public traits<R(Args...)>
 };
 
 template<typename T, typename Class>
-struct traits<T(Class::*)>
+struct traits<T Class::*>
 {
     static constexpr tinyrefl::invokable_traits::invokable_kind kind =
         tinyrefl::invokable_traits::invokable_kind::MEMBER_VARIABLE;

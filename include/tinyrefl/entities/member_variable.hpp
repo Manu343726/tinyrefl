@@ -4,6 +4,7 @@
 #include <tinyrefl/entities/entity.hpp>
 #include <tinyrefl/entities/pointer.hpp>
 #include <tinyrefl/utils/invokable_traits.hpp>
+#include <type_traits>
 
 namespace tinyrefl
 {
@@ -30,6 +31,15 @@ struct member_variable : public tinyrefl::entities::entity_with_attributes<
 {
     using class_type = tinyrefl::invokable_traits::class_type<Pointer>;
     using value_type = tinyrefl::invokable_traits::return_type<Pointer>;
+
+    static_assert(
+        tinyrefl::invokable_traits::kind<Pointer> ==
+            tinyrefl::invokable_traits::invokable_kind::MEMBER_VARIABLE,
+        "Member variables must be members of a class");
+
+    static_assert(
+        not std::is_same<class_type, void>{},
+        "Member variables must have a parent class");
 
     constexpr member_variable() = default;
 

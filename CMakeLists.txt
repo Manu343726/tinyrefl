@@ -101,7 +101,7 @@ if(TINYREFL_BUILD_EXAMPLES)
 endif()
 
 if(TINYREFL_IS_ROOT_PROJECT)
-    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
     message(STATUS "Generate vim YCM config file for tinyrefl at ${TINYREFL_SOURCE_DIR} ...")
     configure_file(

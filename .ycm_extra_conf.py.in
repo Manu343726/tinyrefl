@@ -120,7 +120,7 @@ def FindAnySrcFile(original_file):
     elif os.path.commonprefix([TOOL_INCLUDE_DIR, original_file]) == TOOL_INCLUDE_DIR:
         return os.path.join(TOOL_SRC_DIR, "serializer.cpp")
     else:
-        return os.path.join(TOOL_SRC_DIR, "serialixer.cpp")
+        return os.path.join(TOOL_SRC_DIR, "serializer.cpp")
 
 def ReplacementFile( headerfile, source_extension ):
     src_from_header = SrcFromHeader(headerfile, source_extension)
