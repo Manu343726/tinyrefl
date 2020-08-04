@@ -8,10 +8,10 @@ list(APPEND CMAKE_PREFIX_PATH "${TINYREFL_BINARY_DIR}")
 list(APPEND CMAKE_MODULE_PATH "${TINYREFL_BINARY_DIR}")
 
 include(cmake/git.cmake)
+project(tinyrefl VERSION "${TINYREFL_VERSION}" LANGUAGES CXX)
+
 include(cmake/utils.cmake)
 include(cmake/config.cmake)
-
-project(tinyrefl VERSION "${TINYREFL_VERSION}")
 
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     set(TINYREFL_IS_ROOT_PROJECT TRUE)
