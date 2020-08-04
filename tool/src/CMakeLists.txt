@@ -11,6 +11,8 @@ add_library(tinyrefl-tool-lib
     serializers/registration_serializer.cpp
 )
 
+target_compile_options(tinyrefl-tool-lib PUBLIC ${TINYREFL_CXX_WARNINGS})
+
 target_include_directories(tinyrefl-tool-lib
     PUBLIC "${TINYREFL_TOOL_INCLUDE_DIR}"
     PUBLIC "${TINYREFL_INCLUDE_DIR}")

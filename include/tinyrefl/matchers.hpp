@@ -44,7 +44,7 @@ struct identity_t
     }
 };
 
-template<template<typename...> typename Trait, typename... Ts>
+template<template<typename...> class Trait, typename... Ts>
 struct matches_trait_t
 {
     constexpr matches_trait_t() = default;
@@ -358,7 +358,7 @@ constexpr auto anyOf(InnerMatchers&&... innerMatchers)
         std::make_tuple(std::forward<InnerMatchers>(innerMatchers)...));
 }
 
-template<template<typename...> typename Trait, typename... Ts>
+template<template<typename...> class Trait, typename... Ts>
 constexpr auto trait(const std::tuple<Ts...>& types)
 {
     return impl::matches_trait_t<Trait, Ts...>{};

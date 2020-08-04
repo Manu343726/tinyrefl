@@ -465,3 +465,15 @@ function(add_variable_compile_definition TARGET VARIABLE)
         target_compile_definitions(${TARGET} PUBLIC ${PREFIX_PREFIX}${VARIABLE}${PREFIX_SUFFIX}=${${VARIABLE}})
     endif()
 endfunction()
+
+function(mark_as_external_target TARGET)
+    get_property(type TARGET ${TARGET} PROPERTY TYPE)
+
+    if(NOT (type STREQUAL "INTERFACE_LIBRARY"))
+        get_property(includes TARGET ${TARGET} PROPERTY INCLUDE_DIRECTORIES)
+        set_property(TARGET ${TARGET} APPEND PROPERTY SYSTEM_INCLUDE_DIRECTORIES ${includes})
+    endif()
+
+    get_property(interface_includes TARGET ${TARGET} PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
+    set_property(TARGET ${TARGET} APPEND PROPERTY INTERFACE_SYSTEM_INCLUDE_DIRECTORIES  ${interface_includes})
+endfunction()

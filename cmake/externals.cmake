@@ -1,4 +1,5 @@
 include(${TINYREFL_SOURCE_DIR}/cmake/DownloadProject.cmake)
+include(${TINYREFL_SOURCE_DIR}/cmake/utils.cmake)
 
 function(require_target NAME)
     if(NOT TARGET ${NAME})
@@ -28,8 +29,12 @@ macro(external_dependency NAME URL COMMIT)
             PREFIX "${CMAKE_CURRENT_BINARY_DIR}"
             INSTALL ""
         )
-        add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
+        add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR} EXCLUDE_FROM_ALL)
         set(${NAME}_SOURCE_DIR "${${NAME}_SOURCE_DIR}" CACHE PATH "")
         set(${NAME}_BINARY_DIR "${${NAME}_BINARY_DIR}" CACHE PATH "")
+
+        if(TARGET ${NAME})
+            mark_as_external_target(${NAME})
+        endif()
     endif()
 endmacro()

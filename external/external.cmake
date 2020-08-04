@@ -24,6 +24,7 @@ if(NOT TARGET tinyrefl_externals_ctti AND
         if(NOT ctti_FOUND)
             external_dependency(ctti ${TINYREFL_CTTI_REPO_URL} ${TINYREFL_CTTI_VERSION})
             add_library(tinyrefl_externals_ctti ALIAS ctti)
+            mark_as_external_target(ctti)
         else()
             add_library(tinyrefl_externals_ctti INTERFACE)
             target_link_libraries(tinyrefl_externals_ctti INTERFACE ctti::ctti)

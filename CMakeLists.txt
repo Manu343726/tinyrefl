@@ -9,9 +9,9 @@ list(APPEND CMAKE_MODULE_PATH "${TINYREFL_BINARY_DIR}")
 
 include(cmake/git.cmake)
 include(cmake/utils.cmake)
-project(tinyrefl VERSION "${TINYREFL_VERSION}")
+include(cmake/config.cmake)
 
-include (CheckCXXCompilerFlag)
+project(tinyrefl VERSION "${TINYREFL_VERSION}")
 
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     set(TINYREFL_IS_ROOT_PROJECT TRUE)
@@ -29,26 +29,6 @@ if(NOT DEFINED TINYREFL_LLVM_VERSION)
     set(TINYREFL_LLVM_VERSION "4.0.0")
 endif()
 parse_version_number(${TINYREFL_LLVM_VERSION} TINYREFL_LLVM_VERSION_MAJOR TINYREFL_LLVM_VERSION_MINOR TINYREFL_LLVM_VERSION_FIX)
-
-if(CMAKE_CXX_STANDARD)
-    if(CMAKE_CXX_STANDARD LESS 14)
-        message(FATAL_ERROR "tinyrefl requires C++14 at least, requested C++${CMAKE_CXX_STANDARD}")
-    endif()
-else()
-    set(CMAKE_CXX_STANDARD 14)
-endif()
-
-message(STATUS "tinyrefl compiled with C++${CMAKE_CXX_STANDARD}")
-
-if(NOT MSVC)
-    check_cxx_compiler_flag("-Wnoexcept-type" HAS_NOEXCEPT_ABI_WARNING)
-
-    if(HAS_NOEXCEPT_ABI_WARNING)
-        set(no_noexcept_abi_warning "-Wno-noexcept-type")
-    endif()
-
-    set(CMAKE_CXX_FLAGS "-Wall -Werror -Wno-attributes ${no_noexcept_abi_warning}")
-endif()
 
 if(CMAKE_TOOLCHAIN_FILE OR TINYREFL_CROSS_BUILDING)
     message(STATUS "Tinyrefl cross building")

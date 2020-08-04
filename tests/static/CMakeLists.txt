@@ -8,6 +8,7 @@ add_library(tinyrefl-test-static
 )
 
 target_link_libraries(tinyrefl-test-static PRIVATE tinyrefl)
+target_compile_options(tinyrefl-test-static PRIVATE ${TINYREFL_CXX_WARNINGS})
 
 tinyrefl_tool(TARGET tinyrefl-test-static
 HEADERS

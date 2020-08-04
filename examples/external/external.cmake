@@ -1,4 +1,5 @@
 include(${TINYREFL_SOURCE_DIR}/cmake/externals.cmake)
+include(${TINYREFL_SOURCE_DIR}/cmake/utils.cmake)
 
 find_package(Boost)
 
@@ -14,3 +15,5 @@ set(BUILD_PACKAGE OFF CACHE BOOL "disable rttr CPack")
 
 external_dependency(rttr https://github.com/rttrorg/rttr.git v0.9.6)
 external_dependency(MetaStuff https://github.com/Manu343726/MetaStuff master)
+mark_as_external_target(rttr_core)
+mark_as_external_target(MetaStuff)

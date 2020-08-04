@@ -10,6 +10,7 @@ add_tinyrefl_test(tinyrefl-test
 )
 target_link_libraries(tinyrefl-test PRIVATE tinyrefl)
 #target_compile_options(tinyrefl-test PRIVATE -E)
+target_compile_options(tinyrefl-test PRIVATE ${TINYREFL_CXX_WARNINGS})
 
 tinyrefl_tool(TARGET tinyrefl-test
 HEADERS

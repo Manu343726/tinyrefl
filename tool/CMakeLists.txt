@@ -1,5 +1,6 @@
 include(${TINYREFL_SOURCE_DIR}/cmake/git.cmake)
 include(${TINYREFL_SOURCE_DIR}/cmake/utils.cmake)
+include(${TINYREFL_SOURCE_DIR}/cmake/config.cmake)
 
 parse_version_number(${TINYREFL_LLVM_VERSION} TINYREFL_LLVM_VERSION_MAJOR TINYREFL_LLVM_VERSION_MINOR TINYREFL_LLVM_VERSION_FIX)
 
