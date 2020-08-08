@@ -52,6 +52,14 @@ for stage in "${stages[@]}"; do
             script_line=${script[$i]}
             echo "    - $script_line"          >> $OUTPUT_FILE
         done
+
+        config_var=${stage_sanitized}_config
+        declare -n config=${stage_sanitized}_config
+
+        for ((i = 0; i < ${#config[@]}; i++)); do
+            config_line=${config[$i]}
+            echo "  $config_line"          >> $OUTPUT_FILE
+        done
     else
         for toolchain in ${toolchains}; do
             for llvm_version in ${llvm_versions}; do
@@ -76,6 +84,14 @@ for stage in "${stages[@]}"; do
                 for ((i = 0; i < ${#script[@]}; i++)); do
                     script_line=${script[$i]}
                     echo "    - $script_line"          >> $OUTPUT_FILE
+                done
+
+                config_var=${stage_sanitized}_config
+                declare -n config=${stage_sanitized}_config
+
+                for ((i = 0; i < ${#config[@]}; i++)); do
+                    config_line=${config[$i]}
+                    echo "  $config_line"          >> $OUTPUT_FILE
                 done
             done
         done

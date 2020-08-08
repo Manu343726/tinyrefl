@@ -6,6 +6,7 @@ stages:
   - clang-format-check
   - test
   - user-integration
+  - conan-integration
 
 clang-format-check:
   tags:
@@ -16,15 +17,20 @@ clang-format-check:
     - apk update && apk add bash git
     - /bin/bash ./ci/ci_clang_format_check.sh
     - echo clang-format was applied ok
+  config:
+    - allow_failure: true
 
 test:
   tags:
     - linux
     - docker
   toolchains:
-    - clang40-x86
     - clang50-x86
     - clang60-x86
+    - clang70-x86
+    - clang80-x86
+    - clang90-x86
+    - clang100-x86
     - gcc5-armv7
     - gcc5-x86
     - gcc6-armv7
@@ -33,6 +39,10 @@ test:
     - gcc7-x86
     - gcc8-armv7
     - gcc8-x86
+    - gcc9-armv7
+    - gcc9-x86
+    - gcc10-armv7
+    - gcc10-x86
   llvm-versions:
     - 4.0.0
     - 5.0.0
@@ -46,9 +56,12 @@ user-integration:
     - linux
     - docker
   toolchains:
-    - clang40-x86
     - clang50-x86
     - clang60-x86
+    - clang70-x86
+    - clang80-x86
+    - clang90-x86
+    - clang100-x86
     - gcc5-armv7
     - gcc5-x86
     - gcc6-armv7
@@ -57,10 +70,45 @@ user-integration:
     - gcc7-x86
     - gcc8-armv7
     - gcc8-x86
+    - gcc9-armv7
+    - gcc9-x86
+    - gcc10-armv7
+    - gcc10-x86
   llvm-versions:
     - 4.0.0
     - 5.0.0
     - 6.0.0
   script:
     - ./ci/ci_user_integration.sh
+    - echo finished ok
+
+conan-integration:
+  tags:
+    - linux
+    - docker
+  toolchains:
+    - clang50-x86
+    - clang60-x86
+    - clang70-x86
+    - clang80-x86
+    - clang90-x86
+    - clang100-x86
+    - gcc5-armv7
+    - gcc5-x86
+    - gcc6-armv7
+    - gcc6-x86
+    - gcc7-armv7
+    - gcc7-x86
+    - gcc8-armv7
+    - gcc8-x86
+    - gcc9-armv7
+    - gcc9-x86
+    - gcc10-armv7
+    - gcc10-x86
+  llvm-versions:
+    - 4.0.0
+    - 5.0.0
+    - 6.0.0
+  script:
+    - ./ci/ci_conan_integration.sh
     - echo finished ok

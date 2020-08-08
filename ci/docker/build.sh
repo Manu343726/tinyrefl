@@ -48,17 +48,25 @@ build()
     docker push ${REPO}/${NAME}:${TAG}
 }
 
-build lasote/conanclang40    clang40-x86 clang clang++
-build lasote/conanclang50    clang50-x86 clang clang++
-build lasote/conanclang60    clang60-x86 clang clang++
-build lasote/conangcc5-armv7 gcc5-armv7  gcc-5   g++-5 CROSS_BUILDING
-build lasote/conangcc5       gcc5-x86    gcc-5   g++-5
-build lasote/conangcc6-armv7 gcc6-armv7  gcc-6   g++-6 CROSS_BUILDING
-build lasote/conangcc6       gcc6-x86    gcc-6   g++-6
-build lasote/conangcc7-armv7 gcc7-armv7  gcc-7   g++-7 CROSS_BUILDING
-build lasote/conangcc7       gcc7-x86    gcc-7   g++-7
-build lasote/conangcc8-armv7 gcc8-armv7  gcc-8   g++-8 CROSS_BUILDING
-build lasote/conangcc8       gcc8-x86    gcc-8   g++-8
+build conanio/clang40     clang40-x86  clang  clang++
+build conanio/clang50     clang50-x86  clang  clang++
+build conanio/clang60     clang60-x86  clang  clang++
+build conanio/clang7      clang70-x86  clang  clang++
+build conanio/clang8      clang80-x86  clang  clang++
+build conanio/clang9      clang90-x86  clang  clang++
+build conanio/clang10     clang100-x86 clang  clang++
+build conanio/gcc5-armv7  gcc5-armv7   gcc-5  g++-5 CROSS_BUILDING
+build conanio/gcc5        gcc5-x86     gcc-5  g++-5
+build conanio/gcc6-armv7  gcc6-armv7   gcc-6  g++-6 CROSS_BUILDING
+build conanio/gcc6        gcc6-x86     gcc-6  g++-6
+build conanio/gcc7-armv7  gcc7-armv7   gcc-7  g++-7 CROSS_BUILDING
+build conanio/gcc7        gcc7-x86     gcc-7  g++-7
+build conanio/gcc8-armv7  gcc8-armv7   gcc-8  g++-8 CROSS_BUILDING
+build conanio/gcc8        gcc8-x86     gcc-8  g++-8
+build conanio/gcc9-armv7  gcc9-armv7   gcc-9  g++-9 CROSS_BUILDING
+build conanio/gcc9        gcc9-x96     gcc-9  g++-9
+build conanio/gcc10-armv7 gcc10-armv7  gcc-10 g++-10 CROSS_BUILDING
+build conanio/gcc10       gcc10-x86    gcc-10 g++-10
 
 docker build ${DOCKER_DIR}/clang-format    -t manu343726/tinyrefl:clang-format    && docker push manu343726/tinyrefl:clang-format
 docker build ${DOCKER_DIR}/clang-format-ci -t manu343726/tinyrefl:clang-format-ci && docker push manu343726/tinyrefl:clang-format-ci

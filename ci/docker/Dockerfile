@@ -5,10 +5,20 @@ MAINTAINER Manu Sanchez <Manu343726@gmail.com>
 USER root
 
 # Install libtinfo required by LLVM
-RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ trusty multiverse" >> /etc/apt/sources.list && \
-    apt update && \
-    apt install -y libtinfo-dev libz-dev python3-pip && \
+RUN apt update && \
+    apt install -y libz-dev python3-pip libtinfo5 && \
+    apt remove -y cmake && \
     apt clean
+
+ARG CMAKE_VERSION_MAJOR=3
+ARG CMAKE_VERSION_MINOR=11
+ARG CMAKE_VERSION_FIX=4
+
+ENV CMAKE_VERSION_MAJOR=$CMAKE_VERSION_MAJOR
+ENV CMAKE_VERSION_MINOR=$CMAKE_VERSION_MINOR
+ENV CMAKE_VERSION_FIX=$CMAKE_VERSION_FIX
+ENV CMAKE_VERSION=$CMAKE_VERSION_MAJOR.$CMAKE_VERSION_MINOR.$CMAKE_VERSION_FIX
+RUN wget -qO- "https://cmake.org/files/v$CMAKE_VERSION_MAJOR.$CMAKE_VERSION_MINOR/cmake-$CMAKE_VERSION-Linux-x86_64.tar.gz" | tar --strip-components=1 -xz -C /usr/local
 
 ADD toolchain.cmake /usr/share/toolchain.cmake
 ADD build_toolchain.sh build_toolchain.sh
@@ -20,7 +30,7 @@ ADD install_boost.sh install_boost.sh
 RUN chmod +x install_boost.sh && ./install_boost.sh
 
 RUN pip uninstall conan -y
-RUN pip3 install conan
+RUN CC=gcc CXX=g++ pip3 install conan
 
 USER conan
 WORKDIR /home/conan

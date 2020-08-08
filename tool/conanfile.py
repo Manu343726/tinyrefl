@@ -61,7 +61,7 @@ class TinyreflTool(ConanFile):
         if tag_version is not None:
             self.version = tag_version
         else:
-            self.version = '{}-{}'.format(git.get_branch(), git.get_commit())
+            self.version = '{}-{}'.format(git.get_branch(), git.run('rev-parse --short HEAD'))
 
         self.custom_cmake_defs.update({
             'TINYREFL_GIT_BRANCH': git.get_branch(),
