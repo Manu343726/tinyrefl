@@ -64,7 +64,7 @@ build conanio/gcc7        gcc7-x86     gcc-7  g++-7
 build conanio/gcc8-armv7  gcc8-armv7   gcc-8  g++-8 CROSS_BUILDING
 build conanio/gcc8        gcc8-x86     gcc-8  g++-8
 build conanio/gcc9-armv7  gcc9-armv7   gcc-9  g++-9 CROSS_BUILDING
-build conanio/gcc9        gcc9-x96     gcc-9  g++-9
+build conanio/gcc9        gcc9-x86     gcc-9  g++-9
 build conanio/gcc10-armv7 gcc10-armv7  gcc-10 g++-10 CROSS_BUILDING
 build conanio/gcc10       gcc10-x86    gcc-10 g++-10
 

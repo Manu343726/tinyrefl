@@ -4,9 +4,10 @@ MAINTAINER Manu Sanchez <Manu343726@gmail.com>
 
 USER root
 
-# Install libtinfo required by LLVM
+# Install libtinfo and zlib required by LLVM,
+# pip to install conan, cmake and ninja for the CI jobs
 RUN apt update && \
-    apt install -y libz-dev python3-pip libtinfo5 && \
+    apt install -y libz-dev python3-pip libtinfo5 ninja-build && \
     apt remove -y cmake && \
     apt clean
 
