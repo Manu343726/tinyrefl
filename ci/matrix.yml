@@ -31,8 +31,6 @@ test:
     - clang80-x86
     - clang90-x86
     - clang100-x86
-    - gcc5-armv7
-    - gcc5-x86
     - gcc6-armv7
     - gcc6-x86
     - gcc7-armv7
@@ -62,8 +60,6 @@ user-integration:
     - clang80-x86
     - clang90-x86
     - clang100-x86
-    - gcc5-armv7
-    - gcc5-x86
     - gcc6-armv7
     - gcc6-x86
     - gcc7-armv7
@@ -93,8 +89,6 @@ conan-integration:
     - clang80-x86
     - clang90-x86
     - clang100-x86
-    - gcc5-armv7
-    - gcc5-x86
     - gcc6-armv7
     - gcc6-x86
     - gcc7-armv7
