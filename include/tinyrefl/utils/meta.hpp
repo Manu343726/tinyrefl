@@ -1,6 +1,7 @@
 #ifndef TINYREFL_UTILS_META_HPP_INCLUDED
 #define TINYREFL_UTILS_META_HPP_INCLUDED
 
+#include <cstdint>
 #include <ctti/detail/meta.hpp>
 #include <tinyrefl/types/type.hpp>
 #include <tinyrefl/utils/language_features.hpp>
@@ -776,7 +777,9 @@ template<typename Head, typename Second, typename... Tail>
 constexpr auto combine(Head&& head, Second&& second, Tail&&... tail)
 {
     return impl::combine(
-        std::forward<Head>(head), tinyrefl::meta::combine(std::forward<Second>(second), std::forward<Tail>(tail)...));
+        std::forward<Head>(head),
+        tinyrefl::meta::combine(
+            std::forward<Second>(second), std::forward<Tail>(tail)...));
 }
 
 template<typename... Ts>

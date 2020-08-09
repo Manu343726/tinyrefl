@@ -112,7 +112,8 @@ const std::string& entity_names::display_name(
         result = entity.name();
     }
 
-    if(display_name_includes_file == display_name_includes_file::YES)
+    if(display_name_includes_file ==
+       entity_names::display_name_includes_file::YES)
     {
         return string(fmt::format("{}::{}", name(entity_root(entity)), result));
     }
@@ -146,7 +147,8 @@ const std::string& entity_names::full_display_name(
         result = name;
     }
 
-    if(display_name_includes_file == display_name_includes_file::YES)
+    if(display_name_includes_file ==
+       entity_names::display_name_includes_file::YES)
     {
         return string(
             fmt::format("{}::{}", full_name(entity_root(entity)), result));
