@@ -1,6 +1,5 @@
 include(${TINYREFL_SOURCE_DIR}/cmake/git.cmake)
 include(${TINYREFL_SOURCE_DIR}/cmake/utils.cmake)
-include(${TINYREFL_SOURCE_DIR}/cmake/config.cmake)
 
 parse_version_number(${TINYREFL_LLVM_VERSION} TINYREFL_LLVM_VERSION_MAJOR TINYREFL_LLVM_VERSION_MINOR TINYREFL_LLVM_VERSION_FIX)
 
@@ -48,6 +47,7 @@ if(TINYREFL_CROSS_BUILDING)
             -DTINYREFL_CPPFS_VERSION=${TINYREFL_CPPFS_VERSION}
             -DTINYREFL_CTTI_REPO_URL=${TINYREFL_CTTI_REPO_URL}
             -DTINYREFL_CTTI_VERSION=${TINYREFL_CTTI_VERSION}
+            -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
         INSTALL_COMMAND ""
     )
 
@@ -55,10 +55,11 @@ if(TINYREFL_CROSS_BUILDING)
     set(TINYREFL_TOOL_TARGET tinyrefl_tool_external CACHE STRING "")
 else()
     if(TINYREFL_HOST_BUILDING_TOOL)
-        cmake_minimum_required(VERSION 3.0)
-        project(tinyrefl-tool VERSION "${TINYREFL_VERSION}")
-        set(CMAKE_CXX_STANDARD 14)
+        cmake_minimum_required(VERSION 3.11.4)
+        project(tinyrefl-tool VERSION "${TINYREFL_VERSION}" LANGUAGES CXX)
     endif()
+
+    include(${TINYREFL_SOURCE_DIR}/cmake/config.cmake)
 
     set(TINYREFL_TOOL_USING_CONAN_TARGETS ${TINYREFL_USING_CONAN_TARGETS})
 
