@@ -20,13 +20,13 @@ else()
 endif()
 
 option(TINYREFL_USE_LOCAL_LLVM "Use local LLVM install instead of downloading LLVM" OFF)
-option(TINYREFL_LLVM_DOWNLOAD_FROM_OFFICIAL_SERVER "Download LLVM from official LLVM server instead of artifactory" OFF)
+option(TINYREFL_LLVM_DOWNLOAD_FROM_OFFICIAL_SERVER "Download LLVM from official LLVM server instead of a mirror" OFF)
 option(TINYREFL_BUILD_TESTS "Build tinyrefl tests" ${TINYREFL_IS_ROOT_PROJECT})
 option(TINYREFL_BUILD_EXAMPLES "Build tinyrefl examples" ${TINYREFL_IS_ROOT_PROJECT})
 option(TINYREFL_BUILD_TOOL "Build tinyrefl-tool" ON)
 
 if(NOT DEFINED TINYREFL_LLVM_VERSION)
-    set(TINYREFL_LLVM_VERSION "4.0.0")
+    set(TINYREFL_LLVM_VERSION "6.0.1")
 endif()
 parse_version_number(${TINYREFL_LLVM_VERSION} TINYREFL_LLVM_VERSION_MAJOR TINYREFL_LLVM_VERSION_MINOR TINYREFL_LLVM_VERSION_FIX)
 
