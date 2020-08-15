@@ -117,6 +117,33 @@ public:
     {
         return values().end();
     }
+
+    constexpr bool
+        is_enum_value(const std::underlying_type_t<Enum> enum_value) const
+    {
+        for(const auto& value : values())
+        {
+            if(enum_value == value.underlying_value())
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    constexpr bool is_enum_value(const tinyrefl::string enum_value) const
+    {
+        for(const auto& value : values())
+        {
+            if(enum_value == value.name())
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 };
 } // namespace entities
 

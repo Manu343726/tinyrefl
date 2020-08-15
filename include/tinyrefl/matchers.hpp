@@ -2,8 +2,11 @@
 #define TINYREFL_MATCHERS_MATCHER_HPP_INCLUDED
 
 #include <limits>
-#include <tinyrefl/entities/entity.hpp>
 #include <type_traits>
+
+#include <tinyrefl/entities/entity.hpp>
+#include <tinyrefl/entities/function_signature.hpp>
+#include <tinyrefl/entities/type.hpp>
 
 namespace tinyrefl
 {
@@ -344,6 +347,18 @@ constexpr auto display_named(String&& displayName)
     return matches_display_name(std::forward<String>(displayName));
 }
 
+template<typename String>
+constexpr auto full_named(String&& name)
+{
+    return matches_full_name(std::forward<String>(name));
+}
+
+template<typename String>
+constexpr auto full_display_named(String&& displayName)
+{
+    return matches_full_display_name(std::forward<String>(displayName));
+}
+
 template<typename... InnerMatchers>
 constexpr auto allOf(InnerMatchers&&... innerMatchers)
 {
@@ -377,6 +392,12 @@ constexpr auto
     matches(const std::tuple<Entities...>& entities, const Matcher& matcher)
 {
     return tinyrefl::meta::tuple_filter(entities, matcher);
+}
+
+template<typename T, typename Matcher>
+constexpr bool matches(const Matcher& matcher)
+{
+    return matcher(tinyrefl::metadata<T>());
 }
 
 } // namespace tinyrefl

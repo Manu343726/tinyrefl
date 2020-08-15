@@ -10,3 +10,15 @@ value_serializer::value_serializer(
       _entity_names{string_registry}
 {
 }
+
+entity_names::fully_qualified value_serializer::pointer_must_be_fully_qualified(
+    const cppast::cpp_entity_kind kind)
+{
+    switch(kind)
+    {
+    case cppast::cpp_entity_kind::function_t:
+        return entity_names::fully_qualified::YES;
+    default:
+        return entity_names::fully_qualified::NO;
+    }
+}

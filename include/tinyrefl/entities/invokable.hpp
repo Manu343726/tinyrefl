@@ -91,7 +91,8 @@ struct invokable : tinyrefl::entities::detail::
                 decltype((tinyrefl::meta::list<Args...>{}, Pointer{}))>,
             tinyrefl::invokable_traits::return_type<Pointer>>
     {
-        return (obj.*Pointer::value)(std::forward<Args>(args)...);
+        constexpr auto pointer = Pointer::value;
+        return (obj.*pointer)(std::forward<Args>(args)...);
     }
 
     template<typename... Args>
@@ -101,7 +102,8 @@ struct invokable : tinyrefl::entities::detail::
                 decltype((tinyrefl::meta::list<Args...>{}, Pointer{}))>,
             tinyrefl::invokable_traits::return_type<Pointer>>
     {
-        return (obj.*Pointer::value)(std::forward<Args>(args)...);
+        constexpr auto pointer = Pointer::value;
+        return (obj.*pointer)(std::forward<Args>(args)...);
     }
 
     template<typename... Args>
@@ -111,7 +113,8 @@ struct invokable : tinyrefl::entities::detail::
                 decltype((tinyrefl::meta::list<Args...>{}, Pointer{}))>,
             tinyrefl::invokable_traits::return_type<Pointer>>
     {
-        return (obj.*Pointer::value)(std::forward<Args>(args)...);
+        constexpr auto pointer = Pointer::value;
+        return (obj.*pointer)(std::forward<Args>(args)...);
     }
 
     constexpr auto bind(const ClassType& obj) const

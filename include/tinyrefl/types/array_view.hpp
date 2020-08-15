@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <tinyrefl/types/array.hpp>
 #include <tinyrefl/utils/algorithm.hpp>
+#include <vector>
 
 namespace tinyrefl
 {
@@ -35,9 +36,19 @@ struct array_view
     {
     }
 
+    constexpr array_view(const std::vector<T>& vector)
+        : array_view{&vector[0], &vector[vector.size()]}
+    {
+    }
+
     constexpr std::size_t size() const
     {
         return static_cast<std::size_t>(_end - _begin);
+    }
+
+    constexpr bool empty() const
+    {
+        return size() == 0;
     }
 
     constexpr const T* begin() const
@@ -50,6 +61,11 @@ struct array_view
         return _end;
     }
 
+    constexpr const T& front() const
+    {
+        return *begin();
+    }
+
     constexpr array_view operator()(std::size_t begin, std::size_t end) const
     {
         return {_begin + begin, _begin + end};
@@ -58,6 +74,16 @@ struct array_view
     constexpr array_view trim(std::size_t n) const
     {
         return (*this)(0, size() - n);
+    }
+
+    constexpr array_view mid(std::size_t pos) const
+    {
+        return mid(pos, size() - pos);
+    }
+
+    constexpr array_view mid(std::size_t pos, std::size_t n) const
+    {
+        return (*this)(pos, pos + n);
     }
 
     constexpr const T& operator[](std::size_t i) const
@@ -81,6 +107,12 @@ constexpr tinyrefl::array_view<T>
     make_array_view(const tinyrefl::array<T, N>& array)
 {
     return {array};
+}
+
+template<typename T>
+constexpr tinyrefl::array_view<T> make_array_view(const std::vector<T>& vector)
+{
+    return {vector};
 }
 
 template<typename T, typename U>

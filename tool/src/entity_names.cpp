@@ -61,26 +61,36 @@ const std::string& entity_names::name(const cppast::cpp_entity& entity)
     }
 }
 
-const std::string& entity_names::full_name(const cppast::cpp_entity& entity)
+const std::string& entity_names::full_name(
+    const cppast::cpp_entity&           entity,
+    const entity_names::fully_qualified fully_qualified)
 {
+    std::string result;
     std::string name = this->name(entity);
 
     if(entity.kind() == cppast::cpp_entity_kind::base_class_t)
     {
-        return string(cppast::to_string(
-            static_cast<const cppast::cpp_base_class&>(entity).type()));
+        result = cppast::to_string(
+            static_cast<const cppast::cpp_base_class&>(entity).type());
     }
     else if(
         entity.parent().has_value() &&
         entity.parent().value().kind() != cppast::cpp_entity_kind::file_t)
     {
-        return string(
-            fmt::format("{}::{}", full_name(entity.parent().value()), name));
+        result =
+            fmt::format("{}::{}", full_name(entity.parent().value()), name);
     }
     else
     {
-        return string(fmt::format("{}", name));
+        result = fmt::format("{}", name);
     }
+
+    if(fully_qualified == entity_names::fully_qualified::YES)
+    {
+        result = fmt::format("::{}", result);
+    }
+
+    return string(result);
 }
 
 const std::string& entity_names::display_name(

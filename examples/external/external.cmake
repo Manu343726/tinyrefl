@@ -13,6 +13,7 @@ set(BUILD_DOCUMENTATION OFF CACHE BOOL "disable rttr docs")
 set(BUILD_INSTALLER OFF CACHE BOOL "disable rttr installer")
 set(BUILD_PACKAGE OFF CACHE BOOL "disable rttr CPack")
 
+external_dependency(fmt https://github.com/fmtlib/fmt.git 5.3.0)
 external_dependency(rttr https://github.com/rttrorg/rttr.git v0.9.6)
 external_dependency(MetaStuff https://github.com/Manu343726/MetaStuff master)
 mark_as_external_target(rttr_core)

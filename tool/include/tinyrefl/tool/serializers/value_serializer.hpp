@@ -55,12 +55,16 @@ public:
                         return type;
                     }
                 }),
-            _entity_names.full_name(entity));
+            _entity_names.full_name(
+                entity, pointer_must_be_fully_qualified(entity.kind())));
     }
 
 private:
     tinyrefl::tool::type_serializer _type_serializer;
     tinyrefl::tool::entity_names    _entity_names;
+
+    static entity_names::fully_qualified
+        pointer_must_be_fully_qualified(const cppast::cpp_entity_kind kind);
 };
 } // namespace tool
 

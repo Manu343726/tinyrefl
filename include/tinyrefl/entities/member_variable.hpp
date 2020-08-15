@@ -3,6 +3,7 @@
 
 #include <tinyrefl/entities/entity.hpp>
 #include <tinyrefl/entities/pointer.hpp>
+#include <tinyrefl/entities/type.hpp>
 #include <tinyrefl/utils/invokable_traits.hpp>
 #include <type_traits>
 
@@ -51,6 +52,11 @@ struct member_variable : public tinyrefl::entities::entity_with_attributes<
     constexpr decltype(auto) get(class_type& obj) const
     {
         return obj.*Pointer::value;
+    }
+
+    constexpr tinyrefl::entities::type<value_type> type() const
+    {
+        return {};
     }
 };
 } // namespace entities

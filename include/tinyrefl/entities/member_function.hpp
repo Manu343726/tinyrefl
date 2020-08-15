@@ -37,13 +37,6 @@ struct member_function
           invokable<Pointer, ReturnType, Parameters, ParameterNames>
 {
     constexpr member_function() = default;
-
-    template<typename Class, typename... Args>
-    constexpr auto operator()(Class&& object, Args&&... args) const
-    {
-        return (std::forward<Class>(object).Pointer::value)(
-            std::forward<Args>(args)...);
-    }
 };
 
 } // namespace entities

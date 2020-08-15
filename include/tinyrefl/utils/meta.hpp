@@ -305,7 +305,7 @@ constexpr auto tuple_map(
     Function                 function,
     tinyrefl::meta::index_sequence<Indices...>)
 {
-    return std::forward_as_tuple(function(std::get<Indices>(tuple))...);
+    return std::make_tuple(function(std::get<Indices>(tuple))...);
 }
 
 constexpr std::tuple<> tuple_cat()
@@ -440,6 +440,22 @@ private:
     Predicate _predicate;
 };
 
+template<typename T>
+using range_expression =
+    decltype(std::declval<T>().begin(), std::declval<T>().end());
+
+
+template<typename T, typename = void>
+struct is_range : public std::false_type
+{
+};
+
+template<typename T>
+struct is_range<T, tinyrefl::meta::void_t<range_expression<T>>>
+    : public std::true_type
+{
+};
+
 template<typename Predicate>
 struct all_of
 {
@@ -457,9 +473,25 @@ struct all_of
     }
 
     template<typename T>
-    constexpr bool operator()(const T& value) const
+    constexpr std::enable_if_t<not is_range<T>{}, bool>
+        operator()(const T& value) const
     {
         return _predicate(value);
+    }
+
+    template<typename T>
+    constexpr std::enable_if_t<is_range<T>{}, bool>
+        operator()(const T& values) const
+    {
+        for(const auto& value : values)
+        {
+            if(not _predicate(value))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 private:
@@ -499,9 +531,25 @@ struct any_of
     }
 
     template<typename T>
-    constexpr bool operator()(const T& value) const
+    constexpr std::enable_if_t<not is_range<T>{}, bool>
+        operator()(const T& value) const
     {
         return _predicate(value);
+    }
+
+    template<typename T>
+    constexpr std::enable_if_t<is_range<T>{}, bool>
+        operator()(const T& values) const
+    {
+        for(const auto& value : values)
+        {
+            if(_predicate(value))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 private:

@@ -12,11 +12,14 @@ namespace entities
 {
 
 template<typename T>
+struct type;
+
+template<typename T>
 struct type_entity
 {
     constexpr type_entity() = default;
 
-    constexpr type_entity<std::decay_t<T>> decayed() const
+    constexpr type<std::decay_t<T>> decayed() const
     {
         return {};
     }
@@ -33,15 +36,13 @@ struct type_entity
     }
 
     template<typename Other>
-    constexpr bool
-        operator==(const type_entity<Other>& other) const
+    constexpr bool operator==(const type_entity<Other>& other) const
     {
         return std::is_same<T, Other>::value;
     }
 
     template<typename Other>
-    constexpr bool
-        operator!=(const type_entity<Other>& other) const
+    constexpr bool operator!=(const type_entity<Other>& other) const
     {
         return !(*this == other);
     }
@@ -97,6 +98,9 @@ struct type : public impl::type_base<T>
 };
 
 } // namespace entities
+
+template<typename T>
+T reify(const tinyrefl::entities::type_entity<T>&);
 
 } // namespace tinyrefl
 

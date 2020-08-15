@@ -26,10 +26,18 @@ public:
         NO  = false
     };
 
+    enum class fully_qualified : bool
+    {
+        YES = true,
+        NO  = false
+    };
+
     const std::string& name(const cppast::cpp_file& file);
     const std::string& full_name(const cppast::cpp_file& file);
     const std::string& name(const cppast::cpp_entity& entity);
-    const std::string& full_name(const cppast::cpp_entity& entity);
+    const std::string& full_name(
+        const cppast::cpp_entity& entity,
+        const fully_qualified     fully_qualified = fully_qualified::NO);
     const std::string& display_name(
         const cppast::cpp_entity&        entity,
         const display_name_includes_file display_name_includes_file =

@@ -384,17 +384,24 @@ bool reflect_file(
         config.add_flag(warning_flag);
     }
 
+    static std::unordered_set<std::string> blacklist{{"-fconcepts"}};
+
     for(const auto& flag : custom_flags)
     {
-        std::cout << flag << " ";
-        config.add_flag(flag);
+        if(not blacklist.count(flag))
+        {
+            std::cout << flag << " ";
+            config.add_flag(flag);
+        }
     }
 
 
     // Tell libclang to ignore unknown arguments
-    std::cout << " -Qunused-arguments -Wno-unknown-warning-option";
+    std::cout
+        << " -Qunused-arguments -Wno-unknown-warning-option -Wno-unused-command-line-argument";
     config.add_flag("-Qunused-arguments");
     config.add_flag("-Wno-unknown-warning-option");
+    config.add_flag("-Wno-unused-command-line-argument");
     std::cout << " ...\n";
 
     cppfs::FilePath fs_filepath{filepath};
@@ -465,9 +472,9 @@ int main(int argc, char** argv)
                 cppast::cpp_standard::cpp_14, "c++14", "C++ 2014 standard"),
             clEnumValN(
                 cppast::cpp_standard::cpp_1z, "c++17", "C++ 2017 standard"))};
-    cl::list<std::string> custom_flags{cl::Sink,
-                                       cl::desc("Custom compiler flags")};
-    cl::opt<std::string>  clang_binary{
+    cl::list<std::string> custom_flags{
+        cl::Sink, cl::desc("Custom compiler flags")};
+    cl::opt<std::string> clang_binary{
         "clang-binary",
         cl::ValueOptional,
         cl::desc(
