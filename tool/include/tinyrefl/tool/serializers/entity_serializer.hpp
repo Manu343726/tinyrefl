@@ -1,6 +1,7 @@
 #ifndef TINYREFL_TOOL_ENTITY_SERIALIZER_HPP_INCLUDED
 #define TINYREFL_TOOL_ENTITY_SERIALIZER_HPP_INCLUDED
 
+#include <tinyrefl/tool/attribute_registry.hpp>
 #include <tinyrefl/tool/container_entity_contents.hpp>
 #include <tinyrefl/tool/entity_names.hpp>
 #include <tinyrefl/tool/entity_registry.hpp>
@@ -29,9 +30,10 @@ class entity_serializer : public tinyrefl::tool::serializer
 {
 public:
     entity_serializer(
-        tinyrefl::tool::string_registry& string_registry,
-        tinyrefl::tool::entity_registry& entity_registry,
-        cppast::cpp_entity_index&        index);
+        tinyrefl::tool::string_registry&    string_registry,
+        tinyrefl::tool::entity_registry&    entity_registry,
+        tinyrefl::tool::attribute_registry& attribute_registry,
+        cppast::cpp_entity_index&           index);
 
     const std::string& serialize(const cppast::cpp_enum_value& value);
     const std::string& serialize(
@@ -58,6 +60,7 @@ private:
     tinyrefl::tool::value_serializer    _value_serializer;
     tinyrefl::tool::entity_names        _entity_names;
     tinyrefl::tool::entity_registry&    _entity_registry;
+    tinyrefl::tool::attribute_registry& _attribute_registry;
 
     std::string
                 function_argument_names(const cppast::cpp_function_base& function);

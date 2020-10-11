@@ -5,11 +5,13 @@
 using namespace tinyrefl::tool;
 
 registration_serializer::registration_serializer(
-    tinyrefl::tool::string_registry& string_registry,
-    tinyrefl::tool::entity_registry& entity_registry,
-    cppast::cpp_entity_index&        index)
+    tinyrefl::tool::string_registry&    string_registry,
+    tinyrefl::tool::entity_registry&    entity_registry,
+    tinyrefl::tool::attribute_registry& attribute_registry,
+    cppast::cpp_entity_index&           index)
     : tinyrefl::tool::serializer{string_registry},
-      _entity_serializer{string_registry, entity_registry, index}
+      _entity_serializer{
+          string_registry, entity_registry, attribute_registry, index}
 {
 }
 

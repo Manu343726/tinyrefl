@@ -190,6 +190,14 @@ void dump()
               << tinyrefl::equal(a, b) << "\n";
 
     std::cout << "\n\n";
+
+    constexpr auto A_a_attributes =
+        tinyrefl::metadata_by_id("example::A::a"_id).attribute_objects();
+
+    constexpr auto& A_a_range = std::get<0>(A_a_attributes);
+    static_assert(A_a_range.begin() == 0);
+    static_assert(A_a_range.end() == 100);
+    static_assert(A_a_range.out_of_range(101));
 }
 
 static_assert(

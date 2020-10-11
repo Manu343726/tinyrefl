@@ -95,6 +95,27 @@ void generate_string_definitions(
     }
 }
 
+void generate_attribute_registry(
+    std::ostream&                             os,
+    const tinyrefl::tool::attribute_registry& attribute_registry)
+{
+    for(const auto& key_value : attribute_registry)
+    {
+        const auto& attribute = key_value.second;
+
+        fmt::print(
+            os,
+            "#ifndef TINYREFL_ATTRIBUTE_{hash}_REGISTERED\n"
+            "    #define TINYREFL_ATTRIBUTE_{hash}_REGISTERED\n"
+            "    TINYREFL_REGISTER_ATTRIBUTE(({full_attribute}), ({type}), ({args}))\n"
+            "#endif // TINYREFL_ATTRIBUTE_{hash}_REGISTERED\n",
+            fmt::arg("hash", attribute.hash()),
+            fmt::arg("full_attribute", attribute.full_attribute()),
+            fmt::arg("type", attribute.type()),
+            fmt::arg("args", attribute.arguments()));
+    }
+}
+
 void generate_global_metadata_list(
     std::ostream&                    os,
     tinyrefl::tool::string_registry& string_registry,
@@ -191,8 +212,9 @@ void visit_ast_and_generate(
 
     tinyrefl::tool::string_registry         string_registry;
     tinyrefl::tool::entity_registry         entity_registry;
+    tinyrefl::tool::attribute_registry      attribute_registry;
     tinyrefl::tool::registration_serializer registration_serializer{
-        string_registry, entity_registry, index};
+        string_registry, entity_registry, attribute_registry, index};
     std::vector<std::string> serialization_queue;
 
     entity_registry.set_callback([&](const auto&        entity,
@@ -220,6 +242,7 @@ void visit_ast_and_generate(
         registration_serializer.serialize_registration(ast_root);
 
     generate_string_definitions(os, string_registry);
+    generate_attribute_registry(os, attribute_registry);
     os << file_registration << "\n";
     generate_global_metadata_list(os, string_registry, entity_registry);
 
@@ -465,9 +488,9 @@ int main(int argc, char** argv)
                 cppast::cpp_standard::cpp_14, "c++14", "C++ 2014 standard"),
             clEnumValN(
                 cppast::cpp_standard::cpp_1z, "c++17", "C++ 2017 standard"))};
-    cl::list<std::string> custom_flags{cl::Sink,
-                                       cl::desc("Custom compiler flags")};
-    cl::opt<std::string>  clang_binary{
+    cl::list<std::string> custom_flags{
+        cl::Sink, cl::desc("Custom compiler flags")};
+    cl::opt<std::string> clang_binary{
         "clang-binary",
         cl::ValueOptional,
         cl::desc(

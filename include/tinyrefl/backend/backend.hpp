@@ -55,7 +55,8 @@
 #define TINYREFL_VALUE(type, value)                                            \
     ::ctti::static_value<TINYREFL_PP_UNWRAP type, TINYREFL_PP_UNWRAP value>
 
-#define TINYREFL_ATTRIBUTE(name, full_name, namespace_, full_attribute, args)  \
+#define TINYREFL_ATTRIBUTE(                                                    \
+    name, full_name, namespace_, full_attribute, args, type, joined_args)      \
     ::tinyrefl::entities::attribute_metadata<                                  \
         TINYREFL_PP_UNWRAP name,                                               \
         TINYREFL_PP_UNWRAP full_name,                                          \
@@ -283,6 +284,17 @@
         TINYREFL_PP_UNWRAP full_filename,                                      \
         TINYREFL_PP_UNWRAP namespaces>
 
+#define TINYREFL_REGISTER_ATTRIBUTE(full_attribute, type, joined_args)         \
+    namespace tinyrefl                                                         \
+    {                                                                          \
+    namespace backend                                                          \
+    {                                                                          \
+    template<>                                                                 \
+    constexpr TINYREFL_PP_UNWRAP type attribute_instance<TINYREFL_STRING(      \
+        TINYREFL_PP_UNWRAP full_attribute)>{TINYREFL_PP_UNWRAP joined_args};   \
+    } /* namespace backend */                                                  \
+    } // namespace tinyrefl
+
 #define TINYREFL_MERGE_NAMESPACES(a, b)                                        \
     ::tinyrefl::entities::                                                     \
         merge_namespaces<TINYREFL_PP_UNWRAP a, TINYREFL_PP_UNWRAP b>
@@ -322,5 +334,15 @@
 
 #define TINYREFL_REGISTER_FILE(file)                                           \
     TINYREFL_REGISTER_ENTITY_BY_FULL_DISPLAY_NAME(file)
+
+namespace tinyrefl
+{
+
+// Declaration of the tinyrefl::ignore attribute
+struct ignore
+{
+};
+
+} // namespace tinyrefl
 
 #endif // TINYREFL_BACKEND_BACKEND_HPP

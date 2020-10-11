@@ -7,10 +7,41 @@
 namespace example
 {
 
+struct range
+{
+    constexpr range(const int begin, const int end) : _begin{begin}, _end{end}
+    {
+    }
+
+    constexpr bool in_range(const int value) const
+    {
+        return _begin <= value and value <= _end;
+    }
+
+    constexpr bool out_of_range(const int value) const
+    {
+        return not in_range(value);
+    }
+
+    constexpr int begin() const
+    {
+        return _begin;
+    }
+
+    constexpr int end() const
+    {
+        return _end;
+    }
+
+private:
+    int _begin;
+    int _end;
+};
+
 struct A
 {
-    int      a = 42;
-    static A create();
+    [[example::range(0, 100)]] int a = 42;
+    static A                       create();
 };
 
 
@@ -37,24 +68,24 @@ public:
 
     C() = default;
     explicit C(const std::string& str) {}
-    [[C]] C(int a, int b) {}
+    C(int a, int b) {}
 
-    [[f, f1, f2]] void f(int a, int b) const {};
-    [[f]] void         f(int a, int b){};
-    [[f]] void         f(){};
-    [[f]] void         f() const {};
+    void f(int a, int b) const {};
+    void f(int a, int b){};
+    void f(){};
+    void f() const {};
 
     enum class Enum
     {
-        A TINYREFL_ENUM_VALUE_ATTRIBUTE(A),
-        B TINYREFL_ENUM_VALUE_ATTRIBUTE(B),
-        C TINYREFL_ENUM_VALUE_ATTRIBUTE(C),
-        D TINYREFL_ENUM_VALUE_ATTRIBUTE(D),
-        E TINYREFL_ENUM_VALUE_ATTRIBUTE(E),
-        F TINYREFL_ENUM_VALUE_ATTRIBUTE(F)
+        A,
+        B,
+        C,
+        D,
+        E,
+        F
     };
 
-    [[e]] Enum e = Enum::A;
+    Enum e = Enum::A;
 
     static void static_member_function() {}
     static int  static_member_variable;

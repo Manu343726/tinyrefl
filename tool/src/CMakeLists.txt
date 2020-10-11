@@ -4,6 +4,7 @@ add_library(tinyrefl-tool-lib
     serializer.cpp
     string_registry.cpp
     entity_registry.cpp
+    attribute_registry.cpp
     serializers/value_serializer.cpp
     serializers/type_serializer.cpp
     serializers/sequence_serializer.cpp

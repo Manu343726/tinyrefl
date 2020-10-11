@@ -7,15 +7,17 @@
 using namespace tinyrefl::tool;
 
 entity_serializer::entity_serializer(
-    tinyrefl::tool::string_registry& string_registry,
-    tinyrefl::tool::entity_registry& entity_registry,
-    cppast::cpp_entity_index&        index)
+    tinyrefl::tool::string_registry&    string_registry,
+    tinyrefl::tool::entity_registry&    entity_registry,
+    tinyrefl::tool::attribute_registry& attribute_registry,
+    cppast::cpp_entity_index&           index)
     : tinyrefl::tool::serializer{string_registry},
       _sequence_serializer{string_registry},
       _type_serializer{string_registry, index},
       _value_serializer{string_registry, index},
       _entity_names{string_registry},
-      _entity_registry(entity_registry)
+      _entity_registry(entity_registry),
+      _attribute_registry(attribute_registry)
 {
 }
 
@@ -472,9 +474,12 @@ const std::string& entity_serializer::serialize(const cppast::cpp_file& file)
 std::string entity_serializer::serialize(const cppast::cpp_attribute& attribute)
 {
     std::vector<std::string> arguments;
+    std::string              joined_arguments;
     std::ostringstream       full_attribute;
     std::ostringstream       full_name;
     std::string              namespace_;
+
+    _attribute_registry.save(attribute);
 
     if(attribute.scope().has_value())
     {
@@ -492,6 +497,7 @@ std::string entity_serializer::serialize(const cppast::cpp_attribute& attribute)
     {
         const auto& attribute_arguments = attribute.arguments().value();
         full_attribute << "(" << attribute_arguments.as_string() << ")";
+        joined_arguments = attribute_arguments.as_string();
 
         for(const auto& argument : attribute_arguments)
         {
@@ -500,12 +506,14 @@ std::string entity_serializer::serialize(const cppast::cpp_attribute& attribute)
     }
 
     return fmt::format(
-        "TINYREFL_ATTRIBUTE(({}), ({}), ({}), ({}), ({}))",
+        "TINYREFL_ATTRIBUTE(({}), ({}), ({}), ({}), ({}), ({}), ({}))",
         string_constant(attribute.name()),
         string_constant(full_name.str()),
         string_constant(namespace_),
         string_constant(full_attribute.str()),
-        _sequence_serializer.sequence(arguments));
+        _sequence_serializer.sequence(arguments),
+        full_name.str(),
+        joined_arguments);
 }
 
 std::string

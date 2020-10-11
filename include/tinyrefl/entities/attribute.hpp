@@ -8,6 +8,13 @@
 namespace tinyrefl
 {
 
+namespace backend
+{
+
+template<typename Hash>
+constexpr std::nullptr_t attribute_instance = nullptr;
+}
+
 namespace entities
 {
 
@@ -91,12 +98,18 @@ template<
 struct attribute_metadata : public tinyrefl::entities::attribute
 {
     constexpr attribute_metadata()
-        : attribute{tinyrefl::string_constant<Name>(),
-                    tinyrefl::string_constant<FullName>(),
-                    tinyrefl::string_constant<Namespace>(),
-                    tinyrefl::string_constant<FullAttribute>(),
-                    tinyrefl::typelist_to_array_of_strings<Args>::value}
+        : attribute{
+              tinyrefl::string_constant<Name>(),
+              tinyrefl::string_constant<FullName>(),
+              tinyrefl::string_constant<Namespace>(),
+              tinyrefl::string_constant<FullAttribute>(),
+              tinyrefl::typelist_to_array_of_strings<Args>::value}
     {
+    }
+
+    static constexpr const auto& instance()
+    {
+        return ::tinyrefl::backend::attribute_instance<FullAttribute>;
     }
 };
 
@@ -150,6 +163,20 @@ struct attribute_metadata_to_attribute
     }
 };
 
+template<typename AttributeMetadata>
+struct attribute_instance
+{
+    using instance_t = std::decay_t<decltype(AttributeMetadata::instance())>;
+    using type       = tinyrefl::
+        static_value<const instance_t&, AttributeMetadata::instance()>;
+};
+
+template<typename... IntegralConstants>
+constexpr auto make_tuple(tinyrefl::meta::list<IntegralConstants...>)
+{
+    return std::tie(IntegralConstants::value...);
+}
+
 } // namespace impl
 
 template<typename Attributes>
@@ -164,6 +191,15 @@ struct attributes_metadata
             Attributes,
             tinyrefl::entities::attribute,
             tinyrefl::entities::impl::attribute_metadata_to_attribute>::value;
+    }
+
+    constexpr auto attribute_objects() const
+    {
+        return tinyrefl::entities::impl::make_tuple(
+            tinyrefl::meta::fmap_t<
+                tinyrefl::meta::defer<
+                    tinyrefl::entities::impl::attribute_instance>,
+                Attributes>{});
     }
 };
 } // namespace entities

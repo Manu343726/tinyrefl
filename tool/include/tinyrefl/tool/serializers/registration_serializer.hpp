@@ -21,9 +21,10 @@ class registration_serializer : public tinyrefl::tool::serializer
 {
 public:
     registration_serializer(
-        tinyrefl::tool::string_registry& string_registry,
-        tinyrefl::tool::entity_registry& entity_registry,
-        cppast::cpp_entity_index&        index);
+        tinyrefl::tool::string_registry&    string_registry,
+        tinyrefl::tool::entity_registry&    entity_registry,
+        tinyrefl::tool::attribute_registry& attribute_registry,
+        cppast::cpp_entity_index&           index);
 
     std::string serialize_registration(const cppast::cpp_file& file);
     std::string serialize_registration(
