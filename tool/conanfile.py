@@ -4,39 +4,19 @@ import re
 from conans import CMake, ConanFile, tools
 from conans.errors import ConanException
 
-
-class Git(tools.Git):
-
-    def get_last_tag(self):
-        self.check_repo()
-        try:
-            status = self.run("describe --abbrev=0")
-            tag = status.strip()
-            return tag
-        except Exception:
-            return None
-
-def get_tag_version(git):
-    tag = git.get_tag()
-
-    if tag is None:
-        return None
-
-    result = re.fullmatch(r'v([0-9]+)\.([0-9]+)\.([0-9]+)', tag)
-
-    if result is None:
-        raise ConanException('Invalid git tag "{}"'.format(tag))
-
-    return result.expand(r'\1.\2.\3')
+TINYREFL_BRANCH = os.environ.get('TINYREFL_BRANCH', 'refactoring-api')
+TINYREFL_VERSION = os.environ.get('TINYREFL_VERSION', '0.5.3')
+TINYREFL_TAG = 'v' + TINYREFL_VERSION
 
 class TinyreflTool(ConanFile):
     name = 'tinyrefl-tool'
+    version = TINYREFL_VERSION
     url = 'https://github.com/Manu343726/tinyrefl'
     description = ' A work in progress minimal C++ static reflection API and codegen tool'
     scm = {
       'type': 'git',
       'url': 'https://github.com/Manu343726/tinyrefl',
-      'revision': 'auto',
+      'revision': TINYREFL_TAG,
       'subfolder': 'tinyrefl'
     }
     generators = 'cmake_find_package'
@@ -55,24 +35,11 @@ class TinyreflTool(ConanFile):
 
     custom_cmake_defs = {
         'TINYREFL_BUILD_TESTS': False,
-        'TINYREFL_BUILD_EXAMPLES': False
+        'TINYREFL_BUILD_EXAMPLES': False,
+        'TINYREFL_GIT_BRANCH': TINYREFL_BRANCH,
+        'TINYREFL_GIT_AT_TAG': True,
+        'TINYREFL_GIT_LAST_TAG': TINYREFL_TAG
     }
-
-    def set_version(self):
-        git = Git(self.recipe_folder)
-        tag_version = get_tag_version(git)
-
-        if tag_version is not None:
-            self.version = tag_version
-        else:
-            self.version = '{}-{}'.format(git.get_branch(), git.run('rev-parse --short HEAD'))
-
-        self.custom_cmake_defs.update({
-            'TINYREFL_GIT_BRANCH': git.get_branch(),
-            'TINYREFL_GIT_COMMIT': git.get_commit(),
-            'TINYREFL_GIT_AT_TAG': (tag_version is not None),
-            'TINYREFL_LAST_TAG': git.get_last_tag()
-        })
 
     def build(self):
         cmake = CMake(self)
@@ -89,7 +56,7 @@ class TinyreflTool(ConanFile):
 
     def package(self):
         self.copy('tinyrefl-tool*',
-            src='bin',
+            src='tool',
             dst='bin')
 
         self.copy('utils.cmake',
