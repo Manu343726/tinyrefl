@@ -19,6 +19,21 @@ find_package(Git REQUIRED)
 
 macro(external_dependency NAME URL COMMIT)
     string(TOLOWER "${NAME}" name)
+    include(CMakeParseArguments)
+    cmake_parse_arguments(EXTERNAL
+        ""
+        "SOURCE_SUBDIR"
+        ""
+        ${ARGN})
+
+    if(EXTERNAL_SOURCE_SUBDIR)
+        message(STATUS "Configuring external dependency ${NAME} using subdir ${EXTERNAL_SOURCE_SUBDIR}")
+        set(sourceSubdir "SOURCE_SUBDIR ${EXTERNAL_SOURCE_SUBDIR}")
+    else()
+        set(sourceSubdir)
+    endif()
+
+    set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 
     FetchContent_Declare(${NAME}
         GIT_REPOSITORY "${URL}"
@@ -32,10 +47,16 @@ macro(external_dependency NAME URL COMMIT)
 
         FetchContent_GetProperties(${name})
 
+        if(EXTERNAL_SOURCE_SUBDIR)
+            set(sourceSubdir "/${EXTERNAL_SOURCE_SUBDIR}")
+        else()
+            set(sourceSubdir)
+        endif()
+
         if(NOT ${name}_POPULATED)
             FetchContent_Populate(${NAME})
             message(STATUS "external dependency ${NAME} populated")
-            add_subdirectory("${${name}_SOURCE_DIR}" "${${name}_BINARY_DIR}" EXCLUDE_FROM_ALL)
+            add_subdirectory("${${name}_SOURCE_DIR}${sourceSubdir}" "${${name}_BINARY_DIR}" EXCLUDE_FROM_ALL)
         endif()
 
         set(${NAME}_SOURCE_DIR "${${NAME}_SOURCE_DIR}" CACHE PATH "")

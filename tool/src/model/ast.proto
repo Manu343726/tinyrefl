@@ -1,0 +1,161 @@
+syntax = "proto3";
+
+package tinyrefl.tool.model;
+
+message SourceLocation
+{
+    optional string file   = 1;
+    optional uint64 line   = 2;
+    optional uint64 column = 3;
+}
+
+message SourceRange
+{
+    optional SourceLocation begin = 1;
+    optional SourceLocation end   = 2;
+}
+
+message Identifier
+{
+    optional string name            = 1;
+    optional string fullName        = 2;
+    optional string displayName     = 3;
+    optional string fullDisplayName = 4;
+    optional uint64 unique_id       = 5;
+}
+
+message Declaration
+{
+    optional Identifier     id              = 1;
+    optional SourceLocation sourceLocation  = 2;
+    optional SourceRange    sourceRange     = 3;
+    optional string         declarationText = 4;
+}
+
+message Type
+{
+    optional Declaration declaration = 1;
+    optional Type        decayedType = 2;
+}
+
+message Attribute
+{
+    optional string name          = 1;
+    optional string fullname      = 2;
+    optional string parameters    = 3;
+    optional string fullAttribute = 4;
+}
+
+message Parameter
+{
+    optional string    name       = 1;
+    optional Type      type       = 2;
+    optional uint64    position   = 3;
+    repeated Attribute attributes = 4;
+}
+
+message Function
+{
+    optional Declaration declaration = 1;
+    repeated Parameter   parameters  = 2;
+    optional Type        returnType  = 3;
+    repeated Attribute   attributes  = 4;
+}
+
+message MemberFunction
+{
+    enum Kind
+    {
+        NonConst = 0;
+        Const    = 1;
+        Static   = 2;
+    }
+
+    optional Function function   = 1;
+    optional Kind     kind       = 2;
+    optional          Type class = 3;
+}
+
+message Constructor
+{
+    optional Declaration declaration = 1;
+    repeated Parameter   parameters  = 2;
+    optional             Type class  = 3;
+    repeated Attribute   attributes  = 4;
+}
+
+message Variable
+{
+    optional Declaration declaration = 1;
+    optional Type        type        = 2;
+    repeated Attribute   attributes  = 3;
+}
+
+message MemberVariable
+{
+    optional Variable variable   = 1;
+    optional          Type class = 2;
+}
+
+message EnumValue
+{
+    optional Declaration declaration = 1;
+    optional uint64      index       = 2;
+    optional string      value       = 3;
+    repeated Attribute   attributes  = 4;
+}
+
+message Enum
+{
+    optional Declaration declaration = 1;
+    repeated EnumValue   values      = 2;
+    repeated Attribute   attributes  = 3;
+}
+
+message ClassMember
+{
+    optional Type parentClass = 1;
+
+    oneof member
+    {
+        MemberFunction function    = 2;
+        MemberVariable variable    = 3;
+        Constructor    constructor = 4;
+        Class class                = 5;
+        Enum enum                  = 6;
+    }
+}
+
+message Class
+{
+    repeated Type        baseClasses = 1;
+    repeated ClassMember members     = 2;
+    repeated Attribute   attributes  = 3;
+}
+
+message NamespaceMember
+{
+    optional Declaration parentNamespace = 1;
+    oneof                member
+    {
+        Namespace namespace = 2;
+        Function function   = 3;
+        Variable variable   = 4;
+        Enum enum           = 5;
+        Class class         = 6;
+    }
+}
+
+message Namespace
+{
+    optional Declaration     declaration = 1;
+    repeated NamespaceMember members     = 2;
+    repeated Attribute       attributes  = 3;
+}
+
+message File
+{
+    optional string    name            = 1;
+    optional string    path            = 2;
+    optional Namespace globalNamespace = 3;
+}

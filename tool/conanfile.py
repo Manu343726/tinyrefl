@@ -1,6 +1,9 @@
-from conans import ConanFile, CMake, tools
+import os
+import re
+
+from conans import CMake, ConanFile, tools
 from conans.errors import ConanException
-import os, re
+
 
 class Git(tools.Git):
 
@@ -44,7 +47,8 @@ class TinyreflTool(ConanFile):
                 'type_safe/0.3@Manu343726/testing',
                 'spdlog/1.3.1@bincrafters/stable',
                 'fmt/5.3.0@bincrafters/stable',
-                'jsonformoderncpp/3.5.0@vthiery/stable')
+                'jsonformoderncpp/3.5.0@vthiery/stable',
+                'protobuf/3.15.5')
     requires = 'clang_executables/6.0.1@Manu343726/testing'
     default_options = 'fmt:header_only=True'
     settings = 'os', 'compiler', 'build_type', 'arch'

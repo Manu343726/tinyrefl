@@ -1,3 +1,6 @@
+protobuf_generate_cpp(proto_srcs proto_hdrs
+    model/ast.proto)
+
 add_library(tinyrefl-tool-lib
     visitor.cpp
     entity_names.cpp
@@ -10,13 +13,17 @@ add_library(tinyrefl-tool-lib
     serializers/sequence_serializer.cpp
     serializers/entity_serializer.cpp
     serializers/registration_serializer.cpp
+    model/importer.cpp
+    model/cppast_importer.cpp
+    ${proto_srcs}
 )
 
 target_compile_options(tinyrefl-tool-lib PUBLIC ${TINYREFL_CXX_WARNINGS})
 
 target_include_directories(tinyrefl-tool-lib
     PUBLIC "${TINYREFL_TOOL_INCLUDE_DIR}"
-    PUBLIC "${TINYREFL_INCLUDE_DIR}")
+    PUBLIC "${TINYREFL_INCLUDE_DIR}"
+    PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
 target_link_libraries(tinyrefl-tool-lib PUBLIC
     tinyrefl_externals_cppast
@@ -26,6 +33,7 @@ target_link_libraries(tinyrefl-tool-lib PUBLIC
     tinyrefl_externals_spdlog
     tinyrefl_externals_ctti
     tinyrefl_externals_jsonformoderncpp
+    tinyrefl_externals_protobuf
 )
 
 if(NOT MSVC)

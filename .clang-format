@@ -38,3 +38,44 @@ SpaceAfterTemplateKeyword: false
 SpaceBeforeParens: Never
 TabWidth: 4
 UseTab: Never
+---
+Language: Proto
+AccessModifierOffset: -4
+AlignAfterOpenBracket: AlwaysBreak
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignOperands: true
+AlignTrailingComments: true
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: Yes
+BinPackArguments: false
+BinPackParameters: false
+BreakBeforeBinaryOperators: None
+BreakBeforeBraces: Allman
+BreakConstructorInitializersBeforeComma: false
+BreakStringLiterals: false
+ColumnLimit: 80
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+Cpp11BracedListStyle: true
+DerivePointerAlignment: false
+IncludeCategories:
+  - Regex:    '.*\.tinyrefl'
+    Priority: 10000
+  - Regex:    'tinyrefl/entities.hpp'
+    Priority: 20000
+IndentCaseLabels: false
+IndentWidth: 4
+IndentWrappedFunctionNames: true
+MaxEmptyLinesToKeep: 3
+NamespaceIndentation: None
+PointerAlignment: Left
+SpaceAfterTemplateKeyword: false
+SpaceBeforeParens: Never
+TabWidth: 4
+UseTab: Never
