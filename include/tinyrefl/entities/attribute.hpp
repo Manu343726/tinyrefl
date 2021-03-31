@@ -1,7 +1,7 @@
 #ifndef TINYREFL_ENTITIES_ATTRIBUTE_HPP_INCLUDED
 #define TINYREFL_ENTITIES_ATTRIBUTE_HPP_INCLUDED
 
-#include <tinyrefl/types/array_view.hpp>
+#include <tinyrefl/types/array.hpp>
 #include <tinyrefl/types/name.hpp>
 #include <tinyrefl/types/string.hpp>
 
@@ -163,18 +163,10 @@ struct attribute_metadata_to_attribute
     }
 };
 
-template<typename AttributeMetadata>
-struct attribute_instance
+template<typename... AttributeMetadata>
+constexpr auto make_tuple(tinyrefl::meta::list<AttributeMetadata...>)
 {
-    using instance_t = std::decay_t<decltype(AttributeMetadata::instance())>;
-    using type       = tinyrefl::
-        static_value<const instance_t&, AttributeMetadata::instance()>;
-};
-
-template<typename... IntegralConstants>
-constexpr auto make_tuple(tinyrefl::meta::list<IntegralConstants...>)
-{
-    return std::tie(IntegralConstants::value...);
+    return std::tie(AttributeMetadata::instance()...);
 }
 
 } // namespace impl
@@ -195,11 +187,7 @@ struct attributes_metadata
 
     constexpr auto attribute_objects() const
     {
-        return tinyrefl::entities::impl::make_tuple(
-            tinyrefl::meta::fmap_t<
-                tinyrefl::meta::defer<
-                    tinyrefl::entities::impl::attribute_instance>,
-                Attributes>{});
+        return tinyrefl::entities::impl::make_tuple(Attributes{});
     }
 };
 } // namespace entities

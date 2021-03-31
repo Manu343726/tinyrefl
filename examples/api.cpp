@@ -247,6 +247,7 @@ static_assert(
     "");
 static_assert(c_constructor_parameter.name() == "str", "");
 
+#ifdef TINYREFL_EXAMPLES_MATCHERS
 static_assert(
     tinyrefl::matches(
         c_constructor,
@@ -282,6 +283,8 @@ static_assert(
 
 } // namespace matchers_example
 #endif // TINYREFL_MATCHES
+
+#endif // TINYREFL_EXAMPLES_MATCHERS
 
 int main()
 {

@@ -14,7 +14,9 @@ set(template_max_depth_flag -ftemplate-depth)
 set(CMAKE_REQUIRED_FLAGS ${concepts_feature_flags})
 check_cxx_concepts(CXX_COMPILER_HAS_CONCEPTS)
 
-if(CXX_COMPILER_HAS_CONCEPTS)
+option(TINYREFL_EXAMPLES_CONCEPTS "Enable Concepts TS support for examples" OFF)
+
+if(TINYREFL_EXAMPLES_CONCEPTS AND CXX_COMPILER_HAS_CONCEPTS)
     target_compile_options(tinyrefl-example PRIVATE ${concepts_feature_flags})
     message(STATUS "tinyrefl-example compiled with Concepts TS support")
 else()
