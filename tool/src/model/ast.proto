@@ -21,15 +21,16 @@ message Identifier
     optional string fullName        = 2;
     optional string displayName     = 3;
     optional string fullDisplayName = 4;
-    optional uint64 unique_id       = 5;
+    optional uint64 uniqueId        = 5;
 }
 
 message Declaration
 {
-    optional Identifier     id              = 1;
-    optional SourceLocation sourceLocation  = 2;
-    optional SourceRange    sourceRange     = 3;
-    optional string         declarationText = 4;
+    optional uint64         parentUniqueId  = 1;
+    optional Identifier     id              = 2;
+    optional SourceLocation sourceLocation  = 3;
+    optional SourceRange    sourceRange     = 4;
+    optional string         declarationText = 5;
 }
 
 message Type
@@ -40,10 +41,13 @@ message Type
 
 message Attribute
 {
-    optional string name          = 1;
-    optional string fullname      = 2;
-    optional string parameters    = 3;
-    optional string fullAttribute = 4;
+    optional string name             = 1;
+    optional string fullname         = 2;
+    optional        string namespace = 3;
+    optional string fullAttribute    = 4;
+    repeated string arguments        = 5;
+    optional string joinedArguments  = 6;
+    optional uint64 uniqueId         = 7;
 }
 
 message Parameter
@@ -107,15 +111,13 @@ message EnumValue
 
 message Enum
 {
-    optional Declaration declaration = 1;
-    repeated EnumValue   values      = 2;
-    repeated Attribute   attributes  = 3;
+    optional Type      type       = 1;
+    repeated EnumValue values     = 2;
+    repeated Attribute attributes = 3;
 }
 
 message ClassMember
 {
-    optional Type parentClass = 1;
-
     oneof member
     {
         MemberFunction function    = 2;
@@ -123,20 +125,22 @@ message ClassMember
         Constructor    constructor = 4;
         Class class                = 5;
         Enum enum                  = 6;
+        Function staticFunction    = 7;
+        Variable staticVariable    = 8;
     }
 }
 
 message Class
 {
-    repeated Type        baseClasses = 1;
-    repeated ClassMember members     = 2;
-    repeated Attribute   attributes  = 3;
+    optional Type        type        = 1;
+    repeated Type        baseClasses = 2;
+    repeated ClassMember members     = 3;
+    repeated Attribute   attributes  = 4;
 }
 
 message NamespaceMember
 {
-    optional Declaration parentNamespace = 1;
-    oneof                member
+    oneof member
     {
         Namespace namespace = 2;
         Function function   = 3;
@@ -155,7 +159,6 @@ message Namespace
 
 message File
 {
-    optional string    name            = 1;
-    optional string    path            = 2;
-    optional Namespace globalNamespace = 3;
+    optional Identifier id         = 1;
+    repeated Namespace  namespaces = 2;
 }

@@ -1,0 +1,21 @@
+#include <tinyrefl/tool/model/schema.hpp>
+
+namespace tinyrefl
+{
+
+namespace tool
+{
+
+namespace model
+{
+
+tinyrefl::string schema()
+{
+    return R"(@AST_PROTO@)";
+}
+
+} // namespace model
+
+} // namespace tool
+
+} // namespace tinyrefl

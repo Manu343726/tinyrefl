@@ -23,6 +23,11 @@ struct string : public ctti::detail::cstring
     {
     }
 
+    string(const std::string& string)
+        : ctti::detail::cstring{string.data(), string.size()}
+    {
+    }
+
     operator std::string() const
     {
         return str();

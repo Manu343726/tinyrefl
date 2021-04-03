@@ -6,3 +6,4 @@ build*/
 cmake-build*/
 CMakeLists.txt.user
 .cache
+compile_commands.json

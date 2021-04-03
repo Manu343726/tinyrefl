@@ -5,8 +5,9 @@
 
 static_assert(!tinyrefl::metadata<example::Example>().has_attribute("foo"), "");
 static_assert(
-    tinyrefl::metadata<example::Example>().attribute("foobar").namespace_() ==
-        "",
+    tinyrefl::metadata<example::Example>()
+            .attribute("example::foobar")
+            .namespace_() == "example",
     "");
 
 int main()

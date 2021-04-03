@@ -10,7 +10,7 @@ namespace tinyrefl
 template<typename Entity, typename... Visitors>
 constexpr void visit_class(Entity e, Visitors&&... visitors)
 {
-    constexpr decltype(e) entity;
+    constexpr std::decay_t<decltype(e)> entity;
     static_assert(
         entity.kind() == tinyrefl::entities::entity_kind::CLASS or
             entity.kind() == tinyrefl::entities::entity_kind::BASE_CLASS,

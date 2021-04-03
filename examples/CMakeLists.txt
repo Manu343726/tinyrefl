@@ -8,6 +8,10 @@ tinyrefl_tool(TARGET tinyrefl-example-lib HEADERS example.hpp example2.hpp)
 add_tinyrefl_example(tinyrefl-example api.cpp)
 target_compile_options(tinyrefl-example PRIVATE ${TINYREFL_CXX_WARNINGS})
 
+add_tinyrefl_example(hello-world hello_world.cpp)
+set_target_properties(hello-world PROPERTIES CXX_STANDARD 17)
+target_compile_options(hello-world PRIVATE ${TINYREFL_CXX_WARNINGS})
+
 set(concepts_feature_flags -fconcepts)
 set(template_max_depth_flag -ftemplate-depth)
 
@@ -33,6 +37,7 @@ if(NOT MSVC)
 endif()
 
 target_link_libraries(tinyrefl-example PRIVATE tinyrefl-example-lib)
+target_link_libraries(hello-world PRIVATE tinyrefl-example-lib)
 
 if(TINYREFL_BACKEND_EXAMPLES_UPDATED_TO_V05X_API)
     if(Boost_FOUND)

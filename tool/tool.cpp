@@ -7,6 +7,9 @@
 #include <cppast/libclang_parser.hpp>
 #include <cppast/parser.hpp>
 #include <cppast/visitor.hpp>
+#include <cppfs/FileHandle.h>
+#include <cppfs/FilePath.h>
+#include <cppfs/fs.h>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <fstream>
@@ -14,19 +17,19 @@
 #include <iostream>
 #include <llvm/Support/CommandLine.h>
 #include <regex>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 #include <sstream>
 #include <string>
-#include <unordered_set>
-
-#include <tinyrefl/tool/serializers/registration_serializer.hpp>
-#include <tinyrefl/tool/visitor.hpp>
+#include <tinyrefl/tool/backends/cppast/importer.hpp>
+#include <tinyrefl/tool/backends/cppast/parserdiagnosticslogger.hpp>
+#include <tinyrefl/tool/backends/cppast/visitor.hpp>
+#include <tinyrefl/tool/backends/legacy/serializers/registration_serializer.hpp>
+#include <tinyrefl/tool/diagnostic_reporter.hpp>
+#include <tinyrefl/tool/exporters/generic.hpp>
+#include <tinyrefl/tool/model/schema.hpp>
 #include <tinyrefl/types/string.hpp>
-
-#include <cppfs/FileHandle.h>
-#include <cppfs/FilePath.h>
-#include <cppfs/fs.h>
-
-#include <spdlog/spdlog.h>
+#include <unordered_set>
 
 namespace cl = llvm::cl;
 
@@ -46,7 +49,7 @@ bool is_outdated_file(const std::string& file)
         auto        istream = output_file.createInputStream();
         std::string line;
 
-        std::cout << "[info] checking generated code version...\n";
+        spdlog::info("checking generated code version...");
 
         if(std::getline(*istream, line) && // Header
            std::getline(*istream, line) && // Blank line
@@ -60,9 +63,8 @@ bool is_outdated_file(const std::string& file)
                 ++index; // Point to hash substring begin
                 const std::string commit = line.substr(index);
 
-                std::cout << "[info] tool commit:           "
-                          << TINYREFL_GIT_COMMIT << "\n";
-                std::cout << "[info] generated code commit: " << commit << "\n";
+                spdlog::info("tool commit:           {}", TINYREFL_GIT_COMMIT);
+                spdlog::info("generated code commit: {}", commit);
                 return commit != TINYREFL_GIT_COMMIT;
             }
         }
@@ -260,7 +262,7 @@ void visit_ast_and_generate(
 
     os << "\n#endif // " << include_guard << "\n";
 
-    std::cout << "Done. Metadata saved in " << filepath << ".tinyrefl\n";
+    spdlog::info("Done. Metadata saved in {}.tinyrefl", filepath);
 }
 
 cppast::cpp_standard get_cpp_standard(const std::string& cpp_standard)
@@ -328,28 +330,18 @@ std::istream&
     return is;
 }
 
-bool reflect_file(
-    std::string                     filepath,
+using parser_t = tinyrefl::tool::cppast_backend::Importer::CppastParser;
+
+parser_t::config configureParser(
     const cppast::cpp_standard      cpp_standard,
     cl::list<std::string>&          include_dirs,
     cl::list<std::string>&          definitions,
     cl::list<std::string>&          warnings,
     const std::vector<std::string>& custom_flags,
-    const std::string&              clang_binary,
-    bool                            force_parsing)
+    const std::string&              clang_binary)
 {
-    using parser_t = cppast::simple_file_parser<cppast::libclang_parser>;
+    parser_t::config config;
 
-    if(!is_outdated_file(filepath) && !force_parsing)
-    {
-        std::cout << "file " << filepath
-                  << " metadata is up to date, skipping\n";
-        return true;
-    }
-
-    cppast::cpp_entity_index index;
-    parser_t                 parser{type_safe::ref(index)};
-    parser_t::config         config;
     config.set_flags(cpp_standard);
 
     if(!clang_binary.empty())
@@ -363,9 +355,6 @@ bool reflect_file(
         }
     }
 
-    std::cout << "parsing file " << filepath << " "
-              << cppast::to_string(cpp_standard) << " ";
-
     // Add definitions to identify that the translation unit
     // is being parsed by tinyrefl-tool
     definitions.addValue("TINYREFL_TOOL_RUNNING");
@@ -374,13 +363,8 @@ bool reflect_file(
     for(const auto& definition : definitions)
     {
         compile_definition def{definition};
-        std::cout << "-D" << def.macro << "=" << def.value << " ";
 
-        if(def.macro.empty())
-        {
-            std::cout << "(empty, ignored) ";
-        }
-        else
+        if(not def.macro.empty())
         {
             config.define_macro(def.macro, def.value);
         }
@@ -388,13 +372,7 @@ bool reflect_file(
 
     for(const std::string& include_dir : include_dirs)
     {
-        std::cout << "-I" << include_dir << " ";
-
-        if(include_dir.empty())
-        {
-            std::cout << "(empty, ignored) ";
-        }
-        else
+        if(not include_dir.empty())
         {
             config.add_include_dir(include_dir);
         }
@@ -403,22 +381,38 @@ bool reflect_file(
     for(const std::string& warning : warnings)
     {
         auto warning_flag = "-W" + warning;
-        std::cout << warning_flag << " ";
         config.add_flag(warning_flag);
     }
 
     for(const auto& flag : custom_flags)
     {
-        std::cout << flag << " ";
         config.add_flag(flag);
     }
 
-
     // Tell libclang to ignore unknown arguments
-    std::cout << " -Qunused-arguments -Wno-unknown-warning-option";
     config.add_flag("-Qunused-arguments");
     config.add_flag("-Wno-unknown-warning-option");
-    std::cout << " ...\n";
+
+    return config;
+}
+
+bool reflect_file(
+    tinyrefl::tool::DiagnosticReporter& reporter,
+    std::string                         filepath,
+    const parser_t::config&             config,
+    bool                                force_parsing)
+{
+
+    if(!is_outdated_file(filepath) && !force_parsing)
+    {
+        spdlog::info("file {} metadata is up to date, skipping", filepath);
+        return true;
+    }
+
+    cppast::cpp_entity_index                               index;
+    tinyrefl::tool::cppast_backend::ParserDiagnosticLogger parserLogger{
+        reporter};
+    parser_t parser{type_safe::ref(index), type_safe::ref(parserLogger)};
 
     cppfs::FilePath fs_filepath{filepath};
 
@@ -449,19 +443,57 @@ bool reflect_file(
     return false;
 }
 
+void dumpAstAndExit(
+    const std::string&                                 sourceFile,
+    const parser_t::config&                            parserConfig,
+    const tinyrefl::tool::exporters::Generic::Exporter exporter,
+    tinyrefl::tool::DiagnosticReporter&                reporter)
+{
+    tinyrefl::tool::cppast_backend::Importer importer{
+        {.config = parserConfig, .reporter = reporter}};
+
+    const auto file = importer.import(sourceFile);
+
+    if(not file)
+    {
+        std::exit(1);
+    }
+
+    tinyrefl::tool::exporters::Generic genericExporter{exporter, reporter};
+    const auto result = genericExporter.Export(file.value());
+
+    if(not result)
+    {
+        std::exit(2);
+    }
+
+    fmt::print("{}", result.value());
+    std::exit(0);
+}
+
+void dumpAstSchemaAndExit()
+{
+    fmt::print("{}", tinyrefl::tool::model::schema().begin());
+    std::exit(0);
+}
+
 template<typename Stream>
 void print_version(Stream& out)
 {
-    out << "tinyrefl-tool v" << TINYREFL_VERSION << "\n\n"
-        << "tinyrefl commit: " << TINYREFL_GIT_COMMIT << "\n"
-        << "tinyrefl branch: " << TINYREFL_GIT_BRANCH << "\n"
-        << "tinyrefl version: " << TINYREFL_VERSION << "\n"
-        << "tinyrefl version major: " << TINYREFL_VERSION_MAJOR_STRING << "\n"
-        << "tinyrefl version minor: " << TINYREFL_VERSION_MINOR_STRING << "\n"
-        << "tinyrefl version fix:   " << TINYREFL_VERSION_FIX_STRING << "\n\n"
-        << "Compiled with LLVM  version: " << TINYREFL_LLVM_VERSION << "\n"
-        << "This tool is part of tinyrefl, a C++ static reflection system\n"
-        << "See https://gitlab.com/Manu343726/tinyrefl for docs and issues\n";
+    out << "tinyrefl-tool v" TINYREFL_VERSION "\n\n"
+           "tinyrefl commit: " TINYREFL_GIT_COMMIT "\n"
+           "tinyrefl branch: " TINYREFL_GIT_BRANCH "\n"
+           "tinyrefl version: " TINYREFL_VERSION "\n"
+           "tinyrefl version major: " TINYREFL_VERSION_MAJOR_STRING "\n"
+           "tinyrefl version minor: " TINYREFL_VERSION_MINOR_STRING "\n"
+           "tinyrefl version fix:   " TINYREFL_VERSION_FIX_STRING "\n\n"
+           "Compiled with cppast: " TINYREFL_CPPAST_REPO_URL
+           " " TINYREFL_CPPAST_VERSION " (" CPPAST_VERSION_STRING ") \n"
+           "Compiled with LLVM version: " TINYREFL_LLVM_VERSION "\n"
+           "Compiled with Protobuf version: " TINYREFL_PROTOBUF_VERSION "\n"
+           "\n"
+           "This tool is part of tinyrefl, a C++ static reflection system\n"
+           "See https://github.com/Manu343726/tinyrefl for docs and issues\n";
 }
 
 int main(int argc, char** argv)
@@ -469,9 +501,9 @@ int main(int argc, char** argv)
     cl::opt<std::string> filename{
         cl::Positional, cl::desc("<input header>"), cl::Required};
     cl::list<std::string> includes{
-        "I", cl::Prefix, cl::ValueOptional, cl::desc("Include directories")};
+        "I", cl::Prefix, cl::desc("Include directories")};
     cl::list<std::string> definitions{
-        "D", cl::Prefix, cl::ValueOptional, cl::desc("Compile definitions")};
+        "D", cl::Prefix, cl::desc("Compile definitions")};
     cl::list<std::string> warnings{
         "W", cl::Prefix, cl::ValueOptional, cl::desc("Warnings")};
     cl::opt<cppast::cpp_standard> stdversion{
@@ -492,10 +524,8 @@ int main(int argc, char** argv)
         cl::Sink, cl::desc("Custom compiler flags")};
     cl::opt<std::string> clang_binary{
         "clang-binary",
-        cl::ValueOptional,
         cl::desc(
             "clang++ binary. If not given, tinyrefl-tool will search in your PATH")};
-
     cl::opt<bool> force_parsing{
         "force",
         cl::desc(
@@ -503,7 +533,7 @@ int main(int argc, char** argv)
     cl::opt<spdlog::level::level_enum> log_level{
         "log-level",
         cl::desc("Log level"),
-        cl::ValueOptional,
+        cl::init(spdlog::level::info),
         cl::values(
             clEnumValN(spdlog::level::trace, "TRACE", "Trace logging"),
             clEnumValN(spdlog::level::debug, "DEBUG", "Debug logging"),
@@ -512,6 +542,32 @@ int main(int argc, char** argv)
             clEnumValN(spdlog::level::err, "ERROR", "Error logging"),
             clEnumValN(
                 spdlog::level::critical, "CRITICAL", "Critical logging"))};
+    cl::opt<bool> dump_ast{
+        "dump-ast",
+        cl::desc(
+            "Dump a text representation of the parsed AST instead of generating reflection metadata")};
+    cl::opt<bool> dump_ast_schema{
+        "dump-ast-schema",
+        cl::desc("Dump the Protobuf schema of the AST model")};
+    cl::opt<tinyrefl::tool::exporters::Generic::Exporter> ast_exporter{
+        "dump-ast-format",
+        cl::desc("Format used to dump the AST"),
+        cl::init(tinyrefl::tool::exporters::Generic::Exporter::ProtobufText),
+        cl::values(
+            clEnumValN(
+                tinyrefl::tool::exporters::Generic::Exporter::Json,
+                "json",
+                "JSON document text"),
+            clEnumValN(
+                tinyrefl::tool::exporters::Generic::Exporter::ProtobufText,
+                "protobuf",
+                "Text representation of a tinyrefl::tool::model::File protobuf message"),
+            clEnumValN(
+                tinyrefl::tool::exporters::Generic::Exporter::
+                    ProtobufBase64Binary,
+                "protobuf-binary",
+                "Binary wire format of a tinyrefl::tool::model::File protobuf message encoded as Base64 text"))};
+
 
 #if TINYREFL_LLVM_VERSION_MAJOR >= 6
     cl::SetVersionPrinter([](llvm::raw_ostream& out) { print_version(out); });
@@ -521,20 +577,32 @@ int main(int argc, char** argv)
 
     if(cl::ParseCommandLineOptions(argc, argv, "Tinyrefl codegen tool"))
     {
-        if(log_level)
+        spdlog::set_default_logger(spdlog::stderr_color_st("default"));
+        spdlog::set_level(log_level);
+
+        spdlog::set_pattern("[%^%l%$] %v");
+
+        const auto config = configureParser(
+            stdversion,
+            includes,
+            definitions,
+            warnings,
+            custom_flags,
+            clang_binary);
+
+        tinyrefl::tool::reporters::Log diagnosticReporter;
+
+        if(dump_ast_schema)
         {
-            spdlog::set_level(log_level);
+            dumpAstSchemaAndExit();
         }
 
-        if(reflect_file(
-               filename,
-               stdversion,
-               includes,
-               definitions,
-               warnings,
-               custom_flags,
-               clang_binary,
-               force_parsing))
+        if(dump_ast)
+        {
+            dumpAstAndExit(filename, config, ast_exporter, diagnosticReporter);
+        }
+
+        if(reflect_file(diagnosticReporter, filename, config, force_parsing))
         {
             return 0;
         }

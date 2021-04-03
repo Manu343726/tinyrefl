@@ -109,7 +109,7 @@ void dump()
 
     static_assert(
         tinyrefl::meta::tuple_size(
-            tinyrefl::metadata_by_id("example.hpp"_id).children()) == 1,
+            tinyrefl::metadata_by_id("example.hpp"_id).children()) == 2,
         "");
 
     example_namespace::C object;

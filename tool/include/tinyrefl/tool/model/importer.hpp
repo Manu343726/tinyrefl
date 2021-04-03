@@ -2,6 +2,7 @@
 #define TINYREFL_TOOL_MODEL_IMPORTER_HPP
 
 #include <model/ast.pb.h>
+#include <type_safe/optional.hpp>
 
 namespace tinyrefl
 {
@@ -17,7 +18,7 @@ class Importer
 public:
     virtual ~Importer() = default;
 
-    virtual File import(const std::string& sourceFile) = 0;
+    virtual type_safe::optional<File> import(const std::string& sourceFile) = 0;
 };
 
 } // namespace model

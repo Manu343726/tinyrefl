@@ -4,8 +4,25 @@
 #include <string>
 #include <tinyrefl/utils/enum_value_attributes.hpp>
 
+namespace example_attributes
+{
+struct serializable
+{
+    constexpr serializable(const bool on = true) : on{on} {}
+
+    bool on = true;
+};
+} // namespace example_attributes
+
 namespace example
 {
+
+struct Test
+{
+    float                                            f = 0.0;
+    [[example_attributes::serializable(false)]] int  i = 0;
+    [[example_attributes::serializable]] std::string s = "";
+};
 
 struct range
 {

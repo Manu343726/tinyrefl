@@ -6,7 +6,11 @@
 namespace example
 {
 
-class [[foobar]] Example
+struct foobar
+{
+};
+
+class [[example::foobar]] Example
 {
 public:
     Example() = default;
