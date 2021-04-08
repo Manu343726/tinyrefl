@@ -20,17 +20,17 @@ class TinyreflTool(ConanFile):
       'subfolder': 'tinyrefl'
     }
     generators = 'cmake_find_package'
-    build_requires = ('jsonformoderncpp/3.5.0@vthiery/stable',
+    build_requires = (
                 'ctti/0.0.2@Manu343726/testing',
                 'cppast/master@Manu343726/testing',
                 'llvm_support/6.0.1@Manu343726/testing',
                 'type_safe/0.3@Manu343726/testing',
-                'spdlog/1.3.1@bincrafters/stable',
-                'fmt/5.3.0@bincrafters/stable',
-                'jsonformoderncpp/3.5.0@vthiery/stable',
+                'spdlog/1.8.5',
+                'fmt/7.1.3',
+                'jsonformoderncpp/3.7.0',
                 'protobuf/3.15.5')
     requires = 'clang_executables/6.0.1@Manu343726/testing'
-    default_options = 'fmt:header_only=True'
+    default_options = 'fmt:header_only=False'
     settings = 'os', 'compiler', 'build_type', 'arch'
 
     custom_cmake_defs = {
