@@ -31,7 +31,7 @@ class Tinyrefl(common.CMakePackage):
         'TINYREFL_GIT_LAST_TAG': TINYREFL_TAG,
     }
     generators = 'cmake_find_package'
-    requires = ('jsonformoderncpp/3.5.0',
+    requires = ('jsonformoderncpp/3.7.0',
                'ctti/0.0.2@Manu343726/testing')
     settings = 'os', 'compiler', 'build_type', 'arch'
 
