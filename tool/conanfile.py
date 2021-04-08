@@ -15,7 +15,7 @@ class TinyreflTool(ConanFile):
     description = ' A work in progress minimal C++ static reflection API and codegen tool'
     scm = {
       'type': 'git',
-      'url': 'https://github.com/Manu343726/tinyrefl',
+      'url': 'https://gitlab.com/Manu343726/tinyrefl',
       'revision': TINYREFL_TAG,
       'subfolder': 'tinyrefl'
     }
