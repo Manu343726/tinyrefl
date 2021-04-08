@@ -488,7 +488,7 @@ void print_version(Stream& out)
            "tinyrefl version minor: " TINYREFL_VERSION_MINOR_STRING "\n"
            "tinyrefl version fix:   " TINYREFL_VERSION_FIX_STRING "\n\n"
            "Compiled with cppast: " TINYREFL_CPPAST_REPO_URL
-           " " TINYREFL_CPPAST_VERSION " (" CPPAST_VERSION_STRING ") \n"
+           " " TINYREFL_CPPAST_VERSION "\n"
            "Compiled with LLVM version: " TINYREFL_LLVM_VERSION "\n"
            "Compiled with Protobuf version: " TINYREFL_PROTOBUF_VERSION "\n"
            "\n"
