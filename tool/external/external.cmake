@@ -324,7 +324,7 @@ else()
                               INTERFACE spdlog::spdlog)
     endif()
 
-    if(NOT protobuf_FOUND)
+    if(NOT Protobuf_FOUND)
         message(STATUS "tinyrefl-tool build using protobuf from sources")
 
         set(PROTOBUF_INSTALL
