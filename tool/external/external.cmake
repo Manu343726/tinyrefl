@@ -61,7 +61,7 @@ if(NOT TINYREFL_PROTOBUF_URL)
     set(TINYREFL_PROTOBUF_URL "https://github.com/protocolbuffers/protobuf")
 endif()
 if(NOT TINYREFL_PROTOBUF_VERSION)
-    set(TINYREFL_PROTOBUF_VERSION v3.15.5)
+    set(TINYREFL_PROTOBUF_VERSION 3.15.5)
 endif()
 
 if(TINYREFL_TOOL_USING_CONAN_TARGETS)
@@ -95,7 +95,7 @@ else()
     find_package(cppfs QUIET)
     find_package(type_safe QUIET)
     find_package(spdlog QUIET)
-    find_package(Protobuf QUIET)
+    find_package(Protobuf ${TINYREFL_PROTOBUF_VERSION} QUIET)
 
     if(fmt_FOUND)
         message(
@@ -331,7 +331,7 @@ else()
             OFF
             CACHE INTERNAL "")
         external_dependency(protobuf ${TINYREFL_PROTOBUF_URL}
-                            ${TINYREFL_PROTOBUF_VERSION} SOURCE_SUBDIR cmake)
+                            v${TINYREFL_PROTOBUF_VERSION} SOURCE_SUBDIR cmake)
         add_library(tinyrefl_externals_protobuf ALIAS libprotobuf)
         add_executable(tinyrefl_externals_protoc ALIAS protoc)
         include(${CMAKE_CURRENT_LIST_DIR}/protobuf_generate.cmake)
