@@ -2,11 +2,13 @@
 #include <cppast/cpp_variable.hpp>
 #include <cppfs/FilePath.h>
 #include <fmt/format.h>
+#include <spdlog/spdlog.h>
 #include <tinyrefl/tool/backends/cppast/attribute.hpp>
 #include <tinyrefl/tool/backends/cppast/identifier.hpp>
 #include <tinyrefl/tool/backends/cppast/importer.hpp>
 #include <tinyrefl/tool/backends/cppast/source_location.hpp>
 #include <tinyrefl/tool/backends/cppast/visitor.hpp>
+#include <tinyrefl/tool/unique_id.hpp>
 
 using namespace tinyrefl::tool::cppast_backend;
 
@@ -56,19 +58,33 @@ type_safe::optional<tinyrefl::tool::model::File>
 bool Importer::import(
     const cppast::cpp_file& file, tinyrefl::tool::model::File& out)
 {
-    return import(file, *out.mutable_namespaces()) and
-           importIdentifier(file, *out.mutable_id());
+    return importIdentifier(file, *out.mutable_id()) and
+           importGlobalNamespace(file, *out.mutable_globalnamespace());
 }
 
-bool Importer::import(
-    const cppast::cpp_file&                                               file,
-    google::protobuf::RepeatedPtrField<tinyrefl::tool::model::Namespace>& out)
+bool Importer::importGlobalNamespace(
+    const cppast::cpp_file& file, tinyrefl::tool::model::Namespace& out)
 {
+    IdentifierReader reader{_reporter};
+
+    out.mutable_declaration()->mutable_id()->set_name(
+        reader.globalNamespaceName());
+    out.mutable_declaration()->mutable_id()->set_displayname(
+        reader.globalNamespaceDisplayName());
+    out.mutable_declaration()->mutable_id()->set_fullname(
+        reader.globalNamespaceFullName());
+    out.mutable_declaration()->mutable_id()->set_fulldisplayname(
+        reader.globalNamespaceFullDisplayName());
+    out.mutable_declaration()->mutable_id()->set_uniqueid(
+        reader.globalNamespaceUniqueId());
+    out.mutable_declaration()->set_parentuniqueid(reader.uniqueId(file));
+
     bool ok = true;
 
     tinyrefl::tool::cppast_backend::visit_entity(
-        file, [&](const cppast::cpp_namespace& namespace_) {
-            ok &= import(namespace_, *out.Add());
+        file, [&](const cppast::cpp_entity& entity) {
+            ok &= importNamespaceMember(
+                entity, out.declaration(), *out.add_members());
         });
 
     return ok;

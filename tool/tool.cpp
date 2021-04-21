@@ -492,6 +492,13 @@ void print_version(Stream& out)
            "Compiled with LLVM version: " TINYREFL_LLVM_VERSION "\n"
            "Compiled with Protobuf version: " TINYREFL_PROTOBUF_VERSION "\n"
            "\n"
+           "Optional features:\n"
+#ifdef TINYREFL_TOOL_JINJA2_SUPPORT
+           " - Custom codegen with Jinja2 template: YES\n"
+#else
+           " - Custom codegen with Jinja2 template: NO\n"
+#endif // TINYREFL_TOOL_JINJA2_SUPPORT
+           "\n"
            "This tool is part of tinyrefl, a C++ static reflection system\n"
            "See https://github.com/Manu343726/tinyrefl for docs and issues\n";
 }
@@ -558,6 +565,10 @@ int main(int argc, char** argv)
                 tinyrefl::tool::exporters::Generic::Exporter::Json,
                 "json",
                 "JSON document text"),
+            clEnumValN(
+                tinyrefl::tool::exporters::Generic::Exporter::Jinja2,
+                "jinja",
+                "Custom output using a jinja2 template"),
             clEnumValN(
                 tinyrefl::tool::exporters::Generic::Exporter::ProtobufText,
                 "protobuf",

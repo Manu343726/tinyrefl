@@ -20,7 +20,8 @@ public:
         Json,
         ProtobufText,
         ProtobufBinary,
-        ProtobufBase64Binary
+        ProtobufBase64Binary,
+        Jinja2
     };
 
     Generic(

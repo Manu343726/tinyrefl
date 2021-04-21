@@ -16,7 +16,7 @@ std::string IdentifierReader::name(const cppast::cpp_entity& entity) const
         return entity.name();
     }
 
-    const auto arguments = rename_command.value().arguments();
+    const auto& arguments = rename_command.value().arguments();
 
     if(not arguments || arguments.value().empty())
     {
@@ -165,6 +165,18 @@ std::string IdentifierReader::fullName(const cppast::cpp_file& file) const
     return cppfs::FilePath(file.name()).fullPath();
 }
 
+std::string IdentifierReader::displayName(const cppast::cpp_file& file) const
+{
+    return name(file);
+}
+
+std::string
+    IdentifierReader::fullDisplayName(const cppast::cpp_file& file) const
+{
+    return fullName(file);
+}
+
+
 std::uint64_t
     IdentifierReader::parentUniqueId(const cppast::cpp_entity& entity) const
 {
@@ -175,10 +187,40 @@ std::uint64_t
         return 0;
     }
 
+    if(parent.value().kind() == cppast::cpp_entity_kind::file_t)
+    {
+        return globalNamespaceUniqueId();
+    }
+
     std::uint64_t result = 0;
 
     tinyrefl::tool::cppast_backend::entity_cast(
         parent.value(), [&](const auto& parent) { result = uniqueId(parent); });
 
     return result;
+}
+
+std::string IdentifierReader::globalNamespaceName() const
+{
+    return "";
+}
+
+std::string IdentifierReader::globalNamespaceFullName() const
+{
+    return "";
+}
+
+std::string IdentifierReader::globalNamespaceDisplayName() const
+{
+    return "";
+}
+
+std::string IdentifierReader::globalNamespaceFullDisplayName() const
+{
+    return "";
+}
+
+std::uint64_t IdentifierReader::globalNamespaceUniqueId() const
+{
+    return tinyrefl::tool::uniqueId("");
 }

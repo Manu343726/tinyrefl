@@ -68,6 +68,12 @@ public:
     }
 
     std::uint64_t parentUniqueId(const cppast::cpp_entity& entity) const;
+
+    std::string   globalNamespaceName() const;
+    std::string   globalNamespaceFullName() const;
+    std::string   globalNamespaceDisplayName() const;
+    std::string   globalNamespaceFullDisplayName() const;
+    std::uint64_t globalNamespaceUniqueId() const;
 };
 
 

@@ -1,7 +1,3 @@
-if(NOT TARGET protobuf::protoc)
-    add_executable(protobuf::protoc ALIAS tinyrefl_externals_protoc)
-endif()
-
 function(protobuf_generate)
     include(CMakeParseArguments)
 
@@ -146,7 +142,7 @@ function(protobuf_generate)
         add_custom_command(
             OUTPUT ${_generated_srcs}
             COMMAND
-                protobuf::protoc ARGS ${protobuf_generate_PROTOC_OPTIONS}
+                tinyrefl_externals_protoc ARGS ${protobuf_generate_PROTOC_OPTIONS}
                 --${protobuf_generate_LANGUAGE}_out
                 ${_dll_export_decl}${protobuf_generate_PROTOC_OUT_DIR}
                 ${_plugin} ${_protobuf_include_path} ${_abs_file}

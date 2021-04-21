@@ -4,6 +4,8 @@ include(${TINYREFL_SOURCE_DIR}/cmake/utils.cmake)
 parse_version_number(${TINYREFL_LLVM_VERSION} TINYREFL_LLVM_VERSION_MAJOR
                      TINYREFL_LLVM_VERSION_MINOR TINYREFL_LLVM_VERSION_FIX)
 
+option(TINYREFL_TOOL_JINJA2_SUPPORT "Enable support for custom codegen using Jinja2 compatible templates" OFF)
+
 if(TINYREFL_CROSS_BUILDING)
     message(STATUS "Cross-building tinyrefl, host-build tinyrefl-tool")
     include(ExternalProject)
@@ -51,6 +53,7 @@ if(TINYREFL_CROSS_BUILDING)
             -DTINYREFL_CPPFS_VERSION=${TINYREFL_CPPFS_VERSION}
             -DTINYREFL_CTTI_REPO_URL=${TINYREFL_CTTI_REPO_URL}
             -DTINYREFL_CTTI_VERSION=${TINYREFL_CTTI_VERSION}
+            -DTINYREFL_TOOL_JINJA2_SUPPORT=${TINYREFL_TOOL_JINJA2_SUPPORT}
             -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
         INSTALL_COMMAND "")
 

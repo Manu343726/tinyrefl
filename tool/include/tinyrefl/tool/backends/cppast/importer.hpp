@@ -53,10 +53,8 @@ private:
         parse(const std::string& file);
 
     bool import(const cppast::cpp_file& file, tinyrefl::tool::model::File& out);
-    bool import(
-        const cppast::cpp_file& file,
-        google::protobuf::RepeatedPtrField<tinyrefl::tool::model::Namespace>&
-            out);
+    bool importGlobalNamespace(
+        const cppast::cpp_file& file, tinyrefl::tool::model::Namespace& out);
     bool import(
         const cppast::cpp_namespace&      namespace_,
         tinyrefl::tool::model::Namespace& out);

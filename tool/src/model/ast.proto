@@ -42,7 +42,7 @@ message Type
 message Attribute
 {
     optional string name             = 1;
-    optional string fullname         = 2;
+    optional string fullName         = 2;
     optional        string namespace = 3;
     optional string fullAttribute    = 4;
     repeated string arguments        = 5;
@@ -118,6 +118,15 @@ message Enum
 
 message ClassMember
 {
+    enum Access
+    {
+        Public    = 0;
+        Protected = 1;
+        Private   = 2;
+    }
+
+    Access access = 1;
+
     oneof member
     {
         MemberFunction function    = 2;
@@ -159,6 +168,6 @@ message Namespace
 
 message File
 {
-    optional Identifier id         = 1;
-    repeated Namespace  namespaces = 2;
+    optional Identifier id              = 1;
+    optional Namespace  globalNamespace = 2;
 }

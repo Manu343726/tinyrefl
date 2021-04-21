@@ -1,4 +1,5 @@
 #include <tinyrefl/tool/exporters/generic.hpp>
+#include <tinyrefl/tool/exporters/jinja2.hpp>
 #include <tinyrefl/tool/exporters/json.hpp>
 #include <tinyrefl/tool/exporters/protobuf_base64_binary.hpp>
 #include <tinyrefl/tool/exporters/protobuf_binary.hpp>
@@ -25,6 +26,8 @@ type_safe::optional<std::string>
         return ProtobufBase64Binary(reporter()).Export(file);
     case Exporter::ProtobufText:
         return ProtobufText(reporter()).Export(file);
+    case Exporter::Jinja2:
+        return Jinja2(reporter()).Export(file);
     }
 
     // unreachable

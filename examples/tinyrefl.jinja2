@@ -1,0 +1,6 @@
+Source file: {{file.id.name}}
+
+Global namespace members:
+{% for member in file.globalNamespace.members %}
+     - {{member.member.declaration.id.fullDisplayName}} ({{member.kind}})
+{% endfor %}

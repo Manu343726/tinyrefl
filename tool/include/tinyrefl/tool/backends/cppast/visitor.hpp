@@ -45,6 +45,7 @@ using entity_to_kind = tinyrefl::meta::pair<Entity, cpp_entity_kind<Kind>>;
 
 
 using cppast_entities_to_kinds = tinyrefl::meta::slow_map<
+    detail::entity_to_kind<cppast::cpp_file, cppast::cpp_entity_kind::file_t>,
     detail::entity_to_kind<
         cppast::cpp_namespace,
         cppast::cpp_entity_kind::namespace_t>,

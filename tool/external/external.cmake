@@ -63,6 +63,12 @@ endif()
 if(NOT TINYREFL_PROTOBUF_VERSION)
     set(TINYREFL_PROTOBUF_VERSION 3.15.5)
 endif()
+if(NOT TINYREFL_JINJA2CPP_URL)
+    set(TINYREFL_JINJA2CPP_URL "https://github.com/jinja2cpp/Jinja2Cpp")
+endif()
+if(NOT TINYREFL_JINJA2CPP_VERSION)
+    set(TINYREFL_JINJA2CPP_VERSION 1.1.0)
+endif()
 
 if(TINYREFL_TOOL_USING_CONAN_TARGETS)
     message(STATUS "tinyrefl-tool build using conan targets")
@@ -73,6 +79,7 @@ if(TINYREFL_TOOL_USING_CONAN_TARGETS)
     add_library(tinyrefl_externals_type_safe INTERFACE)
     add_library(tinyrefl_externals_spdlog INTERFACE)
     add_library(tinyrefl_externals_protobuf INTERFACE)
+    add_library(tinyrefl_externals_jinja2cpp INTERFACE)
 
     target_link_libraries(tinyrefl_externals_fmt INTERFACE CONAN_PKG::fmt)
     target_link_libraries(tinyrefl_externals_cppast INTERFACE CONAN_PKG::cppast)
@@ -83,6 +90,11 @@ if(TINYREFL_TOOL_USING_CONAN_TARGETS)
     target_link_libraries(tinyrefl_externals_spdlog INTERFACE CONAN_PKG::spdlog)
     target_link_libraries(tinyrefl_externals_protobuf
                           INTERFACE CONAN_PKG::protobuf)
+
+    if(TINYREFL_TOOL_JINJA2_SUPPORT)
+        target_link_libraries(tinyrefl_externals_jinja2cpp
+                              INTERFACE CONAN_PKG::jinja2cpp)
+    endif()
 
     # TODO: Create conan recipe for cppfs
     external_dependency(cppfs ${TINYREFL_CPPFS_REPO_URL}
@@ -96,6 +108,7 @@ else()
     find_package(type_safe QUIET)
     find_package(spdlog QUIET)
     find_package(Protobuf ${TINYREFL_PROTOBUF_VERSION} QUIET)
+    find_package(jinja2cpp QUIET)
 
     if(fmt_FOUND)
         message(
@@ -338,11 +351,34 @@ else()
     else()
         message(
             STATUS
-                "tinyrefl-tool build using protobuf from find_package() module")
+            "tinyrefl-tool build using protobuf ${Protobuf_VERSION} from find_package() module")
 
         add_library(tinyrefl_externals_protobuf INTERFACE)
         target_link_libraries(tinyrefl_externals_protobuf
                               INTERFACE protobuf::libprotobuf)
+
+        if(NOT TARGET protobuf::protoc)
+            message(FATAL_ERROR "protoc target not found")
+        endif()
+    endif()
+    
+
+    if(TINYREFL_TOOL_JINJA2_SUPPORT)
+        if(NOT jinja2cpp_FOUND)
+            message(STATUS "tinyrefl-tool build using jinja2cpp from sources")
+            external_dependency(jinja2cpp ${TINYREFL_JINJA2CPP_URL}
+                                ${TINYREFL_JINJA2CPP_VERSION})
+            add_library(tinyrefl_externals_jinja2cpp ALIAS jinja2cpp)
+        else()
+            message(
+                STATUS
+                    "tinyrefl-tool build using type_safe from find_package() module"
+            )
+
+            add_library(tinyrefl_externals_jinja2cpp INTERFACE)
+            target_link_libraries(tinyrefl_externals_jinja2cpp
+                                  INTERFACE jinja2cpp::jinja2cpp)
+        endif()
     endif()
 endif()
 

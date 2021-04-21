@@ -24,6 +24,7 @@ add_library(
     backends/cppast/source_location.cpp
     backends/cppast/parserdiagnosticslogger.cpp
     model/importer.cpp
+    model/utils.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/schema.cpp
     exporters/json.cpp
     exporters/generic.cpp
@@ -58,4 +59,15 @@ target_link_libraries(
 if(NOT MSVC)
     target_compile_options(tinyrefl-tool-lib
                            PUBLIC -Wno-gnu-string-literal-operator-template)
+endif()
+
+if(TINYREFL_TOOL_JINJA2_SUPPORT)
+    message(STATUS "tinyrefl-tool Jinja2 support enabled")
+
+    target_sources(tinyrefl-tool-lib PRIVATE
+        exporters/jinja2/reflection.cpp
+        exporters/jinja2.cpp)
+
+    target_link_libraries(tinyrefl-tool-lib PRIVATE tinyrefl_externals_jinja2cpp)
+    target_compile_definitions(tinyrefl-tool-lib PUBLIC TINYREFL_TOOL_JINJA2_SUPPORT)
 endif()
