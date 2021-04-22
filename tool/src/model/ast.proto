@@ -75,9 +75,12 @@ message MemberFunction
         Static   = 2;
     }
 
-    optional Function function   = 1;
-    optional Kind     kind       = 2;
-    optional          Type class = 3;
+    optional Declaration declaration = 1;
+    repeated Parameter   parameters  = 2;
+    optional Type        returnType  = 3;
+    repeated Attribute   attributes  = 4;
+    optional Kind        kind        = 5;
+    optional             Type class  = 6;
 }
 
 message Constructor
@@ -97,8 +100,10 @@ message Variable
 
 message MemberVariable
 {
-    optional Variable variable   = 1;
-    optional          Type class = 2;
+    optional Declaration declaration = 1;
+    optional Type        type        = 2;
+    repeated Attribute   attributes  = 3;
+    optional             Type class  = 4;
 }
 
 message EnumValue
@@ -111,9 +116,10 @@ message EnumValue
 
 message Enum
 {
-    optional Type      type       = 1;
-    repeated EnumValue values     = 2;
-    repeated Attribute attributes = 3;
+    optional Declaration declaration = 1;
+    optional Type        type        = 2;
+    repeated EnumValue   values      = 3;
+    repeated Attribute   attributes  = 4;
 }
 
 message ClassMember
@@ -141,10 +147,11 @@ message ClassMember
 
 message Class
 {
-    optional Type        type        = 1;
-    repeated Type        baseClasses = 2;
-    repeated ClassMember members     = 3;
-    repeated Attribute   attributes  = 4;
+    optional Declaration declaration = 1;
+    optional Type        type        = 2;
+    repeated Type        baseClasses = 3;
+    repeated ClassMember members     = 4;
+    repeated Attribute   attributes  = 5;
 }
 
 message NamespaceMember

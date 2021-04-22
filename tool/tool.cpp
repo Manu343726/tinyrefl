@@ -459,7 +459,9 @@ void dumpAstAndExit(
         std::exit(1);
     }
 
-    tinyrefl::tool::exporters::Generic genericExporter{exporter, reporter};
+    tinyrefl::tool::reporters::Log reporter2;
+
+    tinyrefl::tool::exporters::Generic genericExporter{exporter, reporter2};
     const auto result = genericExporter.Export(file.value());
 
     if(not result)

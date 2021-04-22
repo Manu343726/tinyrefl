@@ -150,6 +150,36 @@ bool Importer::importDeclaration(
     return true;
 }
 
+bool Importer::import(
+    const cppast::detail::iteratable_intrusive_list<
+        cppast::cpp_function_parameter>& params,
+    google::protobuf::RepeatedPtrField<tinyrefl::tool::model::Parameter>& out)
+{
+    std::size_t index = 0;
+
+    for(const auto& param : params)
+    {
+        if(not import(index++, param, *out.Add()))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool Importer::import(
+    const std::size_t                     index,
+    const cppast::cpp_function_parameter& param,
+    tinyrefl::tool::model::Parameter&     out)
+{
+    out.set_name(param.name());
+    out.set_position(index);
+
+    // TODO: import type
+    return importAttributes(param, *out.mutable_attributes());
+}
+
 bool Importer::importAttributes(
     const cppast::cpp_entity& entity,
     google::protobuf::RepeatedPtrField<tinyrefl::tool::model::Attribute>& out)
@@ -219,7 +249,8 @@ bool Importer::import(
     tinyrefl::tool::model::Function& out)
 {
     return importDeclaration(function, *out.mutable_declaration()) and
-           importAttributes(function, *out.mutable_attributes());
+           importAttributes(function, *out.mutable_attributes()) and
+           import(function.parameters(), *out.mutable_parameters());
 }
 
 bool Importer::importVariable(
@@ -238,14 +269,11 @@ bool Importer::import(
     const tinyrefl::tool::model::Type&     classType,
     tinyrefl::tool::model::MemberFunction& out)
 {
-    if(not import(function, *out.mutable_function()))
-    {
-        return false;
-    }
-
     *out.mutable_class_() = classType;
 
-    return true;
+    return importDeclaration(function, *out.mutable_declaration()) and
+           importAttributes(function, *out.mutable_attributes()) and
+           import(function.parameters(), *out.mutable_parameters());
 }
 
 bool Importer::import(
@@ -253,14 +281,10 @@ bool Importer::import(
     const tinyrefl::tool::model::Type&     classType,
     tinyrefl::tool::model::MemberVariable& out)
 {
-    if(not importVariable(variable, *out.mutable_variable()))
-    {
-        return false;
-    }
-
     *out.mutable_class_() = classType;
 
-    return true;
+    return importDeclaration(variable, *out.mutable_declaration()) and
+           importAttributes(variable, *out.mutable_attributes());
 }
 
 bool Importer::import(
@@ -268,28 +292,26 @@ bool Importer::import(
     const tinyrefl::tool::model::Type&  classType,
     tinyrefl::tool::model::Constructor& out)
 {
-    if(not importDeclaration(constructor, *out.mutable_declaration()) or
-       not importAttributes(constructor, *out.mutable_attributes()))
-    {
-        return false;
-    }
-
     *out.mutable_class_() = classType;
 
-    return true;
+    return importDeclaration(constructor, *out.mutable_declaration()) and
+           importAttributes(constructor, *out.mutable_attributes()) and
+           import(constructor.parameters(), *out.mutable_parameters());
 }
 
 bool Importer::import(
     const cppast::cpp_enum& enum_, tinyrefl::tool::model::Enum& out)
 {
-    return importType(enum_, *out.mutable_type()) and
+    return importDeclaration(enum_, *out.mutable_declaration()) and
+           importType(enum_, *out.mutable_type()) and
            importAttributes(enum_, *out.mutable_attributes());
 }
 
 bool Importer::import(
     const cppast::cpp_class& class_, tinyrefl::tool::model::Class& out)
 {
-    if(not importType(class_, *out.mutable_type()) or
+    if(not importDeclaration(class_, *out.mutable_declaration()) or
+       not importType(class_, *out.mutable_type()) or
        not importAttributes(class_, *out.mutable_attributes()))
     {
         return false;

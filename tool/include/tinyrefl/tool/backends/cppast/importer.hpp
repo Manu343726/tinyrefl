@@ -52,6 +52,9 @@ private:
     type_safe::optional_ref<const cppast::cpp_file>
         parse(const std::string& file);
 
+    using Parameters =
+        cppast::detail::intrusive_list<cppast::cpp_function_parameter>;
+
     bool import(const cppast::cpp_file& file, tinyrefl::tool::model::File& out);
     bool importGlobalNamespace(
         const cppast::cpp_file& file, tinyrefl::tool::model::Namespace& out);
@@ -65,6 +68,15 @@ private:
     bool import(
         const cppast::cpp_enum_value&     value,
         tinyrefl::tool::model::EnumValue& out);
+    bool import(
+        const cppast::detail::iteratable_intrusive_list<
+            cppast::cpp_function_parameter>& params,
+        google::protobuf::RepeatedPtrField<tinyrefl::tool::model::Parameter>&
+            out);
+    bool import(
+        const std::size_t                     index,
+        const cppast::cpp_function_parameter& param,
+        tinyrefl::tool::model::Parameter&     out);
     bool import(
         const cppast::cpp_function_base& function,
         tinyrefl::tool::model::Function& out);

@@ -1,6 +1,7 @@
 #include <boost/preprocessor/stringize.hpp>
 #include <functional>
 #include <google/protobuf/repeated_field.h>
+#include <google/protobuf/util/json_util.h>
 #include <tinyrefl/tool/exporters/jinja2/reflection.hpp>
 #include <tinyrefl/tool/model/utils.hpp>
 
@@ -8,11 +9,20 @@ using namespace jinja2;
 using namespace tinyrefl::tool::model;
 using namespace std::placeholders;
 
+std::string toJson(const google::protobuf::Message& entity)
+{
+    std::string result;
+    google::protobuf::util::MessageToJsonString(entity, &result);
+
+    return result;
+}
+
 std::unordered_map<std::string, FieldAccessor<SourceLocation>>&
     TypeReflection<SourceLocation>::GetAccessors()
 {
     static std::unordered_map<std::string, FieldAccessor> accessors{
         {"file", std::bind(&SourceLocation::file, _1)},
+        {"json", toJson},
         {"line",
          [](const SourceLocation& sourceLocation) {
              return static_cast<std::int64_t>(sourceLocation.line());
@@ -32,6 +42,7 @@ std::unordered_map<std::string, FieldAccessor<SourceRange>>&
          [](const SourceRange& range) {
              return range.has_begin() ? Reflect(range.begin()) : Value();
          }},
+        {"json", toJson},
         {"end",
          [](const SourceRange& range) {
              return range.has_end() ? Reflect(range.end()) : Value();
@@ -47,6 +58,7 @@ std::unordered_map<std::string, FieldAccessor<Identifier>>&
 {
     static std::unordered_map<std::string, FieldAccessor> accessors{
         {"name", std::bind(&Identifier::name, _1)},
+        {"json", toJson},
         {"fullName", std::bind(&Identifier::fullname, _1)},
         {"displayName", std::bind(&Identifier::displayname, _1)},
         {"fullDisplayName", std::bind(&Identifier::fulldisplayname, _1)},
@@ -65,6 +77,7 @@ std::unordered_map<std::string, FieldAccessor<Declaration>>&
          [](const Declaration& declaration) {
              return std::to_string(declaration.parentuniqueid());
          }},
+        {"json", toJson},
         {"id",
          [](const Declaration& declaration) {
              return Reflect(declaration.id());
@@ -88,6 +101,7 @@ std::unordered_map<std::string, FieldAccessor<Type>>&
     static std::unordered_map<std::string, FieldAccessor> accessors{
         {"declaration",
          [](const Type& type) { return Reflect(type.declaration()); }},
+        {"json", toJson},
         {"decayedType",
          [](const Type& type) {
              return type.has_decayedtype() ? Reflect(type.decayedtype())
@@ -103,6 +117,7 @@ std::unordered_map<std::string, FieldAccessor<Attribute>>&
 {
     static std::unordered_map<std::string, FieldAccessor> accessors{
         {"name", std::bind(&Attribute::name, _1)},
+        {"json", toJson},
         {"fullName", std::bind(&Attribute::fullname, _1)},
         {"namespace", std::bind(&Attribute::namespace_, _1)},
         {"fullAttribute", std::bind(&Attribute::fullattribute, _1)},
@@ -123,6 +138,7 @@ std::unordered_map<std::string, FieldAccessor<Parameter>>&
 {
     static std::unordered_map<std::string, FieldAccessor> accessors{
         {"name", std::bind(&Parameter::name, _1)},
+        {"json", toJson},
         {"type",
          [](const Parameter& parameter) { return Reflect(parameter.type()); }},
         {"position",
@@ -144,6 +160,7 @@ std::unordered_map<std::string, FieldAccessor<Function>>&
          [](const Function& function) {
              return Reflect(function.declaration());
          }},
+        {"json", toJson},
         {"parameters",
          [](const Function& function) {
              return Reflect(function.parameters());
@@ -163,9 +180,22 @@ std::unordered_map<std::string, FieldAccessor<MemberFunction>>&
     TypeReflection<MemberFunction>::GetAccessors()
 {
     static std::unordered_map<std::string, FieldAccessor> accessors{
-        {"function",
+        {"declaration",
          [](const MemberFunction& function) {
-             return Reflect(function.function());
+             return Reflect(function.declaration());
+         }},
+        {"json", toJson},
+        {"parameters",
+         [](const MemberFunction& function) {
+             return Reflect(function.parameters());
+         }},
+        {"returnType",
+         [](const MemberFunction& function) {
+             return Reflect(function.returntype());
+         }},
+        {"attributes",
+         [](const MemberFunction& function) {
+             return Reflect(function.attributes());
          }},
         {"kind",
          [](const MemberFunction& function) {
@@ -187,6 +217,7 @@ std::unordered_map<std::string, FieldAccessor<Constructor>>&
          [](const Constructor& constructor) {
              return Reflect(constructor.declaration());
          }},
+        {"json", toJson},
         {"parameters",
          [](const Constructor& constructor) {
              return Reflect(constructor.parameters());
@@ -210,6 +241,7 @@ std::unordered_map<std::string, FieldAccessor<Variable>>&
          [](const Variable& variable) {
              return Reflect(variable.declaration());
          }},
+        {"json", toJson},
         {"type",
          [](const Variable& variable) { return Reflect(variable.type()); }},
         {"attributes", [](const Variable& variable) {
@@ -223,9 +255,18 @@ std::unordered_map<std::string, FieldAccessor<MemberVariable>>&
     TypeReflection<MemberVariable>::GetAccessors()
 {
     static std::unordered_map<std::string, FieldAccessor> accessors{
-        {"variable",
+        {"declaration",
          [](const MemberVariable& variable) {
-             return Reflect(variable.variable());
+             return Reflect(variable.declaration());
+         }},
+        {"json", toJson},
+        {"type",
+         [](const MemberVariable& variable) {
+             return Reflect(variable.type());
+         }},
+        {"attributes",
+         [](const MemberVariable& variable) {
+             return Reflect(variable.attributes());
          }},
         {"class", [](const MemberVariable& variable) {
              return Reflect(variable.class_());
@@ -240,6 +281,7 @@ std::unordered_map<std::string, FieldAccessor<EnumValue>>&
     static std::unordered_map<std::string, FieldAccessor> accessors{
         {"declaration",
          [](const EnumValue& value) { return Reflect(value.declaration()); }},
+        {"json", toJson},
         {"index",
          [](const EnumValue& value) {
              return static_cast<std::int64_t>(value.index());
@@ -255,7 +297,10 @@ std::unordered_map<std::string, FieldAccessor<Enum>>&
     TypeReflection<Enum>::GetAccessors()
 {
     static std::unordered_map<std::string, FieldAccessor> accessors{
+        {"declaration",
+         [](const Enum& enum_) { return Reflect(enum_.declaration()); }},
         {"type", [](const Enum& enum_) { return Reflect(enum_.type()); }},
+        {"json", toJson},
         {"values", [](const Enum& enum_) { return Reflect(enum_.values()); }},
         {"attributes",
          [](const Enum& enum_) { return Reflect(enum_.attributes()); }}};
@@ -284,6 +329,7 @@ std::unordered_map<std::string, FieldAccessor<ClassMember>>&
              return tinyrefl::tool::model::ClassMember::Access_Name(
                  member.access());
          }},
+        {"json", toJson},
         {"member",
          [](const ClassMember& member) {
              switch(member.member_case())
@@ -323,6 +369,7 @@ std::unordered_map<std::string, FieldAccessor<Class>>&
 {
     static std::unordered_map<std::string, FieldAccessor> accessors{
         {"type", [](const Class& class_) { return Reflect(class_.type()); }},
+        {"json", toJson},
         {"baseClasses",
          [](const Class& class_) { return Reflect(class_.baseclasses()); }},
         {"members",
@@ -355,6 +402,8 @@ std::unordered_map<std::string, FieldAccessor<Class>>&
          [](const Class& class_) {
              return Reflect(tinyrefl::tool::model::enums(class_));
          }},
+        {"declaration",
+         [](const Class& class_) { return Reflect(class_.declaration()); }},
         {"attributes",
          [](const Class& class_) { return Reflect(class_.attributes()); }}};
 
@@ -387,6 +436,7 @@ std::unordered_map<std::string, FieldAccessor<NamespaceMember>>&
 
              return Value();
          }},
+        {"json", toJson},
         {"kind", [](const NamespaceMember& member) {
              return oneOfFieldName(member, "member");
          }}};
@@ -402,6 +452,7 @@ std::unordered_map<std::string, FieldAccessor<Namespace>>&
          [](const Namespace& namespace_) {
              return Reflect(namespace_.declaration());
          }},
+        {"json", toJson},
         {"members",
          [](const Namespace& namespace_) {
              return Reflect(namespace_.members());
@@ -426,6 +477,10 @@ std::unordered_map<std::string, FieldAccessor<Namespace>>&
          [](const Namespace& namespace_) {
              return Reflect(tinyrefl::tool::model::enums(namespace_));
          }},
+        {"declaration",
+         [](const Namespace& namespace_) {
+             return Reflect(namespace_.declaration());
+         }},
         {"attributes", [](const Namespace& namespace_) {
              return Reflect(namespace_.attributes());
          }}};
@@ -438,6 +493,7 @@ std::unordered_map<std::string, FieldAccessor<File>>&
 {
     static std::unordered_map<std::string, FieldAccessor> accessors{
         {"id", [](const File& file) { return Reflect(file.id()); }},
+        {"json", toJson},
         {"globalNamespace",
          [](const File& file) { return Reflect(file.globalnamespace()); }}};
 

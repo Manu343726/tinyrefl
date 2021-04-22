@@ -25,6 +25,7 @@ add_library(
     backends/cppast/parserdiagnosticslogger.cpp
     model/importer.cpp
     model/utils.cpp
+    model/index.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/schema.cpp
     exporters/json.cpp
     exporters/generic.cpp
