@@ -1,6 +1,21 @@
-Source file: {{file.id.name}}
+// Generated from Source file: {{file.id.fullName}}
 
-Global namespace members:
-{% for member in file.globalNamespace.members %}
-     - {{member.member.declaration.id.fullDisplayName}} ({{member.kind}})
+{% macro enum_to_string(enum) -%}
+constexpr std::string_view to_string(const {{enum.declaration.id.fullName}} value)
+{
+    switch(value)
+    {
+{% for value in enum.values -%}
+    case {{value.declaration.id.fullName}}:
+        return "{{value.declaration.id.name}}";
 {% endfor %}
+    }
+
+    return "";
+}
+{%- endmacro %}
+
+{% for enum in enums() -%}
+{{enum_to_string(enum)}}
+
+{%- endfor %}

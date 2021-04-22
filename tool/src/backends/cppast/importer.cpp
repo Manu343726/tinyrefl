@@ -302,9 +302,23 @@ bool Importer::import(
 bool Importer::import(
     const cppast::cpp_enum& enum_, tinyrefl::tool::model::Enum& out)
 {
-    return importDeclaration(enum_, *out.mutable_declaration()) and
+    bool ok = true;
+
+    tinyrefl::tool::cppast_backend::visit_entity(
+        enum_, [&](const cppast::cpp_enum_value& value) {
+            ok &= import(value, *out.add_values());
+        });
+
+    return ok and importDeclaration(enum_, *out.mutable_declaration()) and
            importType(enum_, *out.mutable_type()) and
            importAttributes(enum_, *out.mutable_attributes());
+}
+
+bool Importer::import(
+    const cppast::cpp_enum_value& value, tinyrefl::tool::model::EnumValue& out)
+{
+    return importDeclaration(value, *out.mutable_declaration()) and
+           importAttributes(value, *out.mutable_attributes());
 }
 
 bool Importer::import(

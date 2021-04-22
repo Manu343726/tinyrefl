@@ -111,11 +111,16 @@ VisitResult visit(
 }
 
 template<typename Entity, typename Visitor>
-VisitResult visitMembers(const Entity& entity, const Visitor& visitor)
+VisitResult visitMembers(
+    const VisitResult parentResult,
+    const Entity&     entity,
+    const Visitor&    visitor)
 {
+    auto result = parentResult;
+
     for(const auto& member : entity.members())
     {
-        const auto result = visit(member, visitor);
+        result = visit(member, visitor);
 
         if(result != VisitResult::Continue and
            result != VisitResult::ContinueRecursive)
@@ -124,7 +129,7 @@ VisitResult visitMembers(const Entity& entity, const Visitor& visitor)
         }
     }
 
-    return VisitResult::End;
+    return result;
 }
 
 template<typename Visitor>
@@ -135,7 +140,7 @@ VisitResult visit(
 
     if(result == VisitResult::ContinueRecursive)
     {
-        result = visitMembers(namespace_, visitor);
+        result = visitMembers(result, namespace_, visitor);
     }
 
     return result;
@@ -149,7 +154,7 @@ VisitResult
 
     if(result == VisitResult::ContinueRecursive)
     {
-        result = visitMembers(class_, visitor);
+        result = visitMembers(result, class_, visitor);
     }
 
     return result;
